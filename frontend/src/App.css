@@ -1,7 +1,0 @@
-.card {
-  margin-bottom: 24px;
-}
-
-.card:hover {
-  border-color: var(--accent-border);
-}
