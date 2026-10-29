@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Flame,
   ArrowRight,
@@ -18,6 +19,7 @@ import {
   Maximize,
   Minimize,
 } from 'lucide-react'
+import { useTheme } from '../hooks/useTheme'
 
 const RUNNER_BG =
   'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=2000&q=80'
@@ -25,83 +27,12 @@ const RUNNER_BG =
 const CURRENT_YEAR = new Date().getFullYear()
 
 export default function Homepage() {
+  const { darkMode, toggleDarkMode, isFullscreen, enterFullScreen } = useTheme()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState(null)
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('burnit_theme')
-        if (saved) return saved === 'dark'
-        return window.matchMedia('(prefers-color-scheme: dark)').matches
-      } catch {
-        return false
-      }
-    }
-    return false
-  })
-
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => {
-      const next = !prev
-      try {
-        localStorage.setItem('burnit_theme', next ? 'dark' : 'light')
-      } catch {
-        // ignore
-      }
-      return next
-    })
-  }
-
-  const [isFullscreen, setIsFullscreen] = useState(false)
   const heroVideoRef = useRef(null)
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      const active = Boolean(document.fullscreenElement)
-      setIsFullscreen(active)
-      if (active) {
-        document.documentElement.classList.add('fullscreen-active')
-      } else {
-        document.documentElement.classList.remove('fullscreen-active')
-      }
-    }
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange)
-      document.documentElement.classList.remove('fullscreen-active')
-    }
-  }, [])
-
-  /**
-   * Enters or toggles full screen mode
-   * @param {HTMLElement} [element] - Target element to expand (defaults to page root)
-   */
-  const enterFullScreen = async (element = document.documentElement) => {
-    try {
-      if (!document.fullscreenElement) {
-        const target = element || document.documentElement
-        if (target.requestFullscreen) {
-          await target.requestFullscreen()
-        } else if (target.webkitRequestFullscreen) {
-          await target.webkitRequestFullscreen()
-        } else if (target.msRequestFullscreen) {
-          await target.msRequestFullscreen()
-        }
-      } else {
-        if (document.exitFullscreen) {
-          await document.exitFullscreen()
-        } else if (document.webkitExitFullscreen) {
-          await document.webkitExitFullscreen()
-        } else if (document.msExitFullscreen) {
-          await document.msExitFullscreen()
-        }
-      }
-    } catch (err) {
-      console.error('Error toggling full screen:', err)
-    }
-  }
 
   const navDropdowns = {
     Programs: [
@@ -217,7 +148,7 @@ export default function Homepage() {
 
           {/* Center Links (Desktop Mega-Menu) */}
           <nav className="hidden lg:flex items-center gap-1">
-            {['Home', 'Programs', 'Workouts', 'Coaching', 'About'].map((item) => {
+            {['Home', 'Tracker', 'Programs', 'Workouts', 'Coaching', 'About'].map((item) => {
               const hasDropdown = navDropdowns[item]
               return (
                 <div
@@ -225,31 +156,45 @@ export default function Homepage() {
                   className="relative"
                   onMouseEnter={() => hasDropdown && setActiveDropdown(item)}
                 >
-                  <a
-                    href={`#${item.toLowerCase()}`}
-                    className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                      activeDropdown === item
-                        ? darkMode
-                          ? 'text-orange-500 bg-orange-500/10'
-                          : 'text-orange-600 bg-orange-50/80'
-                        : darkMode
-                        ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                        : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
-                    }`}
-                  >
-                    <span>{item}</span>
-                    {hasDropdown && (
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                          activeDropdown === item
-                            ? 'rotate-180 text-orange-500'
-                            : darkMode
-                            ? 'text-neutral-500'
-                            : 'text-neutral-400'
-                        }`}
-                      />
-                    )}
-                  </a>
+                  {item === 'Tracker' ? (
+                    <Link
+                      to="/tracker"
+                      className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
+                        darkMode
+                          ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
+                          : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
+                      }`}
+                    >
+                      <span>Tracker</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse ml-0.5" />
+                    </Link>
+                  ) : (
+                    <a
+                      href={`#${item.toLowerCase()}`}
+                      className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
+                        activeDropdown === item
+                          ? darkMode
+                            ? 'text-orange-500 bg-orange-500/10'
+                            : 'text-orange-600 bg-orange-50/80'
+                          : darkMode
+                          ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
+                          : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
+                      }`}
+                    >
+                      <span>{item}</span>
+                      {hasDropdown && (
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                            activeDropdown === item
+                              ? 'rotate-180 text-orange-500'
+                              : darkMode
+                              ? 'text-neutral-500'
+                              : 'text-neutral-400'
+                          }`}
+                        />
+                      )}
+                    </a>
+                  )}
                 </div>
               )
             })}
@@ -287,12 +232,12 @@ export default function Homepage() {
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            <a
-              href="#join"
+            <Link
+              to="/tracker"
               className="ml-1 inline-flex items-center gap-2 px-5 py-2 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-medium shadow-sm hover:shadow transition-all"
             >
               <span>Join Now</span>
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Right Controls */}
@@ -460,13 +405,13 @@ export default function Homepage() {
           </p>
 
           <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="#join"
+            <Link
+              to="/tracker"
               className="inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base font-semibold shadow-md hover:shadow-lg transition-all"
             >
               <span>GET STARTED</span>
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </Link>
             <a
               href="#programs"
               className={`inline-flex items-center justify-center px-8 py-3.5 rounded-full text-base font-semibold border shadow-sm transition-all ${
