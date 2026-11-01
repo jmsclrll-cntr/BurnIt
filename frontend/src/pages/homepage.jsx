@@ -673,137 +673,198 @@ export default function Homepage() {
       </section>
 
       {/* ========================================================= */}
-      {/* ALTERNATING TEXT + IMAGE SECTIONS                         */}
+      {/* HOW TO USE THIS SYSTEM (LIVE WORKFLOW GUIDE)              */}
       {/* ========================================================= */}
       <section
-        className={`py-24 sm:py-28 border-t space-y-24 transition-colors duration-300 ${
+        id="how-to-use"
+        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${
           darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
         }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
-          {/* Row 1 */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-6 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
-                Endurance & Interval Training
-              </span>
-              <h3
-                className={`text-3xl sm:text-4xl font-bold leading-tight ${
-                  darkMode ? 'text-white' : 'text-[#202124]'
-                }`}
-              >
-                Accelerate cardiovascular capacity with high-burst sprint intervals.
-              </h3>
-              <p
-                className={`text-base leading-relaxed ${
-                  darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-                }`}
-              >
-                Engineered to spike your heart rate and trigger long-lasting metabolic burn. Each session synchronizes sprint pacing, heart-rate recovery, and progressive aerobic capacity.
-              </p>
-              <div className="pt-2">
-                <a
-                  href="#programs"
-                  className="text-sm font-semibold text-orange-600 hover:underline inline-flex items-center gap-1"
-                >
-                  Explore sprint protocols <ArrowRight className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-            <div
-              className={`lg:col-span-6 rounded-2xl overflow-hidden border shadow-md ${
-                darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
+              System Workflow
+            </span>
+            <h2
+              className={`text-3xl sm:text-4xl font-bold leading-tight ${
+                darkMode ? 'text-white' : 'text-[#202124]'
               }`}
             >
-              <img
-                src="https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?auto=format&fit=crop&w=1000&q=80"
-                alt="Sprint track training"
-                className="w-full h-80 object-cover"
-              />
-            </div>
+              How to Use This System
+            </h2>
           </div>
 
-          {/* Row 2 (Alternating) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div
-              className={`order-2 lg:order-1 lg:col-span-6 rounded-2xl overflow-hidden border shadow-md ${
-                darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-              }`}
-            >
-              <img
-                src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80"
-                alt="Power conditioning"
-                className="w-full h-80 object-cover"
-              />
-            </div>
-            <div className="order-1 lg:order-2 lg:col-span-6 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
-                Metabolic Fat Shred
-              </span>
-              <h3
-                className={`text-3xl sm:text-4xl font-bold leading-tight ${
-                  darkMode ? 'text-white' : 'text-[#202124]'
-                }`}
-              >
-                Compound movements designed to incinerate fat and sculpt lean power.
-              </h3>
-              <p
-                className={`text-base leading-relaxed ${
-                  darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-                }`}
-              >
-                Targeting both fast-twitch strength fibers and endurance energy pathways. Steve Rock’s regimen maintains high intensity with precision posture to prevent injury and unlock maximum power output.
-              </p>
-              <div className="pt-2">
-                <a
-                  href="#programs"
-                  className="text-sm font-semibold text-orange-600 hover:underline inline-flex items-center gap-1"
+          <div className="space-y-24">
+            {/* Step 1 */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-5 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
+                  Step 01
+                </div>
+                <h3
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
+                    darkMode ? 'text-white' : 'text-[#202124]'
+                  }`}
                 >
-                  View strength fundamentals <ArrowRight className="w-4 h-4" />
-                </a>
+                  Access the Tracker
+                </h3>
+                <p
+                  className={`text-base leading-relaxed ${
+                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                  }`}
+                >
+                  Click <strong className="text-orange-600 font-semibold">GET STARTED</strong> or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar.
+                </p>
+              </div>
+              <div
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                }`}
+              >
+                <img
+                  src="/guide/step-1-access.png"
+                  alt="Step 1: Access Workout Tracker"
+                  className="w-full h-auto object-cover"
+                />
               </div>
             </div>
-          </div>
 
-          {/* Row 3 */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-6 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
-                Personal Coaching & Form Analysis
-              </span>
-              <h3
-                className={`text-3xl sm:text-4xl font-bold leading-tight ${
-                  darkMode ? 'text-white' : 'text-[#202124]'
+            {/* Step 2 (Alternating) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div
+                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
                 }`}
               >
-                1-on-1 mentorship with data-driven biometric milestones.
-              </h3>
-              <p
-                className={`text-base leading-relaxed ${
-                  darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-                }`}
-              >
-                Continuous video stride adjustments, pace threshold tracking, and customized nutrition planning. Get the exact guidance needed to crush personal records and stay motivated week after week.
-              </p>
-              <div className="pt-2">
-                <a
-                  href="#join"
-                  className="text-sm font-semibold text-orange-600 hover:underline inline-flex items-center gap-1"
+                <img
+                  src="/guide/step-2-position.png"
+                  alt="Step 2: Position into camera frame"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              <div className="order-1 lg:order-2 lg:col-span-5 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
+                  Step 02
+                </div>
+                <h3
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
+                    darkMode ? 'text-white' : 'text-[#202124]'
+                  }`}
                 >
-                  Apply for coaching <ArrowRight className="w-4 h-4" />
-                </a>
+                  Align Body in Frame
+                </h3>
+                <p
+                  className={`text-base leading-relaxed ${
+                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                  }`}
+                >
+                  Allow camera permissions, step back, and align your shoulders, hips, and knees clearly within the view.
+                </p>
               </div>
             </div>
-            <div
-              className={`lg:col-span-6 rounded-2xl overflow-hidden border shadow-md ${
-                darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-              }`}
-            >
-              <img
-                src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1000&q=80"
-                alt="Coaching and form review"
-                className="w-full h-80 object-cover"
-              />
+
+            {/* Step 3 */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-5 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
+                  Step 03
+                </div>
+                <h3
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
+                    darkMode ? 'text-white' : 'text-[#202124]'
+                  }`}
+                >
+                  Select Workout Mode
+                </h3>
+                <p
+                  className={`text-base leading-relaxed ${
+                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                  }`}
+                >
+                  Select <strong className="text-orange-600 font-semibold">Auto-Detect</strong> or click an exercise button: <strong className="text-orange-600 font-semibold">Squats</strong>, <strong className="text-orange-600 font-semibold">Push-Ups</strong>, <strong className="text-orange-600 font-semibold">Plank</strong>, <strong className="text-orange-600 font-semibold">Jumping Jacks</strong>, or <strong className="text-orange-600 font-semibold">Bicep Curls</strong>.
+                </p>
+              </div>
+              <div
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                }`}
+              >
+                <img
+                  src="/guide/step-3-select.png"
+                  alt="Step 3: Select workout mode"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Step 4 (Alternating) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div
+                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                }`}
+              >
+                <img
+                  src="/guide/step-4-track.png"
+                  alt="Step 4: Real-time pose tracking"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              <div className="order-1 lg:order-2 lg:col-span-5 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
+                  Step 04
+                </div>
+                <h3
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
+                    darkMode ? 'text-white' : 'text-[#202124]'
+                  }`}
+                >
+                  Perform Movement
+                </h3>
+                <p
+                  className={`text-base leading-relaxed ${
+                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                  }`}
+                >
+                  Perform repetitions in view of the camera while tracking the <strong className="text-orange-600 font-semibold">REPS</strong> counter, phase indicator, and live <strong className="text-orange-600 font-semibold">FORM PRECISION</strong> score.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-5 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
+                  Step 05
+                </div>
+                <h3
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
+                    darkMode ? 'text-white' : 'text-[#202124]'
+                  }`}
+                >
+                  Finish and Review Summary
+                </h3>
+                <p
+                  className={`text-base leading-relaxed ${
+                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                  }`}
+                >
+                  Click <strong className="text-red-500 font-semibold">Finish Workout</strong> to view your total reps, average form score, duration, and estimated calories.
+                </p>
+              </div>
+              <div
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                }`}
+              >
+                <img
+                  src="/guide/step-5-summary.png"
+                  alt="Step 5: Finish workout and review summary"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>
