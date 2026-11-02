@@ -682,10 +682,10 @@ export default function Homepage() {
         }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
-          {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto space-y-3">
+          {/* Section Header with Relative Context */}
+          <div className="text-center max-w-3xl mx-auto space-y-4">
             <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
-              System Workflow
+              Interactive Biometric Guide
             </span>
             <h2
               className={`text-3xl sm:text-4xl font-bold leading-tight ${
@@ -694,6 +694,27 @@ export default function Homepage() {
             >
               How to Use This System
             </h2>
+            <p
+              className={`text-base sm:text-lg leading-relaxed ${
+                darkMode ? 'text-neutral-300' : 'text-[#5F6368]'
+              }`}
+            >
+              Turn any web browser into your personal AI coach in seconds. Follow these five simple steps to calibrate your camera, track joint angles in real time, and receive instant form corrections without wearing extra sensors or purchasing special equipment.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-300">
+                Zero Wearables Needed
+              </span>
+              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-300">
+                Real-Time 30+ FPS Kinematics
+              </span>
+              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-300">
+                100% Client-Side Privacy
+              </span>
+              <span className="px-3.5 py-1 rounded-full text-xs font-semibold bg-orange-600/10 border border-orange-600/20 text-orange-600">
+                Instant Form Feedback
+              </span>
+            </div>
           </div>
 
           <div className="space-y-24">
@@ -715,16 +736,16 @@ export default function Homepage() {
                     darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
                   }`}
                 >
-                  Click <strong className="text-orange-600 font-semibold">GET STARTED</strong> or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar.
+                  Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">GET STARTED</strong> in the hero section or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar. The system initializes your workout session instantly in your browser—no app installations, account credentials, or setup wizards required.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
                   darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
                 }`}
               >
                 <img
-                  src="/guide/step-1-access.png"
+                  src={darkMode ? '/guide/step-1-access-dark.png' : '/guide/step-1-access-light.png'}
                   alt="Step 1: Access Workout Tracker"
                   className="w-full h-auto object-cover"
                 />
@@ -734,12 +755,12 @@ export default function Homepage() {
             {/* Step 2 (Alternating) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div
-                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
                   darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
                 }`}
               >
                 <img
-                  src="/guide/step-2-position.png"
+                  src={darkMode ? '/guide/step-2-position-dark.png' : '/guide/step-2-position-light.png'}
                   alt="Step 2: Position into camera frame"
                   className="w-full h-auto object-cover"
                 />
@@ -760,7 +781,7 @@ export default function Homepage() {
                     darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
                   }`}
                 >
-                  Allow camera permissions, step back, and align your shoulders, hips, and knees clearly within the view.
+                  When prompted by your browser, grant camera permissions to activate the biometric engine. Step back approximately 6 to 8 feet so that your shoulders, hips, and knees are unobstructed inside the camera view. The system displays <strong className="text-orange-600 font-semibold">Step Into Camera Frame</strong> with glowing orange alignment indicators that illuminate green as soon as your pose is calibrated.
                 </p>
               </div>
             </div>
@@ -783,16 +804,16 @@ export default function Homepage() {
                     darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
                   }`}
                 >
-                  Select <strong className="text-orange-600 font-semibold">Auto-Detect</strong> or click an exercise button: <strong className="text-orange-600 font-semibold">Squats</strong>, <strong className="text-orange-600 font-semibold">Push-Ups</strong>, <strong className="text-orange-600 font-semibold">Plank</strong>, <strong className="text-orange-600 font-semibold">Jumping Jacks</strong>, or <strong className="text-orange-600 font-semibold">Bicep Curls</strong>.
+                  Choose your targeted exercise from the workout bar—including <strong className="text-orange-600 font-semibold">Squats</strong>, <strong className="text-orange-600 font-semibold">Push-Ups</strong>, <strong className="text-orange-600 font-semibold">Plank</strong>, <strong className="text-orange-600 font-semibold">Jumping Jacks</strong>, or <strong className="text-orange-600 font-semibold">Bicep Curls</strong>. Alternatively, keep <strong className="text-orange-600 font-semibold">Auto-Detect</strong> active to let our machine learning posture engine automatically sample your biomechanics every 2 seconds and switch exercises as you move.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
                   darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
                 }`}
               >
                 <img
-                  src="/guide/step-3-select.png"
+                  src={darkMode ? '/guide/step-3-select-dark.png' : '/guide/step-3-select-light.png'}
                   alt="Step 3: Select workout mode"
                   className="w-full h-auto object-cover"
                 />
@@ -802,12 +823,12 @@ export default function Homepage() {
             {/* Step 4 (Alternating) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div
-                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
                   darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
                 }`}
               >
                 <img
-                  src="/guide/step-4-track.png"
+                  src={darkMode ? '/guide/step-4-track-dark.png' : '/guide/step-4-track-light.png'}
                   alt="Step 4: Real-time pose tracking"
                   className="w-full h-auto object-cover"
                 />
@@ -828,7 +849,7 @@ export default function Homepage() {
                     darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
                   }`}
                 >
-                  Perform repetitions in view of the camera while tracking the <strong className="text-orange-600 font-semibold">REPS</strong> counter, phase indicator, and live <strong className="text-orange-600 font-semibold">FORM PRECISION</strong> score.
+                  Perform each repetition with complete range of motion. The MediaPipe kinematic engine tracks 33 3D skeletal landmarks at 30+ FPS, rendering visible joint nodes and angle measurements directly over your body. Watch your verified <strong className="text-orange-600 font-semibold">REPS</strong> count update, follow the live movement phase (<strong className="text-orange-600 font-semibold">UP</strong> / <strong className="text-orange-600 font-semibold">DOWN</strong>), and maintain your <strong className="text-orange-600 font-semibold">FORM PRECISION</strong> score.
                 </p>
               </div>
             </div>
@@ -851,65 +872,21 @@ export default function Homepage() {
                     darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
                   }`}
                 >
-                  Click <strong className="text-red-500 font-semibold">Finish Workout</strong> to view your total reps, average form score, duration, and estimated calories.
+                  Once you complete your workout set, tap <strong className="text-red-500 font-semibold">Finish Workout</strong> to conclude tracking. The system instantly generates a <strong className="text-orange-600 font-semibold">Workout Complete</strong> report detailing your total completed repetitions, overall form precision percentage, exact session duration, and estimated calories burned, with options to start a new workout or return to the dashboard.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg ${
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
                   darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
                 }`}
               >
                 <img
-                  src="/guide/step-5-summary.png"
+                  src={darkMode ? '/guide/step-5-summary-dark.png' : '/guide/step-5-summary-light.png'}
                   alt="Step 5: Finish workout and review summary"
                   className="w-full h-auto object-cover"
                 />
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================= */}
-      {/* STATS OVERVIEW                                            */}
-      {/* ========================================================= */}
-      <section
-        className={`py-20 border-t transition-colors duration-300 ${
-          darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
-        }`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { val: '12K+', label: 'Athletes Trained' },
-              { val: '98%', label: 'Success Rate' },
-              { val: '45+', label: 'Training Modules' },
-              { val: '24/7', label: 'Coach Support' },
-            ].map((stat, idx) => (
-              <div
-                key={idx}
-                className={`p-4 rounded-2xl border transition-colors ${
-                  darkMode
-                    ? 'bg-[#15151e] border-neutral-800'
-                    : 'bg-[#F8F9FA] border-neutral-200/80'
-                }`}
-              >
-                <div
-                  className={`text-3xl sm:text-4xl font-bold tracking-tight ${
-                    darkMode ? 'text-white' : 'text-[#202124]'
-                  }`}
-                >
-                  {stat.val}
-                </div>
-                <div
-                  className={`text-xs uppercase tracking-wider font-semibold mt-1 ${
-                    darkMode ? 'text-neutral-400' : 'text-neutral-500'
-                  }`}
-                >
-                  {stat.label}
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

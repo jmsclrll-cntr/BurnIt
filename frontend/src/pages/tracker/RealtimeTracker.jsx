@@ -19,6 +19,13 @@ export const RealtimeTracker = () => {
 
   // State
   const [activeExercise, setActiveExercise] = useState('auto');
+  const [videoSource, setVideoSource] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('source') === 'demo') return 'demo';
+    }
+    return 'camera';
+  });
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -136,26 +143,50 @@ export const RealtimeTracker = () => {
     return pose;
   }, []);
 
-  // Start Camera Stream & initialize session start timestamp
-  const startCamera = useCallback(async () => {
+  // Start Camera Stream or Demo Athlete Video & initialize session start timestamp
+  const startCamera = useCallback(async (source = videoSource) => {
     setCameraError(null);
     try {
       await initMediaPipe();
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          facingMode: 'user',
-          frameRate: { ideal: 30, max: 60 },
-        },
-        audio: false,
-      });
+      if (source === 'demo') {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+          streamRef.current = null;
+        }
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+          videoRef.current.src = '/demo-squats.mp4';
+          videoRef.current.loop = true;
+          videoRef.current.muted = true;
+          videoRef.current.playsInline = true;
+          await videoRef.current.play();
+        }
+        setVideoSource('demo');
+        setIsCameraActive(true);
+      } else {
+        if (videoRef.current && videoRef.current.src) {
+          videoRef.current.pause();
+          videoRef.current.removeAttribute('src');
+          videoRef.current.load();
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            facingMode: 'user',
+            frameRate: { ideal: 30, max: 60 },
+          },
+          audio: false,
+        });
 
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+        setVideoSource('camera');
+        setIsCameraActive(true);
       }
 
       const nowFormatted = new Date().toLocaleTimeString([], {
@@ -164,7 +195,6 @@ export const RealtimeTracker = () => {
         second: '2-digit',
       });
       setSessionStartTimeFormatted(nowFormatted);
-      setIsCameraActive(true);
     } catch (err) {
       console.error('Camera initialization error:', err);
       setCameraError(
@@ -173,7 +203,7 @@ export const RealtimeTracker = () => {
           : err.message || 'Unable to access webcam.'
       );
     }
-  }, [initMediaPipe]);
+  }, [initMediaPipe, videoSource]);
 
   // Stop Camera Stream
   const stopCamera = useCallback(() => {
@@ -186,7 +216,9 @@ export const RealtimeTracker = () => {
       streamRef.current = null;
     }
     if (videoRef.current) {
+      videoRef.current.pause();
       videoRef.current.srcObject = null;
+      videoRef.current.removeAttribute('src');
     }
     setIsCameraActive(false);
   }, []);
@@ -257,7 +289,7 @@ export const RealtimeTracker = () => {
 
               if (showJoints && displayLandmarks) {
                 drawPoseSkeleton(ctx, displayLandmarks, canvas.width, canvas.height, {
-                  isMirrored,
+                  isMirrored: videoSource === 'demo' ? false : isMirrored,
                   hasError: result.formErrors.length > 0 && result.formScore < 80,
                   angles: result.angles,
                   activeExercise: result.exercise,
@@ -303,7 +335,7 @@ export const RealtimeTracker = () => {
         cancelAnimationFrame(animFrameIdRef.current);
       }
     };
-  }, [isCameraActive, isPaused, activeExercise, showJoints, showAngles, isMirrored, sessionStartTimeFormatted]);
+  }, [isCameraActive, isPaused, activeExercise, showJoints, showAngles, isMirrored, videoSource, sessionStartTimeFormatted]);
 
   useEffect(() => {
     const launchTimer = setTimeout(() => {
@@ -395,12 +427,20 @@ export const RealtimeTracker = () => {
           <div className="mb-4 p-5 rounded-2xl bg-red-500/10 border border-red-500/30 text-center max-w-lg mx-auto">
             <h3 className="text-sm font-bold text-red-500 mb-1">Camera Access Required</h3>
             <p className="text-xs text-neutral-400 leading-relaxed mb-3">{cameraError}</p>
-            <button
-              onClick={startCamera}
-              className="px-5 py-2 rounded-full text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all"
-            >
-              Retry Camera
-            </button>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => startCamera('camera')}
+                className="px-5 py-2 rounded-full text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all"
+              >
+                Retry Camera
+              </button>
+              <button
+                onClick={() => startCamera('demo')}
+                className="px-5 py-2 rounded-full text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 shadow-sm transition-all"
+              >
+                Try Demo Athlete Video
+              </button>
+            </div>
           </div>
         )}
 
@@ -409,14 +449,14 @@ export const RealtimeTracker = () => {
           {/* Main Video View - Enlarged 9 Columns */}
           <div className="lg:col-span-9 flex flex-col">
             <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-black/90 border border-neutral-200/40 dark:border-white/10 shadow-lg">
-              {/* Webcam Video */}
+              {/* Webcam or Demo Athlete Video */}
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
                 muted
                 className={`w-full h-full object-cover transition-transform duration-200 ${
-                  isMirrored ? '-scale-x-100' : ''
+                  videoSource === 'demo' ? '' : isMirrored ? '-scale-x-100' : ''
                 }`}
               />
 
@@ -452,6 +492,20 @@ export const RealtimeTracker = () => {
 
               {/* Minimal Top-Right Controls on Video */}
               <div className="absolute top-3 right-3 flex items-center gap-1.5 pointer-events-auto">
+                <button
+                  onClick={() => {
+                    const next = videoSource === 'camera' ? 'demo' : 'camera';
+                    startCamera(next);
+                  }}
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
+                    videoSource === 'demo'
+                      ? 'bg-orange-600 border-orange-500 text-white shadow-sm'
+                      : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
+                  }`}
+                  title="Switch between live camera and demo athlete video"
+                >
+                  {videoSource === 'demo' ? 'Demo User: Active' : 'Demo User'}
+                </button>
                 <button
                   onClick={() => setShowJoints(!showJoints)}
                   className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
