@@ -74,60 +74,67 @@ export default function Homepage() {
     ],
   }
 
-  const programFeatures = [
+  const detectableExercises = [
     {
-      id: 'hiit',
-      title: 'HIIT & Sprint Burn',
-      tag: 'Endurance',
+      id: 'squat',
+      title: 'Squat',
+      tag: 'Lower Body',
       icon: Activity,
-      desc: 'Accelerate cardiovascular capacity with high-burst intervals, metabolic surges, and active recovery phases.',
-      metric: '850+ KCAL Burned',
-      image: 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?auto=format&fit=crop&w=1200&q=80',
+      desc: 'Real-time knee and hip angle tracking, depth verification, and knee alignment feedback.',
+      metric: 'Knee Flexion & Depth',
+      image: '/gifs/squats.gif',
     },
     {
-      id: 'shred',
-      title: 'Fat Shred Protocol',
-      tag: 'Metabolism',
+      id: 'pushup',
+      title: 'Push-Up',
+      tag: 'Upper Body',
       icon: Flame,
-      desc: 'Maximize metabolic burn during and after workouts with compound exercises, sprint intervals, and progressive overload.',
-      metric: '48hr Afterburn Rate',
-      image: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1200&q=80',
+      desc: 'Real-time elbow extension tracking, chest depth verification, and full-body plank alignment.',
+      metric: 'Elbow Flexion & Depth',
+      image: '/gifs/pushups.gif',
     },
     {
-      id: 'distance',
-      title: 'Distance & Marathon',
-      tag: 'Stamina',
+      id: 'plank',
+      title: 'Plank',
+      tag: 'Core Stability',
       icon: Timer,
-      desc: 'Build unstoppable stamina, biomechanical efficiency, and mental grit across road, trail, and athletic tracks.',
-      metric: "3'45\" /KM Target Pace",
-      image: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=1200&q=80',
+      desc: 'Real-time shoulder-hip-ankle line detection with an automated posture hold timer.',
+      metric: 'Spine Alignment & Hold Time',
+      image: '/gifs/plank.gif',
     },
     {
-      id: 'coaching',
-      title: '1-on-1 Pro Coaching',
-      tag: 'VIP Elite',
+      id: 'jumpingjack',
+      title: 'Jumping Jack',
+      tag: 'Cardio Blast',
+      icon: Zap,
+      desc: 'Real-time overhead arm reach and leg spread cadence tracking with automated rep synchronization.',
+      metric: 'Arm Abduction & Cadence',
+      image: '/gifs/jumpingjacks.gif',
+    },
+    {
+      id: 'bicepcurl',
+      title: 'Bicep Curl',
+      tag: 'Arm Isolation',
       icon: Award,
-      desc: 'Personalized training schedule, biometric feedback, and continuous video form analysis tailored directly by Steve Rock.',
-      metric: 'Dedicated Mentorship',
-      image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=1200&q=80',
+      desc: 'Real-time elbow angle measurement with full range of motion validation and form verification.',
+      metric: 'Elbow Flexion Range',
+      image: '/gifs/bicepcurls.gif',
     },
   ]
 
   return (
     <div
-      className={`min-h-screen font-sans antialiased transition-colors duration-300 selection:bg-orange-500/20 selection:text-orange-500 ${
-        darkMode ? 'bg-[#0e0e12] text-neutral-100' : 'bg-[#FFFFFF] text-[#202124]'
-      }`}
+      className={`min-h-screen font-sans antialiased transition-colors duration-300 selection:bg-orange-500/20 selection:text-orange-500 ${darkMode ? 'bg-[#0e0e12] text-neutral-100' : 'bg-[#FFFFFF] text-[#202124]'
+        }`}
     >
       {/* ========================================================= */}
       {/* STICKY TOP NAV                                            */}
       {/* ========================================================= */}
       <header
-        className={`sticky top-0 z-50 backdrop-blur-md transition-colors duration-300 border-b ${
-          darkMode
-            ? 'bg-[#13131a]/95 border-neutral-800'
-            : 'bg-[#FFFFFF]/95 border-neutral-200/80'
-        }`}
+        className={`sticky top-0 z-50 backdrop-blur-md transition-colors duration-300 border-b ${darkMode
+          ? 'bg-[#13131a]/95 border-neutral-800'
+          : 'bg-[#FFFFFF]/95 border-neutral-200/80'
+          }`}
         onMouseLeave={() => setActiveDropdown(null)}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -137,9 +144,8 @@ export default function Homepage() {
               <Flame className="w-4 h-4 text-white fill-white" />
             </div>
             <div
-              className={`flex items-center gap-1.5 font-semibold text-base tracking-tight ${
-                darkMode ? 'text-white' : 'text-[#202124]'
-              }`}
+              className={`flex items-center gap-1.5 font-semibold text-base tracking-tight ${darkMode ? 'text-white' : 'text-[#202124]'
+                }`}
             >
               <span>BURN</span>
               <span className="text-orange-600">IT</span>
@@ -159,11 +165,10 @@ export default function Homepage() {
                   {item === 'Tracker' ? (
                     <Link
                       to="/tracker"
-                      className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                        darkMode
-                          ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                          : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
-                      }`}
+                      className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${darkMode
+                        ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
+                        : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
+                        }`}
                     >
                       <span>Tracker</span>
                       <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse ml-0.5" />
@@ -171,26 +176,24 @@ export default function Homepage() {
                   ) : (
                     <a
                       href={`#${item.toLowerCase()}`}
-                      className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                        activeDropdown === item
-                          ? darkMode
-                            ? 'text-orange-500 bg-orange-500/10'
-                            : 'text-orange-600 bg-orange-50/80'
-                          : darkMode
+                      className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${activeDropdown === item
+                        ? darkMode
+                          ? 'text-orange-500 bg-orange-500/10'
+                          : 'text-orange-600 bg-orange-50/80'
+                        : darkMode
                           ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
                           : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
-                      }`}
+                        }`}
                     >
                       <span>{item}</span>
                       {hasDropdown && (
                         <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                            activeDropdown === item
-                              ? 'rotate-180 text-orange-500'
-                              : darkMode
+                          className={`w-3.5 h-3.5 transition-transform duration-200 ${activeDropdown === item
+                            ? 'rotate-180 text-orange-500'
+                            : darkMode
                               ? 'text-neutral-500'
                               : 'text-neutral-400'
-                          }`}
+                            }`}
                         />
                       )}
                     </a>
@@ -206,11 +209,10 @@ export default function Homepage() {
             <button
               type="button"
               onClick={() => enterFullScreen()}
-              className={`p-2 rounded-full transition-colors ${
-                darkMode
-                  ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/80'
-                  : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
-              }`}
+              className={`p-2 rounded-full transition-colors ${darkMode
+                ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/80'
+                : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                }`}
               title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
               aria-label={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
             >
@@ -221,11 +223,10 @@ export default function Homepage() {
             <button
               type="button"
               onClick={toggleDarkMode}
-              className={`p-2 rounded-full transition-colors ${
-                darkMode
-                  ? 'text-amber-400 hover:bg-neutral-800/80'
-                  : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
-              }`}
+              className={`p-2 rounded-full transition-colors ${darkMode
+                ? 'text-amber-400 hover:bg-neutral-800/80'
+                : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                }`}
               title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               aria-label="Toggle theme"
             >
@@ -245,9 +246,8 @@ export default function Homepage() {
             <button
               type="button"
               onClick={() => enterFullScreen()}
-              className={`p-2 rounded-full transition-colors ${
-                darkMode ? 'text-neutral-300' : 'text-neutral-600'
-              }`}
+              className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-neutral-600'
+                }`}
               title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
               aria-label="Toggle full screen"
             >
@@ -256,9 +256,8 @@ export default function Homepage() {
             <button
               type="button"
               onClick={toggleDarkMode}
-              className={`p-2 rounded-full transition-colors ${
-                darkMode ? 'text-amber-400' : 'text-neutral-600'
-              }`}
+              className={`p-2 rounded-full transition-colors ${darkMode ? 'text-amber-400' : 'text-neutral-600'
+                }`}
               aria-label="Toggle theme"
             >
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -266,9 +265,8 @@ export default function Homepage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2 rounded-lg ${
-                darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-neutral-600 hover:bg-neutral-100'
-              }`}
+              className={`p-2 rounded-lg ${darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-neutral-600 hover:bg-neutral-100'
+                }`}
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -279,9 +277,8 @@ export default function Homepage() {
         {/* Dropdown Mega-Menu Overlay */}
         {activeDropdown && navDropdowns[activeDropdown] && (
           <div
-            className={`hidden lg:block absolute left-0 right-0 top-full border-b shadow-xl animate-in fade-in slide-in-from-top-1 duration-150 ${
-              darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-white border-neutral-200'
-            }`}
+            className={`hidden lg:block absolute left-0 right-0 top-full border-b shadow-xl animate-in fade-in slide-in-from-top-1 duration-150 ${darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-white border-neutral-200'
+              }`}
             onMouseEnter={() => setActiveDropdown(activeDropdown)}
             onMouseLeave={() => setActiveDropdown(null)}
           >
@@ -290,9 +287,8 @@ export default function Homepage() {
                 {navDropdowns[activeDropdown].map((group, idx) => (
                   <div key={idx} className="space-y-3">
                     <div
-                      className={`text-[11px] font-bold uppercase tracking-wider ${
-                        darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                      }`}
+                      className={`text-[11px] font-bold uppercase tracking-wider ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
+                        }`}
                     >
                       {group.category}
                     </div>
@@ -302,23 +298,20 @@ export default function Homepage() {
                           <a
                             href="#programs"
                             onClick={() => setActiveDropdown(null)}
-                            className={`group block p-2 rounded-lg transition-colors ${
-                              darkMode ? 'hover:bg-neutral-800/60' : 'hover:bg-neutral-50'
-                            }`}
+                            className={`group block p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-neutral-800/60' : 'hover:bg-neutral-50'
+                              }`}
                           >
                             <div
-                              className={`text-sm font-medium transition-colors ${
-                                darkMode
-                                  ? 'text-neutral-200 group-hover:text-orange-400'
-                                  : 'text-neutral-900 group-hover:text-orange-600'
-                              }`}
+                              className={`text-sm font-medium transition-colors ${darkMode
+                                ? 'text-neutral-200 group-hover:text-orange-400'
+                                : 'text-neutral-900 group-hover:text-orange-600'
+                                }`}
                             >
                               {link.name}
                             </div>
                             <div
-                              className={`text-xs mt-0.5 line-clamp-1 ${
-                                darkMode ? 'text-neutral-500' : 'text-neutral-500'
-                              }`}
+                              className={`text-xs mt-0.5 line-clamp-1 ${darkMode ? 'text-neutral-500' : 'text-neutral-500'
+                                }`}
                             >
                               {link.desc}
                             </div>
@@ -336,20 +329,18 @@ export default function Homepage() {
         {/* Mobile dropdown */}
         {mobileMenuOpen && (
           <div
-            className={`lg:hidden border-b px-6 py-6 space-y-4 ${
-              darkMode ? 'bg-[#13131a] border-neutral-800' : 'bg-white border-neutral-200'
-            }`}
+            className={`lg:hidden border-b px-6 py-6 space-y-4 ${darkMode ? 'bg-[#13131a] border-neutral-800' : 'bg-white border-neutral-200'
+              }`}
           >
             {['Home', 'Programs', 'Workouts', 'Coaching', 'About'].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block text-sm font-medium py-1 ${
-                  darkMode
-                    ? 'text-neutral-300 hover:text-orange-400'
-                    : 'text-neutral-800 hover:text-orange-600'
-                }`}
+                className={`block text-sm font-medium py-1 ${darkMode
+                  ? 'text-neutral-300 hover:text-orange-400'
+                  : 'text-neutral-800 hover:text-orange-600'
+                  }`}
               >
                 {item}
               </a>
@@ -369,37 +360,33 @@ export default function Homepage() {
       {/* HERO SECTION                                              */}
       {/* ========================================================= */}
       <section
-        className={`pt-20 sm:pt-28 pb-16 sm:pb-24 text-center transition-colors duration-300 ${
-          darkMode
-            ? 'bg-gradient-to-b from-[#0e0e12] via-[#121218] to-[#15151e]'
-            : 'bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F3F4]/50'
-        }`}
+        className={`pt-20 sm:pt-28 pb-16 sm:pb-24 text-center transition-colors duration-300 ${darkMode
+          ? 'bg-gradient-to-b from-[#0e0e12] via-[#121218] to-[#15151e]'
+          : 'bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F3F4]/50'
+          }`}
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border ${
-              darkMode
-                ? 'bg-orange-500/10 border-orange-500/30 text-orange-400'
-                : 'bg-orange-50 border-orange-200/80 text-orange-600'
-            }`}
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border ${darkMode
+              ? 'bg-orange-500/10 border-orange-500/30 text-orange-400'
+              : 'bg-orange-50 border-orange-200/80 text-orange-600'
+              }`}
           >
             <Flame className="w-3.5 h-3.5" />
             BURN IT ELITE TRAINING
           </div>
 
           <h1
-            className={`text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] ${
-              darkMode ? 'text-white' : 'text-[#202124]'
-            }`}
+            className={`text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] ${darkMode ? 'text-white' : 'text-[#202124]'
+              }`}
           >
             Healthy Body —<br />
             <span>Healthy Life!</span>
           </h1>
 
           <p
-            className={`mt-6 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed font-normal ${
-              darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-            }`}
+            className={`mt-6 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed font-normal ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
+              }`}
           >
             Steve Rock — elite endurance & strength coach in NY. Push past your limits and ignite every muscle.
           </p>
@@ -414,34 +401,30 @@ export default function Homepage() {
             </Link>
             <a
               href="#programs"
-              className={`inline-flex items-center justify-center px-8 py-3.5 rounded-full text-base font-semibold border shadow-sm transition-all ${
-                darkMode
-                  ? 'bg-neutral-800/80 hover:bg-neutral-700 active:bg-neutral-600 text-neutral-100 border-neutral-700'
-                  : 'bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-800 border-neutral-300'
-              }`}
+              className={`inline-flex items-center justify-center px-8 py-3.5 rounded-full text-base font-semibold border shadow-sm transition-all ${darkMode
+                ? 'bg-neutral-800/80 hover:bg-neutral-700 active:bg-neutral-600 text-neutral-100 border-neutral-700'
+                : 'bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-800 border-neutral-300'
+                }`}
             >
               <span>COACHING</span>
             </a>
           </div>
 
           <div
-            className={`mt-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs ${
-              darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-            }`}
+            className={`mt-4 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
+              }`}
           >
             <div
-              className={`flex items-center gap-1.5 font-medium ${
-                darkMode ? 'text-neutral-300' : 'text-neutral-700'
-              }`}
+              className={`flex items-center gap-1.5 font-medium ${darkMode ? 'text-neutral-300' : 'text-neutral-700'
+                }`}
             >
               <ShieldCheck className="w-4 h-4 text-orange-600" />
               <span>Certified Pro Trainer</span>
             </div>
             <span className={`hidden sm:inline ${darkMode ? 'text-neutral-700' : 'text-neutral-300'}`}>•</span>
             <div
-              className={`flex items-center gap-1.5 font-medium ${
-                darkMode ? 'text-neutral-300' : 'text-neutral-700'
-              }`}
+              className={`flex items-center gap-1.5 font-medium ${darkMode ? 'text-neutral-300' : 'text-neutral-700'
+                }`}
             >
               <TrendingUp className="w-4 h-4 text-orange-600" />
               <span>5,000+ Transformations</span>
@@ -453,9 +436,8 @@ export default function Homepage() {
           {/* HERO ATHLETIC RUNNER PREVIEW */}
           <div
             ref={heroVideoRef}
-            className={`mt-16 relative rounded-2xl sm:rounded-3xl border shadow-2xl overflow-hidden group bg-neutral-950 ${
-              darkMode ? 'border-neutral-800' : 'border-neutral-200/90'
-            }`}
+            className={`mt-16 relative rounded-2xl sm:rounded-3xl border shadow-2xl overflow-hidden group bg-neutral-950 ${darkMode ? 'border-neutral-800' : 'border-neutral-200/90'
+              }`}
           >
             {/* Media Fullscreen Button */}
             <button
@@ -491,19 +473,17 @@ export default function Homepage() {
             <div className="absolute bottom-5 left-5 right-5 flex flex-wrap items-center justify-between gap-3 text-left">
               <div className="flex flex-wrap gap-3">
                 <div
-                  className={`backdrop-blur-md border px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-3 ${
-                    darkMode
-                      ? 'bg-[#181822]/90 border-neutral-700 text-white'
-                      : 'bg-white/90 border-neutral-200 text-neutral-900'
-                  }`}
+                  className={`backdrop-blur-md border px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-3 ${darkMode
+                    ? 'bg-[#181822]/90 border-neutral-700 text-white'
+                    : 'bg-white/90 border-neutral-200 text-neutral-900'
+                    }`}
                 >
                   <Flame className="w-5 h-5 text-orange-600 fill-orange-600" />
                   <div>
                     <div className="text-sm font-bold">850 KCAL</div>
                     <div
-                      className={`text-[10px] uppercase tracking-wider ${
-                        darkMode ? 'text-neutral-400' : 'text-neutral-500'
-                      }`}
+                      className={`text-[10px] uppercase tracking-wider ${darkMode ? 'text-neutral-400' : 'text-neutral-500'
+                        }`}
                     >
                       Avg. Burn Per Session
                     </div>
@@ -511,19 +491,17 @@ export default function Homepage() {
                 </div>
 
                 <div
-                  className={`backdrop-blur-md border px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-3 ${
-                    darkMode
-                      ? 'bg-[#181822]/90 border-neutral-700 text-white'
-                      : 'bg-white/90 border-neutral-200 text-neutral-900'
-                  }`}
+                  className={`backdrop-blur-md border px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-3 ${darkMode
+                    ? 'bg-[#181822]/90 border-neutral-700 text-white'
+                    : 'bg-white/90 border-neutral-200 text-neutral-900'
+                    }`}
                 >
                   <Zap className="w-5 h-5 text-amber-500" />
                   <div>
                     <div className="text-sm font-bold">3&apos;45&quot; /KM</div>
                     <div
-                      className={`text-[10px] uppercase tracking-wider ${
-                        darkMode ? 'text-neutral-400' : 'text-neutral-500'
-                      }`}
+                      className={`text-[10px] uppercase tracking-wider ${darkMode ? 'text-neutral-400' : 'text-neutral-500'
+                        }`}
                     >
                       Endurance Pace Target
                     </div>
@@ -544,51 +522,47 @@ export default function Homepage() {
       {/* ========================================================= */}
       <section
         id="programs"
-        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${
-          darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
-        }`}
+        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
+          }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
-              Our Programs
+              Supported Movements
             </span>
             <h2
-              className={`text-3xl sm:text-4xl font-bold tracking-tight mt-1 ${
-                darkMode ? 'text-white' : 'text-[#202124]'
-              }`}
+              className={`text-3xl sm:text-4xl font-bold tracking-tight mt-1 ${darkMode ? 'text-white' : 'text-[#202124]'
+                }`}
             >
-              Designed to Make You Burn
+              Exercises the System Can Detect
             </h2>
             <p
-              className={`mt-3 text-base ${
-                darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-              }`}
+              className={`mt-3 text-base ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
+                }`}
             >
-              High-intensity cardio, track sprint protocols, and powerlifting fundamentals engineered by champion coaches.
+              Real-time 33-point pose estimation, joint angle measurement, and automated rep counting for supported workouts.
             </p>
           </div>
 
           {/* Interactive Feature Tabs */}
           <div className="mt-12 flex justify-center flex-wrap gap-2 sm:gap-3">
-            {programFeatures.map((prog, idx) => {
-              const Icon = prog.icon
+            {detectableExercises.map((ex, idx) => {
+              const Icon = ex.icon
               const isActive = activeTab === idx
               return (
                 <button
                   type="button"
-                  key={prog.id}
+                  key={ex.id}
                   onClick={() => setActiveTab(idx)}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all ${
-                    isActive
-                      ? 'bg-orange-600 text-white shadow-sm'
-                      : darkMode
+                  className={`flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all ${isActive
+                    ? 'bg-orange-600 text-white shadow-sm'
+                    : darkMode
                       ? 'bg-neutral-800/80 text-neutral-300 hover:bg-neutral-700'
                       : 'bg-[#F1F3F4] text-[#3C4043] hover:bg-neutral-200'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4" />
-                  <span>{prog.title}</span>
+                  <span>{ex.title}</span>
                 </button>
               )
             })}
@@ -596,76 +570,68 @@ export default function Homepage() {
 
           {/* Active Tab Showcase Card */}
           <div
-            className={`mt-10 max-w-4xl mx-auto border rounded-2xl p-6 sm:p-10 shadow-sm transition-colors duration-300 ${
-              darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#F8F9FA] border-neutral-200/80'
-            }`}
+            className={`mt-10 max-w-4xl mx-auto border rounded-2xl p-6 sm:p-10 shadow-sm transition-colors duration-300 ${darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#F8F9FA] border-neutral-200/80'
+              }`}
           >
             <div
-              className={`flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b gap-4 ${
-                darkMode ? 'border-neutral-800' : 'border-neutral-200'
-              }`}
+              className={`flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b gap-4 ${darkMode ? 'border-neutral-800' : 'border-neutral-200'
+                }`}
             >
               <div>
                 <span
-                  className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold mb-2 ${
-                    darkMode
-                      ? 'bg-orange-500/20 text-orange-400'
-                      : 'bg-orange-100 text-orange-600'
-                  }`}
+                  className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold mb-2 ${darkMode
+                    ? 'bg-orange-500/20 text-orange-400'
+                    : 'bg-orange-100 text-orange-600'
+                    }`}
                 >
-                  {programFeatures[activeTab].tag}
+                  {detectableExercises[activeTab].tag}
                 </span>
                 <h3
-                  className={`text-2xl font-bold ${
-                    darkMode ? 'text-white' : 'text-[#202124]'
-                  }`}
+                  className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-[#202124]'
+                    }`}
                 >
-                  {programFeatures[activeTab].title}
+                  {detectableExercises[activeTab].title}
                 </h3>
                 <p
-                  className={`text-sm mt-1 max-w-xl ${
-                    darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-                  }`}
+                  className={`text-sm mt-1 max-w-xl ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
+                    }`}
                 >
-                  {programFeatures[activeTab].desc}
+                  {detectableExercises[activeTab].desc}
                 </p>
               </div>
               <div className="text-left sm:text-right">
                 <div
-                  className={`text-xs uppercase tracking-wider font-semibold ${
-                    darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                  }`}
+                  className={`text-xs uppercase tracking-wider font-semibold ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
+                    }`}
                 >
-                  Benchmark
+                  Tracking Metric
                 </div>
                 <div
-                  className={`text-base font-bold ${
-                    darkMode ? 'text-white' : 'text-neutral-900'
-                  }`}
+                  className={`text-base font-bold ${darkMode ? 'text-white' : 'text-neutral-900'
+                    }`}
                 >
-                  {programFeatures[activeTab].metric}
+                  {detectableExercises[activeTab].metric}
                 </div>
               </div>
             </div>
 
             <div
-              className={`mt-6 rounded-xl overflow-hidden aspect-[16/9] sm:aspect-[21/9] border relative ${
-                darkMode ? 'border-neutral-800' : 'border-neutral-200'
-              }`}
+              className={`mt-6 rounded-xl overflow-hidden aspect-[16/9] sm:aspect-[21/9] border relative flex items-center justify-center ${darkMode ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-100'
+                }`}
             >
               <img
-                src={programFeatures[activeTab].image}
-                alt={programFeatures[activeTab].title}
-                className="w-full h-full object-cover"
+                src={detectableExercises[activeTab].image}
+                alt={detectableExercises[activeTab].title}
+                className="w-full h-full object-contain"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex items-end p-6">
-                <a
-                  href="#join"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white hover:bg-neutral-100 text-neutral-900 text-xs font-bold uppercase tracking-wider shadow-md transition-all"
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
+                <Link
+                  to="/tracker"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold uppercase tracking-wider shadow-md transition-all"
                 >
-                  <span>Start This Program</span>
-                  <ChevronRight className="w-4 h-4 text-orange-600" />
-                </a>
+                  <span>Track {detectableExercises[activeTab].title}</span>
+                  <ChevronRight className="w-4 h-4 text-white" />
+                </Link>
               </div>
             </div>
           </div>
@@ -677,9 +643,8 @@ export default function Homepage() {
       {/* ========================================================= */}
       <section
         id="how-to-use"
-        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${
-          darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
-        }`}
+        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
+          }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
           {/* Section Header with Relative Context */}
@@ -688,16 +653,14 @@ export default function Homepage() {
               Interactive Biometric Guide
             </span>
             <h2
-              className={`text-3xl sm:text-4xl font-bold leading-tight ${
-                darkMode ? 'text-white' : 'text-[#202124]'
-              }`}
+              className={`text-3xl sm:text-4xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
+                }`}
             >
               How to Use This System
             </h2>
             <p
-              className={`text-base sm:text-lg leading-relaxed ${
-                darkMode ? 'text-neutral-300' : 'text-[#5F6368]'
-              }`}
+              className={`text-base sm:text-lg leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#5F6368]'
+                }`}
             >
               Turn any web browser into your personal AI coach in seconds. Follow these five simple steps to calibrate your camera, track joint angles in real time, and receive instant form corrections without wearing extra sensors or purchasing special equipment.
             </p>
@@ -725,24 +688,21 @@ export default function Homepage() {
                   Step 01
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-                    darkMode ? 'text-white' : 'text-[#202124]'
-                  }`}
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
+                    }`}
                 >
                   Access the Tracker
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${
-                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                  }`}
+                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                    }`}
                 >
                   Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">GET STARTED</strong> in the hero section or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar. The system initializes your workout session instantly in your browser—no app installations, account credentials, or setup wizards required.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                }`}
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                  }`}
               >
                 <img
                   src={darkMode ? '/guide/step-1-access-dark.png' : '/guide/step-1-access-light.png'}
@@ -755,9 +715,8 @@ export default function Homepage() {
             {/* Step 2 (Alternating) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div
-                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                }`}
+                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                  }`}
               >
                 <img
                   src={darkMode ? '/guide/step-2-position-dark.png' : '/guide/step-2-position-light.png'}
@@ -770,16 +729,14 @@ export default function Homepage() {
                   Step 02
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-                    darkMode ? 'text-white' : 'text-[#202124]'
-                  }`}
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
+                    }`}
                 >
                   Align Body in Frame
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${
-                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                  }`}
+                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                    }`}
                 >
                   When prompted by your browser, grant camera permissions to activate the biometric engine. Step back approximately 6 to 8 feet so that your shoulders, hips, and knees are unobstructed inside the camera view. The system displays <strong className="text-orange-600 font-semibold">Step Into Camera Frame</strong> with glowing orange alignment indicators that illuminate green as soon as your pose is calibrated.
                 </p>
@@ -793,24 +750,21 @@ export default function Homepage() {
                   Step 03
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-                    darkMode ? 'text-white' : 'text-[#202124]'
-                  }`}
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
+                    }`}
                 >
                   Select Workout Mode
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${
-                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                  }`}
+                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                    }`}
                 >
                   Choose your targeted exercise from the workout bar—including <strong className="text-orange-600 font-semibold">Squats</strong>, <strong className="text-orange-600 font-semibold">Push-Ups</strong>, <strong className="text-orange-600 font-semibold">Plank</strong>, <strong className="text-orange-600 font-semibold">Jumping Jacks</strong>, or <strong className="text-orange-600 font-semibold">Bicep Curls</strong>. Alternatively, keep <strong className="text-orange-600 font-semibold">Auto-Detect</strong> active to let our machine learning posture engine automatically sample your biomechanics every 2 seconds and switch exercises as you move.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                }`}
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                  }`}
               >
                 <img
                   src={darkMode ? '/guide/step-3-select-dark.png' : '/guide/step-3-select-light.png'}
@@ -823,9 +777,8 @@ export default function Homepage() {
             {/* Step 4 (Alternating) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div
-                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                }`}
+                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                  }`}
               >
                 <img
                   src={darkMode ? '/guide/step-4-track-dark.png' : '/guide/step-4-track-light.png'}
@@ -838,16 +791,14 @@ export default function Homepage() {
                   Step 04
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-                    darkMode ? 'text-white' : 'text-[#202124]'
-                  }`}
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
+                    }`}
                 >
                   Perform Movement
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${
-                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                  }`}
+                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                    }`}
                 >
                   Perform each repetition with complete range of motion. The MediaPipe kinematic engine tracks 33 3D skeletal landmarks at 30+ FPS, rendering visible joint nodes and angle measurements directly over your body. Watch your verified <strong className="text-orange-600 font-semibold">REPS</strong> count update, follow the live movement phase (<strong className="text-orange-600 font-semibold">UP</strong> / <strong className="text-orange-600 font-semibold">DOWN</strong>), and maintain your <strong className="text-orange-600 font-semibold">FORM PRECISION</strong> score.
                 </p>
@@ -861,24 +812,21 @@ export default function Homepage() {
                   Step 05
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-                    darkMode ? 'text-white' : 'text-[#202124]'
-                  }`}
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
+                    }`}
                 >
                   Finish and Review Summary
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${
-                    darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                  }`}
+                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
+                    }`}
                 >
                   Once you complete your workout set, tap <strong className="text-red-500 font-semibold">Finish Workout</strong> to conclude tracking. The system instantly generates a <strong className="text-orange-600 font-semibold">Workout Complete</strong> report detailing your total completed repetitions, overall form precision percentage, exact session duration, and estimated calories burned, with options to start a new workout or return to the dashboard.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-                  darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                }`}
+                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
+                  }`}
               >
                 <img
                   src={darkMode ? '/guide/step-5-summary-dark.png' : '/guide/step-5-summary-light.png'}
@@ -896,33 +844,29 @@ export default function Homepage() {
       {/* ========================================================= */}
       <section
         id="join"
-        className={`py-24 sm:py-32 border-t text-center transition-colors duration-300 ${
-          darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
-        }`}
+        className={`py-24 sm:py-32 border-t text-center transition-colors duration-300 ${darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
+          }`}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`w-14 h-14 mx-auto rounded-2xl border flex items-center justify-center shadow-sm mb-6 ${
-              darkMode
-                ? 'bg-orange-500/10 border-orange-500/30 text-orange-400'
-                : 'bg-orange-50 border-orange-200 text-orange-600'
-            }`}
+            className={`w-14 h-14 mx-auto rounded-2xl border flex items-center justify-center shadow-sm mb-6 ${darkMode
+              ? 'bg-orange-500/10 border-orange-500/30 text-orange-400'
+              : 'bg-orange-50 border-orange-200 text-orange-600'
+              }`}
           >
             <Flame className="w-7 h-7 fill-orange-600" />
           </div>
 
           <h2
-            className={`text-3xl sm:text-5xl font-bold tracking-tight ${
-              darkMode ? 'text-white' : 'text-[#202124]'
-            }`}
+            className={`text-3xl sm:text-5xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-[#202124]'
+              }`}
           >
             Start Your Transformation with Burn It
           </h2>
 
           <p
-            className={`mt-4 text-base sm:text-lg max-w-xl mx-auto ${
-              darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-            }`}
+            className={`mt-4 text-base sm:text-lg max-w-xl mx-auto ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
+              }`}
           >
             Join Steve Rock’s elite training community. Build unstoppable stamina, shred excess fat, and conquer every milestone.
           </p>
@@ -939,11 +883,10 @@ export default function Homepage() {
 
             <a
               href="#programs"
-              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-semibold border shadow-sm transition-all ${
-                darkMode
-                  ? 'bg-neutral-800/80 hover:bg-neutral-700 text-neutral-100 border-neutral-700'
-                  : 'bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-800 border-neutral-300'
-              }`}
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-semibold border shadow-sm transition-all ${darkMode
+                ? 'bg-neutral-800/80 hover:bg-neutral-700 text-neutral-100 border-neutral-700'
+                : 'bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-800 border-neutral-300'
+                }`}
             >
               <span>Explore All Programs</span>
             </a>
@@ -959,15 +902,13 @@ export default function Homepage() {
       {/* CLOSING TAGLINE                                           */}
       {/* ========================================================= */}
       <section
-        className={`py-20 sm:py-28 border-t text-center transition-colors duration-300 ${
-          darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
-        }`}
+        className={`py-20 sm:py-28 border-t text-center transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
+          }`}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <h2
-            className={`text-5xl sm:text-6xl md:text-7xl font-black tracking-tight ${
-              darkMode ? 'text-white' : 'text-neutral-900'
-            }`}
+            className={`text-5xl sm:text-6xl md:text-7xl font-black tracking-tight ${darkMode ? 'text-white' : 'text-neutral-900'
+              }`}
           >
             Ignite your potential<span className="text-orange-600">.</span>
           </h2>
@@ -981,17 +922,15 @@ export default function Homepage() {
       {/* CLEAN MULTI-COLUMN FOOTER                                 */}
       {/* ========================================================= */}
       <footer
-        className={`border-t py-16 text-xs transition-colors duration-300 ${
-          darkMode
-            ? 'bg-[#0a0a0d] border-neutral-800 text-neutral-400'
-            : 'bg-[#F8F9FA] border-neutral-200 text-[#5F6368]'
-        }`}
+        className={`border-t py-16 text-xs transition-colors duration-300 ${darkMode
+          ? 'bg-[#0a0a0d] border-neutral-800 text-neutral-400'
+          : 'bg-[#F8F9FA] border-neutral-200 text-[#5F6368]'
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div
-            className={`grid grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b ${
-              darkMode ? 'border-neutral-800' : 'border-neutral-200'
-            }`}
+            className={`grid grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b ${darkMode ? 'border-neutral-800' : 'border-neutral-200'
+              }`}
           >
             <div>
               <div className={`font-semibold mb-3 text-sm ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
