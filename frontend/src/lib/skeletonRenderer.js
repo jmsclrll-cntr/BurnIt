@@ -164,7 +164,8 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
     isAuto = false,
     detectedInfo = null,
     exerciseStartedFormatted = '',
-    startTimeFormatted = ''
+    startTimeFormatted = '',
+    setNumber = null
   } = data;
 
   ctx.save();
@@ -189,13 +190,14 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
   // 2. Rep / Hold Counter (Top-Left)
   const isPlank = activeExercise === 'plank';
   const displayVal = isPlank ? `${Math.floor(holdSeconds)}s` : String(reps);
-  const displaySub = isPlank ? 'HOLD' : 'REPS';
+  const displaySub = setNumber ? `SET ${setNumber} • ${isPlank ? 'HOLD' : 'REPS'}` : isPlank ? 'HOLD' : 'REPS';
+  const boxW = setNumber ? 140 : 110;
 
   ctx.fillStyle = 'rgba(14, 14, 20, 0.85)';
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.roundRect(20, 20, 110, 68, 16);
+  ctx.roundRect(20, 20, boxW, 68, 16);
   ctx.fill();
   ctx.stroke();
 
@@ -209,7 +211,7 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
   ctx.fillText(displaySub, 34, 76);
 
   // 3. Movement Phase Tag (Next to Reps)
-  const phaseX = 140;
+  const phaseX = setNumber ? 170 : 140;
   const phaseY = 20;
   ctx.fillStyle = phase.toLowerCase() === 'down' || phase.toLowerCase() === 'bottom'
     ? 'rgba(234, 88, 12, 0.9)'

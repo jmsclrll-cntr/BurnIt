@@ -57,6 +57,20 @@ export const RealtimeTracker = () => {
     holdSeconds: 0,
   });
 
+  // Sets Tracking State
+  const [exerciseSets, setExerciseSets] = useState({
+    squat: [],
+    pushup: [],
+    plank: [],
+    jumpingjack: [],
+    bicepcurl: [],
+  });
+
+  const activeTarget = activeExercise !== 'auto' ? activeExercise : telemetry.exercise;
+  const currentSets = activeTarget && activeTarget !== 'auto' ? (exerciseSets[activeTarget] || []) : [];
+  const currentSetNumber = currentSets.length + 1;
+  const totalCompletedSets = Object.values(exerciseSets).reduce((acc, s) => acc + s.length, 0);
+
   // Refs
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -310,6 +324,7 @@ export const RealtimeTracker = () => {
                 confidence: result.confidence,
                 exerciseStartedFormatted: result.exerciseStartedFormatted,
                 startTimeFormatted: sessionStartTimeFormatted,
+                setNumber: currentSetNumber,
               });
             });
 
@@ -348,6 +363,110 @@ export const RealtimeTracker = () => {
     };
   }, [startCamera, stopCamera]);
 
+  // Commit current reps/time into completed set and advance to next set
+  const handleCompleteSet = useCallback(() => {
+    const target = activeExercise !== 'auto' ? activeExercise : telemetry.exercise;
+    if (!target || target === 'auto') return;
+
+    const isPlank = target === 'plank';
+    const count = isPlank ? Math.floor(telemetry.holdSeconds) : telemetry.reps;
+    if (count <= 0) return;
+
+    const currentList = exerciseSets[target] || [];
+    const newSet = {
+      setNumber: currentList.length + 1,
+      reps: count,
+      isPlank,
+      formScore: telemetry.formScore,
+      completedAt: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+    };
+
+    setExerciseSets((prev) => ({
+      ...prev,
+      [target]: [...(prev[target] || []), newSet],
+    }));
+
+    if (engineRef.current) {
+      engineRef.current.reset();
+    }
+    setTelemetry((prev) => ({
+      ...prev,
+      reps: 0,
+      holdSeconds: 0,
+      phase: 'ready',
+      formScore: 100,
+      formErrors: [],
+    }));
+  }, [activeExercise, telemetry.exercise, telemetry.holdSeconds, telemetry.reps, telemetry.formScore, exerciseSets]);
+
+  // Clear completed sets for specific exercise or all
+  const handleClearExerciseSets = useCallback((target = activeExercise) => {
+    const key = target !== 'auto' ? target : telemetry.exercise;
+    if (!key || key === 'auto') {
+      setExerciseSets({
+        squat: [],
+        pushup: [],
+        plank: [],
+        jumpingjack: [],
+        bicepcurl: [],
+      });
+    } else {
+      setExerciseSets((prev) => ({
+        ...prev,
+        [key]: [],
+      }));
+    }
+    handleResetReps();
+  }, [activeExercise, telemetry.exercise]);
+
+  // Changing exercise: automatically logs in-progress set if reps were done
+  const handleSelectExercise = useCallback((nextId) => {
+    if (nextId === activeExercise) return;
+
+    const currentTarget = activeExercise !== 'auto' ? activeExercise : telemetry.exercise;
+    if (currentTarget && currentTarget !== 'auto') {
+      const isPlank = currentTarget === 'plank';
+      const count = isPlank ? Math.floor(telemetry.holdSeconds) : telemetry.reps;
+      if (count > 0) {
+        const currentList = exerciseSets[currentTarget] || [];
+        const newSet = {
+          setNumber: currentList.length + 1,
+          reps: count,
+          isPlank,
+          formScore: telemetry.formScore,
+          completedAt: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }),
+        };
+        setExerciseSets((prev) => ({
+          ...prev,
+          [currentTarget]: [...currentList, newSet],
+        }));
+      }
+    }
+
+    setActiveExercise(nextId);
+    if (engineRef.current) {
+      engineRef.current.setExercise(nextId);
+    }
+    setTelemetry((prev) => ({
+      ...prev,
+      reps: 0,
+      holdSeconds: 0,
+      phase: 'ready',
+      feedback:
+        nextId === 'auto'
+          ? 'Step into camera frame to begin workout detection'
+          : `Ready to start ${EXERCISE_INFO[nextId]?.name || nextId}`,
+    }));
+  }, [activeExercise, telemetry.exercise, telemetry.holdSeconds, telemetry.reps, telemetry.formScore, exerciseSets]);
+
   const handleResetReps = () => {
     if (engineRef.current) {
       engineRef.current.reset();
@@ -364,6 +483,33 @@ export const RealtimeTracker = () => {
 
   const handleFinishWorkout = () => {
     stopCamera();
+
+    let finalSets = { ...exerciseSets };
+    const currentTarget = activeExercise !== 'auto' ? activeExercise : telemetry.exercise;
+    if (currentTarget && currentTarget !== 'auto') {
+      const isPlank = currentTarget === 'plank';
+      const count = isPlank ? Math.floor(telemetry.holdSeconds) : telemetry.reps;
+      if (count > 0) {
+        const currentList = finalSets[currentTarget] || [];
+        const newSet = {
+          setNumber: currentList.length + 1,
+          reps: count,
+          isPlank,
+          formScore: telemetry.formScore,
+          completedAt: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }),
+        };
+        finalSets = {
+          ...finalSets,
+          [currentTarget]: [...currentList, newSet],
+        };
+        setExerciseSets(finalSets);
+      }
+    }
+
     const cals = Math.round((workoutDuration / 60) * 7.5);
     setSummaryData({
       exercise: telemetry.detectedInfo?.name || activeExercise,
@@ -374,6 +520,7 @@ export const RealtimeTracker = () => {
       errors: telemetry.formErrors,
       sessionStarted: sessionStartTimeFormatted,
       sessionCompleted: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      exerciseSets: finalSets,
     });
   };
 
@@ -399,15 +546,16 @@ export const RealtimeTracker = () => {
             )}
           </div>
 
-          {/* Exercise Selector Pills - Clean Text Without Icons */}
+          {/* Exercise Selector Pills - Clean Text with Set Badges */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
             {EXERCISES.map((ex) => {
               const isSelected = activeExercise === ex.id;
+              const setBadgeCount = ex.id !== 'auto' ? (exerciseSets[ex.id]?.length || 0) : totalCompletedSets;
               return (
                 <button
                   key={ex.id}
-                  onClick={() => setActiveExercise(ex.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                  onClick={() => handleSelectExercise(ex.id)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isSelected
                       ? 'bg-orange-600 text-white shadow-sm'
                       : darkMode
@@ -415,7 +563,18 @@ export const RealtimeTracker = () => {
                       : 'bg-neutral-100 text-neutral-600 hover:text-black border border-neutral-200 hover:bg-neutral-200/60'
                   }`}
                 >
-                  {ex.name}
+                  <span>{ex.name}</span>
+                  {setBadgeCount > 0 && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                        isSelected
+                          ? 'bg-black/25 text-white'
+                          : 'bg-orange-500/10 text-orange-500 font-bold'
+                      }`}
+                    >
+                      {setBadgeCount} {setBadgeCount === 1 ? 'set' : 'sets'}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -479,8 +638,8 @@ export const RealtimeTracker = () => {
 
                 <div className="px-3 py-1 rounded-full bg-orange-600 text-white text-xs font-semibold uppercase tracking-wider">
                   {activeExercise === 'auto'
-                    ? `AUTO (2s): ${telemetry.detectedInfo?.shortName || 'DETECTING'}`
-                    : activeExercise}
+                    ? `AUTO: ${telemetry.detectedInfo?.shortName || 'DETECTING'} • SET ${currentSetNumber}`
+                    : `${telemetry.detectedInfo?.shortName || activeExercise.toUpperCase()} • SET ${currentSetNumber}`}
                 </div>
 
                 {isPaused && (
@@ -558,11 +717,12 @@ export const RealtimeTracker = () => {
               darkMode ? 'bg-[#15151e] border-white/5' : 'bg-white border-neutral-200/80 shadow-sm'
             }`}>
               <div className="space-y-6">
-                {/* Reps / Hold Time */}
+                {/* Reps / Hold Time with Active Set Badge */}
                 <div>
                   <div className="flex items-center justify-between text-xs text-neutral-400 mb-1">
-                    <span className="font-semibold uppercase tracking-wider text-[11px]">
-                      {telemetry.exercise === 'plank' ? 'Hold Time' : 'Completed Reps'}
+                    <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                      <span>{telemetry.exercise === 'plank' ? 'Hold Time' : 'Completed Reps'}</span>
+                      <span className="text-orange-500 font-mono font-bold">• SET {currentSetNumber}</span>
                     </span>
                     <span className="font-bold uppercase text-[10px] text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-full">
                       {telemetry.phase}
@@ -590,6 +750,65 @@ export const RealtimeTracker = () => {
                       }}
                     />
                   </div>
+                </div>
+
+                {/* Sets History Log */}
+                <div className="pt-4 border-t border-neutral-100 dark:border-white/5">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                        Sets Log
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-500 text-[10px] font-bold font-mono">
+                        {currentSets.length} {currentSets.length === 1 ? 'set' : 'sets'}
+                      </span>
+                    </div>
+                    {currentSets.length > 0 && (
+                      <button
+                        onClick={() => handleClearExerciseSets(activeExercise)}
+                        className="text-[10px] text-neutral-400 hover:text-red-500 transition-colors"
+                        title="Clear completed sets for this exercise"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  {currentSets.length === 0 ? (
+                    <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-white/[0.02] border border-dashed border-neutral-200 dark:border-white/10 text-center">
+                      <p className="text-[11px] text-neutral-400">
+                        Active: <span className="font-semibold text-orange-500">Set 1</span>. Reps will log when you complete this set.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                      {currentSets.map((s) => (
+                        <div
+                          key={s.setNumber}
+                          className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-neutral-100/70 dark:bg-white/5 border border-neutral-200/50 dark:border-white/5 text-xs"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-orange-500/10 text-orange-500 font-mono font-bold text-[10px] flex items-center justify-center">
+                              {s.setNumber}
+                            </span>
+                            <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                              Set {s.setNumber}:
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-orange-600 dark:text-orange-400">
+                              {s.isPlank ? `${s.reps}s` : `${s.reps} reps`}
+                            </span>
+                            {s.formScore !== undefined && (
+                              <span className="text-[10px] text-neutral-400 font-mono">
+                                ({s.formScore}%)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Exercise & Time Summary */}
@@ -627,6 +846,18 @@ export const RealtimeTracker = () => {
 
               {/* Minimal Clean Action Buttons */}
               <div className="pt-6 border-t border-neutral-100 dark:border-white/5 space-y-2 mt-6">
+                <button
+                  onClick={handleCompleteSet}
+                  disabled={telemetry.exercise === 'plank' ? telemetry.holdSeconds < 1 : telemetry.reps < 1}
+                  className={`w-full py-2.5 rounded-full text-xs font-semibold shadow-sm transition-all ${
+                    (telemetry.exercise === 'plank' ? telemetry.holdSeconds >= 1 : telemetry.reps >= 1)
+                      ? 'bg-orange-600 hover:bg-orange-500 text-white cursor-pointer'
+                      : 'bg-neutral-200 dark:bg-white/10 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'
+                  }`}
+                >
+                  Complete Set {currentSetNumber}
+                </button>
+
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => setIsPaused(!isPaused)}
@@ -645,8 +876,9 @@ export const RealtimeTracker = () => {
                         ? 'border-white/10 text-neutral-200 hover:bg-white/5'
                         : 'border-neutral-200 text-neutral-700 hover:bg-neutral-100'
                     }`}
+                    title="Reset active set reps"
                   >
-                    Reset
+                    Reset Reps
                   </button>
                 </div>
 
@@ -709,6 +941,50 @@ export const RealtimeTracker = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Sets & Reps Breakdown */}
+              {summaryData.exerciseSets &&
+                Object.entries(summaryData.exerciseSets).some(([, sets]) => sets.length > 0) && (
+                  <div className="p-3.5 rounded-xl bg-neutral-100 dark:bg-white/5 mb-4 text-xs text-left max-h-56 overflow-y-auto">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-2.5">
+                      Sets & Reps Breakdown
+                    </span>
+                    <div className="space-y-3">
+                      {Object.entries(summaryData.exerciseSets).map(([exId, sets]) => {
+                        if (sets.length === 0) return null;
+                        const info = EXERCISE_INFO[exId];
+                        const totalCount = sets.reduce((acc, s) => acc + s.reps, 0);
+                        const isPlank = exId === 'plank';
+                        return (
+                          <div
+                            key={exId}
+                            className="p-2.5 rounded-lg bg-black/5 dark:bg-black/30 border border-neutral-200/40 dark:border-white/5"
+                          >
+                            <div className="flex items-center justify-between font-semibold text-neutral-800 dark:text-neutral-200 mb-1.5">
+                              <span>{info?.name || exId}</span>
+                              <span className="text-[11px] text-orange-500 font-mono">
+                                Total: {isPlank ? `${totalCount}s` : `${totalCount} reps`} ({sets.length} {sets.length === 1 ? 'set' : 'sets'})
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                              {sets.map((s) => (
+                                <div
+                                  key={s.setNumber}
+                                  className="flex items-center justify-between px-2 py-1 rounded bg-white/60 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 font-mono"
+                                >
+                                  <span>Set {s.setNumber}:</span>
+                                  <span className="font-bold text-orange-600 dark:text-orange-400">
+                                    {s.isPlank ? `${s.reps}s` : `${s.reps} reps`}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
               {/* Start and End Timestamps */}
               <div className="p-3 rounded-xl bg-neutral-100 dark:bg-white/5 mb-6 text-xs flex items-center justify-around text-neutral-400">
