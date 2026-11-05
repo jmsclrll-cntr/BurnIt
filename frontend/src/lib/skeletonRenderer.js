@@ -163,14 +163,18 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
     holdSeconds = 0,
     isAuto = false,
     detectedInfo = null,
-    exerciseStartedFormatted = '',
-    startTimeFormatted = ''
+    _exerciseStartedFormatted = '',
+    startTimeFormatted = '',
+    autoState = 'counting',
+    isLocked = false,
+    holdProgress = 0,
+    setNumber = null,
   } = data;
 
   ctx.save();
 
-  // 1. Position warning overlay if whole body is out of frame
-  if (!bodyVisible) {
+  // 1. Position warning overlay if whole body is out of frame or waiting for pose
+  if (!bodyVisible || (isAuto && autoState === 'waiting')) {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
     ctx.fillRect(0, 0, width, height);
 
@@ -181,21 +185,78 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
 
     ctx.fillStyle = '#ea580c';
     ctx.font = '500 14px Inter, system-ui, sans-serif';
-    ctx.fillText('Position your shoulders, hips, and knees clearly in view', width / 2, height / 2 + 18);
+    ctx.fillText(
+      feedback || 'Position shoulders, hips, knees & ankles clearly in view',
+      width / 2,
+      height / 2 + 18
+    );
     ctx.restore();
     return;
   }
 
-  // 2. Rep / Hold Counter (Top-Left)
+  // 2. Circular Progress Ring on Video for HOLD_STEADY State
+  if (isAuto && autoState === 'hold_steady') {
+    const ringX = width / 2;
+    const ringY = height / 2;
+    const radius = 54;
+    const pct = Math.min(1.0, Math.max(0, holdProgress || 0));
+
+    ctx.save();
+    // Translucent dark circular badge
+    ctx.beginPath();
+    ctx.arc(ringX, ringY, radius + 16, 0, 2 * Math.PI);
+    ctx.fillStyle = 'rgba(14, 14, 20, 0.85)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Background track ring
+    ctx.beginPath();
+    ctx.arc(ringX, ringY, radius, 0, 2 * Math.PI);
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.stroke();
+
+    // Progress arc
+    if (pct > 0) {
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, radius, -Math.PI / 2, -Math.PI / 2 + pct * 2 * Math.PI);
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = '#ea580c';
+      ctx.lineCap = 'round';
+      ctx.shadowColor = '#ea580c';
+      ctx.shadowBlur = 12;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    // Percentage inside ring
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 22px Inter, system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${Math.round(pct * 100)}%`, ringX, ringY - 7);
+
+    // Sub-label inside ring
+    ctx.fillStyle = pct > 0 ? '#f97316' : '#9ca3af';
+    ctx.font = 'bold 9px Inter, system-ui, sans-serif';
+    ctx.fillText(pct > 0 ? 'HOLD STILL (2s)' : 'HOLD STEADY', ringX, ringY + 14);
+
+    ctx.restore();
+  }
+
+  // 3. Rep / Hold Counter (Top-Left)
   const isPlank = activeExercise === 'plank';
   const displayVal = isPlank ? `${Math.floor(holdSeconds)}s` : String(reps);
-  const displaySub = isPlank ? 'HOLD' : 'REPS';
+  const displaySub = !isAuto && setNumber ? `SET ${setNumber} • ${isPlank ? 'HOLD' : 'REPS'}` : isPlank ? 'HOLD' : 'REPS';
 
+  const boxW = !isAuto && setNumber ? 140 : 110;
   ctx.fillStyle = 'rgba(14, 14, 20, 0.85)';
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.roundRect(20, 20, 110, 68, 16);
+  ctx.roundRect(20, 20, boxW, 68, 16);
   ctx.fill();
   ctx.stroke();
 
@@ -208,12 +269,13 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
   ctx.font = 'bold 10px Inter, system-ui, sans-serif';
   ctx.fillText(displaySub, 34, 76);
 
-  // 3. Movement Phase Tag (Next to Reps)
-  const phaseX = 140;
+  // 4. Movement Phase Tag (Next to Reps)
+  const phaseX = !isAuto && setNumber ? 170 : 140;
   const phaseY = 20;
-  ctx.fillStyle = phase.toLowerCase() === 'down' || phase.toLowerCase() === 'bottom'
-    ? 'rgba(234, 88, 12, 0.9)'
-    : 'rgba(255, 255, 255, 0.15)';
+  ctx.fillStyle =
+    phase.toLowerCase() === 'down' || phase.toLowerCase() === 'bottom'
+      ? 'rgba(234, 88, 12, 0.9)'
+      : 'rgba(255, 255, 255, 0.15)';
   ctx.beginPath();
   ctx.roundRect(phaseX, phaseY, 85, 30, 15);
   ctx.fill();
@@ -223,10 +285,20 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
   ctx.textAlign = 'center';
   ctx.fillText(phase.toUpperCase(), phaseX + 42, phaseY + 19);
 
-  // 4. Auto-Detection Canvas Badge (Top Center)
-  if (isAuto && detectedInfo) {
-    const timeLabel = exerciseStartedFormatted ? ` • ${exerciseStartedFormatted}` : '';
-    const labelText = `AUTO (2s): ${detectedInfo.shortName.toUpperCase()}${timeLabel}`;
+  // 5. Auto-Detection Canvas Badge (Top Center)
+  if (isAuto) {
+    let labelText = '';
+    if (isLocked && detectedInfo) {
+      labelText = `AUTO: ${detectedInfo.shortName.toUpperCase()} (LOCKED)`;
+    } else if (autoState === 'hold_steady') {
+      const pct = Math.round((holdProgress || 0) * 100);
+      labelText = `AUTO: HOLD STEADY (${pct}%)`;
+    } else if (autoState === 'detecting') {
+      labelText = `AUTO: DETECTING...`;
+    } else {
+      labelText = `AUTO: WAITING FOR POSE`;
+    }
+
     ctx.font = 'bold 12px Inter, system-ui, sans-serif';
     const textWidth = ctx.measureText(labelText).width;
     const badgeW = textWidth + 30;
@@ -234,8 +306,8 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
     const badgeX = (width - badgeW) / 2;
     const badgeY = 20;
 
-    ctx.fillStyle = 'rgba(234, 88, 12, 0.92)';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.fillStyle = isLocked ? 'rgba(234, 88, 12, 0.95)' : 'rgba(20, 20, 30, 0.92)';
+    ctx.strokeStyle = isLocked ? 'rgba(255, 255, 255, 0.4)' : 'rgba(234, 88, 12, 0.6)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 16);
@@ -246,7 +318,7 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
     ctx.textAlign = 'center';
     ctx.fillText(labelText, width / 2, badgeY + 20);
   } else if (startTimeFormatted) {
-    // Show start time pill when not in auto mode
+    // Show start time pill when in manual mode
     const labelText = `STARTED: ${startTimeFormatted}`;
     ctx.font = 'bold 11px Inter, system-ui, sans-serif';
     const textWidth = ctx.measureText(labelText).width;
@@ -268,7 +340,7 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
     ctx.fillText(labelText, width / 2, badgeY + 18);
   }
 
-  // 5. Form Precision Badge (Top-Right)
+  // 6. Form Precision Badge (Top-Right)
   const scoreX = width - 110;
   const scoreY = 20;
   ctx.fillStyle = 'rgba(14, 14, 20, 0.85)';

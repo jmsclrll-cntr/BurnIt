@@ -21,15 +21,16 @@ const DEFAULT_TARGETS = [
  * Initializes scroll reveal observer on a given container or document.
  * Returns a cleanup function.
  */
+
 export function initScrollReveal(container = document) {
   if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
-    return () => {}
+    return () => { }
   }
 
   // Check prefers-reduced-motion
   const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
   if (mediaQuery && mediaQuery.matches) {
-    return () => {}
+    return () => { }
   }
 
   const observer = new IntersectionObserver(
@@ -60,7 +61,6 @@ export function initScrollReveal(container = document) {
     try {
       const elements = container.querySelectorAll(DEFAULT_TARGETS)
       elements.forEach((el) => {
-        // Skip elements that explicitly opt out, are inside header/nav, or are media capture canvases
         if (
           registeredElements.has(el) ||
           el.classList.contains('is-revealed') ||

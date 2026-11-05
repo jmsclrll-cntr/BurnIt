@@ -18,7 +18,16 @@ export const RealtimeTracker = () => {
   const { darkMode } = useTheme();
 
   // State
-  const [activeExercise, setActiveExercise] = useState('auto');
+  const [activeExercise, setActiveExercise] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const exParam = params.get('exercise');
+      if (exParam && EXERCISES.some((e) => e.id === exParam.toLowerCase())) {
+        return exParam.toLowerCase();
+      }
+    }
+    return 'auto';
+  });
   const [videoSource, setVideoSource] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -39,13 +48,25 @@ export const RealtimeTracker = () => {
   // Time tracking
   const [sessionStartTimeFormatted, setSessionStartTimeFormatted] = useState('');
 
+  // Per-exercise sets tracking (for manual modes: Squats, Push-Ups, Plank, Jumping Jacks, Bicep Curls)
+  const [exerciseSets, setExerciseSets] = useState({
+    squat: [],
+    pushup: [],
+    plank: [],
+    jumpingjack: [],
+    bicepcurl: [],
+  });
+
   // Live Telemetry
   const [telemetry, setTelemetry] = useState({
     bodyVisible: false,
     isAuto: true,
+    autoState: 'waiting',
+    isLocked: false,
+    holdProgress: 0,
     exercise: 'squat',
     detectedInfo: EXERCISE_INFO.squat,
-    confidence: 96,
+    confidence: 100,
     exerciseStartedFormatted: '',
     exerciseActiveDurationSecs: 0,
     reps: 0,
@@ -55,7 +76,12 @@ export const RealtimeTracker = () => {
     feedback: 'Step into camera frame to begin workout detection',
     angles: {},
     holdSeconds: 0,
+    sessionTotals: { squat: 0, pushup: 0, plank: 0, jumpingjack: 0, bicepcurl: 0 },
   });
+
+  // Active sets for currently selected manual exercise
+  const currentSets = activeExercise !== 'auto' ? (exerciseSets[activeExercise] || []) : [];
+  const currentSetNumber = activeExercise !== 'auto' ? currentSets.length + 1 : null;
 
   // Refs
   const videoRef = useRef(null);
@@ -71,6 +97,8 @@ export const RealtimeTracker = () => {
   const isProcessingFrameRef = useRef(false);
   const wsRef = useRef(null);
   const sessionIdRef = useRef('');
+  const lastTelemetryTimeRef = useRef(0);
+  const prevTelemetryStateRef = useRef({ reps: -1, phase: '', autoState: '', isLocked: false, holdProgress: -1 });
 
   // Update Biomechanics Engine active exercise
   useEffect(() => {
@@ -282,7 +310,33 @@ export const RealtimeTracker = () => {
                 displayLandmarks,
                 activeExercise
               );
-              setTelemetry(result);
+
+              // Performance Optimization: Throttle React re-renders to ~10-15 Hz
+              // or immediately on key state changes (reps, phase, locked, autoState)
+              // This keeps 60 FPS canvas rendering completely decoupled from React DOM overhead!
+              const nowMs = performance.now();
+              const prevState = prevTelemetryStateRef.current;
+              const hasKeyChange =
+                result.reps !== prevState.reps ||
+                result.phase !== prevState.phase ||
+                result.autoState !== prevState.autoState ||
+                result.isLocked !== prevState.isLocked ||
+                Math.abs((result.holdProgress || 0) - prevState.holdProgress) > 0.08 ||
+                result.formScore !== prevState.formScore ||
+                nowMs - lastTelemetryTimeRef.current >= 80;
+
+              if (hasKeyChange) {
+                lastTelemetryTimeRef.current = nowMs;
+                prevTelemetryStateRef.current = {
+                  reps: result.reps,
+                  phase: result.phase,
+                  autoState: result.autoState,
+                  isLocked: result.isLocked,
+                  holdProgress: result.holdProgress || 0,
+                  formScore: result.formScore,
+                };
+                setTelemetry(result);
+              }
 
               // Clear and redraw canvas overlays
               ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -310,6 +364,10 @@ export const RealtimeTracker = () => {
                 confidence: result.confidence,
                 exerciseStartedFormatted: result.exerciseStartedFormatted,
                 startTimeFormatted: sessionStartTimeFormatted,
+                autoState: result.autoState,
+                isLocked: result.isLocked,
+                holdProgress: result.holdProgress,
+                setNumber: currentSetNumber,
               });
             });
 
@@ -335,7 +393,7 @@ export const RealtimeTracker = () => {
         cancelAnimationFrame(animFrameIdRef.current);
       }
     };
-  }, [isCameraActive, isPaused, activeExercise, showJoints, showAngles, isMirrored, videoSource, sessionStartTimeFormatted]);
+  }, [isCameraActive, isPaused, activeExercise, showJoints, showAngles, isMirrored, videoSource, sessionStartTimeFormatted, currentSetNumber]);
 
   useEffect(() => {
     const launchTimer = setTimeout(() => {
@@ -348,9 +406,117 @@ export const RealtimeTracker = () => {
     };
   }, [startCamera, stopCamera]);
 
+  // Commit current set reps/duration for manual exercise mode
+  const commitCurrentSet = useCallback((exerciseId = activeExercise) => {
+    if (exerciseId === 'auto') return;
+
+    const isPlank = exerciseId === 'plank';
+    const count = isPlank ? Math.floor(telemetry.holdSeconds) : telemetry.reps;
+
+    if (count > 0) {
+      setExerciseSets((prev) => {
+        const currentList = prev[exerciseId] || [];
+        const newSet = {
+          setNumber: currentList.length + 1,
+          reps: count,
+          isPlank,
+          formScore: telemetry.formScore,
+          completedAt: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }),
+        };
+        return {
+          ...prev,
+          [exerciseId]: [...currentList, newSet],
+        };
+      });
+    }
+
+    if (engineRef.current) {
+      engineRef.current.resetSet();
+    }
+    setTelemetry((prev) => ({
+      ...prev,
+      reps: 0,
+      holdSeconds: 0,
+      phase: 'ready',
+      formScore: 100,
+      feedback: 'Ready for next set',
+    }));
+  }, [activeExercise, telemetry.holdSeconds, telemetry.reps, telemetry.formScore]);
+
+  // Changing exercise: automatically logs in-progress set for manual mode and switches
+  const handleSelectExercise = useCallback((nextId) => {
+    if (nextId === 'auto' && activeExercise === 'auto') {
+      if (engineRef.current) {
+        engineRef.current.unlock();
+      }
+      setTelemetry((prev) => ({
+        ...prev,
+        isLocked: false,
+        autoState: 'hold_steady',
+        holdProgress: 0,
+        feedback: 'Hold steady to detect new exercise',
+      }));
+      return;
+    }
+
+    if (nextId === activeExercise) return;
+
+    // Automatically commit in-progress set when leaving manual exercise
+    if (activeExercise !== 'auto') {
+      const isPlank = activeExercise === 'plank';
+      const count = isPlank ? Math.floor(telemetry.holdSeconds) : telemetry.reps;
+      if (count > 0) {
+        setExerciseSets((prev) => {
+          const currentList = prev[activeExercise] || [];
+          const newSet = {
+            setNumber: currentList.length + 1,
+            reps: count,
+            isPlank,
+            formScore: telemetry.formScore,
+            completedAt: new Date().toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+            }),
+          };
+          return {
+            ...prev,
+            [activeExercise]: [...currentList, newSet],
+          };
+        });
+      }
+    }
+
+    setActiveExercise(nextId);
+
+    if (engineRef.current) {
+      engineRef.current.setExercise(nextId);
+    }
+    setTelemetry((prev) => ({
+      ...prev,
+      reps: 0,
+      holdSeconds: 0,
+      phase: 'ready',
+      feedback:
+        nextId === 'auto'
+          ? 'Step into camera frame to begin workout detection'
+          : `Ready to start ${EXERCISE_INFO[nextId]?.name || nextId}`,
+    }));
+  }, [activeExercise, telemetry.holdSeconds, telemetry.reps, telemetry.formScore]);
+
+  // Manually trigger set completion
+  const handleCompleteSet = () => {
+    commitCurrentSet(activeExercise);
+  };
+
+  // Reset active set reps
   const handleResetReps = () => {
     if (engineRef.current) {
-      engineRef.current.reset();
+      engineRef.current.resetSet();
     }
     setTelemetry((prev) => ({
       ...prev,
@@ -362,8 +528,44 @@ export const RealtimeTracker = () => {
     }));
   };
 
+  // Clear completed sets for specific exercise
+  const handleClearExerciseSets = (exerciseId = activeExercise) => {
+    if (exerciseId === 'auto') return;
+    setExerciseSets((prev) => ({
+      ...prev,
+      [exerciseId]: [],
+    }));
+    handleResetReps();
+  };
+
   const handleFinishWorkout = () => {
     stopCamera();
+
+    let finalSets = { ...exerciseSets };
+    if (activeExercise !== 'auto') {
+      const isPlank = activeExercise === 'plank';
+      const count = isPlank ? Math.floor(telemetry.holdSeconds) : telemetry.reps;
+      if (count > 0) {
+        const currentList = finalSets[activeExercise] || [];
+        const newSet = {
+          setNumber: currentList.length + 1,
+          reps: count,
+          isPlank,
+          formScore: telemetry.formScore,
+          completedAt: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }),
+        };
+        finalSets = {
+          ...finalSets,
+          [activeExercise]: [...currentList, newSet],
+        };
+        setExerciseSets(finalSets);
+      }
+    }
+
     const cals = Math.round((workoutDuration / 60) * 7.5);
     setSummaryData({
       exercise: telemetry.detectedInfo?.name || activeExercise,
@@ -373,7 +575,13 @@ export const RealtimeTracker = () => {
       calories: cals,
       errors: telemetry.formErrors,
       sessionStarted: sessionStartTimeFormatted,
-      sessionCompleted: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      sessionCompleted: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      }),
+      sessionTotals: telemetry.sessionTotals,
+      exerciseSets: finalSets,
     });
   };
 
@@ -399,15 +607,16 @@ export const RealtimeTracker = () => {
             )}
           </div>
 
-          {/* Exercise Selector Pills - Clean Text Without Icons */}
+          {/* Exercise Selector Pills - Clean Text with Set Badges */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
             {EXERCISES.map((ex) => {
               const isSelected = activeExercise === ex.id;
+              const setBadgeCount = ex.id !== 'auto' ? (exerciseSets[ex.id]?.length || 0) : 0;
               return (
                 <button
                   key={ex.id}
-                  onClick={() => setActiveExercise(ex.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                  onClick={() => handleSelectExercise(ex.id)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
                     isSelected
                       ? 'bg-orange-600 text-white shadow-sm'
                       : darkMode
@@ -415,7 +624,18 @@ export const RealtimeTracker = () => {
                       : 'bg-neutral-100 text-neutral-600 hover:text-black border border-neutral-200 hover:bg-neutral-200/60'
                   }`}
                 >
-                  {ex.name}
+                  <span>{ex.name}</span>
+                  {setBadgeCount > 0 && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                        isSelected
+                          ? 'bg-black/25 text-white'
+                          : 'bg-orange-500/10 text-orange-500 font-bold'
+                      }`}
+                    >
+                      {setBadgeCount} {setBadgeCount === 1 ? 'set' : 'sets'}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -479,8 +699,14 @@ export const RealtimeTracker = () => {
 
                 <div className="px-3 py-1 rounded-full bg-orange-600 text-white text-xs font-semibold uppercase tracking-wider">
                   {activeExercise === 'auto'
-                    ? `AUTO (2s): ${telemetry.detectedInfo?.shortName || 'DETECTING'}`
-                    : activeExercise}
+                    ? telemetry.isLocked
+                      ? `AUTO: ${telemetry.detectedInfo?.shortName?.toUpperCase() || 'EXERCISE'} (LOCKED)`
+                      : telemetry.autoState === 'hold_steady'
+                      ? `AUTO: HOLD STEADY (${Math.round((telemetry.holdProgress || 0) * 100)}%)`
+                      : telemetry.autoState === 'detecting'
+                      ? 'AUTO: DETECTING...'
+                      : 'AUTO: WAITING FOR POSE'
+                    : `${telemetry.detectedInfo?.shortName?.toUpperCase() || activeExercise.toUpperCase()} • SET ${currentSets.length + 1}`}
                 </div>
 
                 {isPaused && (
@@ -554,15 +780,22 @@ export const RealtimeTracker = () => {
 
           {/* Simple, Unified Right Stats & Controls Sidebar (3 Columns) */}
           <div className="lg:col-span-3 flex flex-col">
-            <div className={`p-6 rounded-2xl border flex-1 flex flex-col justify-between ${
-              darkMode ? 'bg-[#15151e] border-white/5' : 'bg-white border-neutral-200/80 shadow-sm'
-            }`}>
+            <div
+              className={`p-6 rounded-2xl border flex-1 flex flex-col justify-between ${
+                darkMode ? 'bg-[#15151e] border-white/5' : 'bg-white border-neutral-200/80 shadow-sm'
+              }`}
+            >
               <div className="space-y-6">
                 {/* Reps / Hold Time */}
                 <div>
                   <div className="flex items-center justify-between text-xs text-neutral-400 mb-1">
-                    <span className="font-semibold uppercase tracking-wider text-[11px]">
-                      {telemetry.exercise === 'plank' ? 'Hold Time' : 'Completed Reps'}
+                    <span className="font-semibold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                      <span>{telemetry.exercise === 'plank' ? 'Hold Time' : 'Completed Reps'}</span>
+                      {activeExercise !== 'auto' && (
+                        <span className="px-1.5 py-0.2 rounded bg-orange-500/10 text-orange-500 font-mono font-bold text-[10px]">
+                          SET {currentSets.length + 1}
+                        </span>
+                      )}
                     </span>
                     <span className="font-bold uppercase text-[10px] text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-full">
                       {telemetry.phase}
@@ -576,8 +809,14 @@ export const RealtimeTracker = () => {
                 {/* Form Precision Score */}
                 <div className="pt-4 border-t border-neutral-100 dark:border-white/5">
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="text-neutral-400 font-semibold uppercase tracking-wider text-[11px]">Form Precision</span>
-                    <span className={`font-bold ${telemetry.formScore >= 80 ? 'text-green-500' : 'text-orange-500'}`}>
+                    <span className="text-neutral-400 font-semibold uppercase tracking-wider text-[11px]">
+                      Form Precision
+                    </span>
+                    <span
+                      className={`font-bold ${
+                        telemetry.formScore >= 80 ? 'text-green-500' : 'text-orange-500'
+                      }`}
+                    >
                       {telemetry.formScore}%
                     </span>
                   </div>
@@ -592,21 +831,138 @@ export const RealtimeTracker = () => {
                   </div>
                 </div>
 
+                {/* Sets History Log for Manual Exercise */}
+                {activeExercise !== 'auto' && (
+                  <div className="pt-4 border-t border-neutral-100 dark:border-white/5">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                          Sets Log
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-500 text-[10px] font-bold font-mono">
+                          {currentSets.length} {currentSets.length === 1 ? 'set' : 'sets'}
+                        </span>
+                      </div>
+                      {currentSets.length > 0 && (
+                        <button
+                          onClick={() => handleClearExerciseSets(activeExercise)}
+                          className="text-[10px] text-neutral-400 hover:text-red-500 transition-colors"
+                          title="Clear completed sets for this exercise"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+
+                    {currentSets.length === 0 ? (
+                      <div className="p-2.5 rounded-xl bg-neutral-50 dark:bg-white/[0.02] border border-dashed border-neutral-200 dark:border-white/10 text-center">
+                        <p className="text-[11px] text-neutral-400">
+                          Active: <span className="font-semibold text-orange-500">Set 1</span>. Reps will log as a set when completed or when switching exercise.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                        {currentSets.map((s) => (
+                          <div
+                            key={s.setNumber}
+                            className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-neutral-100/70 dark:bg-white/5 border border-neutral-200/50 dark:border-white/5 text-xs"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-orange-500/10 text-orange-500 font-mono font-bold text-[10px] flex items-center justify-center">
+                                {s.setNumber}
+                              </span>
+                              <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                                Set {s.setNumber}:
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-orange-600 dark:text-orange-400">
+                                {s.isPlank ? `${s.reps}s` : `${s.reps} reps`}
+                              </span>
+                              {s.formScore !== undefined && (
+                                <span className="text-[10px] text-neutral-400 font-mono">
+                                  ({s.formScore}%)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Exercise & Time Summary */}
                 <div className="pt-4 border-t border-neutral-100 dark:border-white/5 space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-400">{activeExercise === 'auto' ? 'Auto-Detected:' : 'Exercise:'}</span>
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-100">
-                      {telemetry.detectedInfo?.name || activeExercise}
+                    <span className="text-neutral-400">
+                      {activeExercise === 'auto' ? 'Auto-Detected:' : 'Exercise:'}
                     </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-neutral-800 dark:text-neutral-100">
+                        {activeExercise === 'auto'
+                          ? telemetry.isLocked
+                            ? `${telemetry.detectedInfo?.name || 'Detected'} (Locked)`
+                            : telemetry.autoState === 'detecting'
+                            ? 'Detecting...'
+                            : telemetry.autoState === 'hold_steady'
+                            ? 'Hold Steady'
+                            : 'Waiting for Pose'
+                          : telemetry.detectedInfo?.name || activeExercise}
+                      </span>
+                      {activeExercise === 'auto' && telemetry.isLocked && (
+                        <button
+                          onClick={() => {
+                            if (engineRef.current) engineRef.current.unlock();
+                            setTelemetry((prev) => ({
+                              ...prev,
+                              isLocked: false,
+                              autoState: 'hold_steady',
+                              holdProgress: 0,
+                              feedback: 'Hold steady to detect new exercise',
+                            }));
+                          }}
+                          className="text-[10px] font-semibold text-orange-500 hover:text-orange-400 px-1.5 py-0.5 rounded bg-orange-500/10 transition-colors"
+                          title="Unlock exercise to detect a different one"
+                        >
+                          Change
+                        </button>
+                      )}
+                    </div>
                   </div>
                   {activeExercise === 'auto' && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-400">Sample Interval:</span>
-                      <span className="font-mono text-neutral-700 dark:text-neutral-300 font-medium">
-                        Every 2.0s
-                      </span>
-                    </div>
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-400">Status:</span>
+                        <span className="font-semibold text-orange-500">
+                          {telemetry.autoState === 'waiting'
+                            ? 'Waiting'
+                            : telemetry.autoState === 'hold_steady'
+                            ? 'Hold steady'
+                            : telemetry.autoState === 'detecting'
+                            ? 'Detecting'
+                            : 'Counting'}
+                        </span>
+                      </div>
+                      {telemetry.autoState === 'hold_steady' && (
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-neutral-400">Hold Progress:</span>
+                            <span className="font-mono font-bold text-orange-500">
+                              {Math.round((telemetry.holdProgress || 0) * 100)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-neutral-100 dark:bg-white/5 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className="h-full bg-orange-500 transition-all duration-150"
+                              style={{
+                                width: `${Math.round((telemetry.holdProgress || 0) * 100)}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                   {sessionStartTimeFormatted && (
                     <div className="flex items-center justify-between">
@@ -622,11 +978,76 @@ export const RealtimeTracker = () => {
                       {formatDuration(workoutDuration)}
                     </span>
                   </div>
+
+                  {/* Session Exercise Totals (for Auto-Detect) */}
+                  {telemetry.sessionTotals &&
+                    Object.values(telemetry.sessionTotals).some((v) => v > 0) && (
+                      <div className="pt-2 border-t border-neutral-100 dark:border-white/5">
+                        <span className="text-[10px] uppercase font-bold text-neutral-400 block mb-1">
+                          Session Totals
+                        </span>
+                        <div className="grid grid-cols-2 gap-1 text-[11px]">
+                          {Object.entries(telemetry.sessionTotals).map(([key, val]) => {
+                            if (val === 0 && telemetry.exercise !== key) return null;
+                            const info = EXERCISE_INFO[key];
+                            return (
+                              <div
+                                key={key}
+                                className="flex justify-between px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-white/5"
+                              >
+                                <span className="text-neutral-500 dark:text-neutral-400">
+                                  {info?.shortName || key}:
+                                </span>
+                                <span className="font-mono font-bold text-orange-500">
+                                  {key === 'plank' ? `${val}s` : val}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                 </div>
               </div>
 
               {/* Minimal Clean Action Buttons */}
               <div className="pt-6 border-t border-neutral-100 dark:border-white/5 space-y-2 mt-6">
+                {activeExercise === 'auto' && telemetry.isLocked && (
+                  <button
+                    onClick={() => {
+                      if (engineRef.current) engineRef.current.unlock();
+                      setTelemetry((prev) => ({
+                        ...prev,
+                        isLocked: false,
+                        autoState: 'hold_steady',
+                        holdProgress: 0,
+                        feedback: 'Hold steady to detect new exercise',
+                      }));
+                    }}
+                    className="w-full py-2.5 rounded-full text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    title="Unlock and re-detect exercise"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Switch Exercise (Re-Detect)</span>
+                  </button>
+                )}
+
+                {activeExercise !== 'auto' && (
+                  <button
+                    onClick={handleCompleteSet}
+                    disabled={activeExercise === 'plank' ? telemetry.holdSeconds < 1 : telemetry.reps < 1}
+                    className={`w-full py-2.5 rounded-full text-xs font-semibold shadow-sm transition-all ${
+                      (activeExercise === 'plank' ? telemetry.holdSeconds >= 1 : telemetry.reps >= 1)
+                        ? 'bg-orange-600 hover:bg-orange-500 text-white cursor-pointer'
+                        : 'bg-neutral-200 dark:bg-white/10 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'
+                    }`}
+                  >
+                    Complete Set {currentSets.length + 1}
+                  </button>
+                )}
+
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => setIsPaused(!isPaused)}
@@ -645,8 +1066,9 @@ export const RealtimeTracker = () => {
                         ? 'border-white/10 text-neutral-200 hover:bg-white/5'
                         : 'border-neutral-200 text-neutral-700 hover:bg-neutral-100'
                     }`}
+                    title="Reset active set reps"
                   >
-                    Reset
+                    Reset Set
                   </button>
                 </div>
 
@@ -661,12 +1083,14 @@ export const RealtimeTracker = () => {
           </div>
         </div>
 
-        {/* Minimal Performance Summary Modal */}
+        {/* Minimal Performance Summary Modal with Sets Breakdown */}
         {summaryData && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <div className={`w-full max-w-md p-8 rounded-2xl border text-center shadow-xl ${
-              darkMode ? 'bg-[#15151e] border-white/10' : 'bg-white border-neutral-200'
-            }`}>
+            <div
+              className={`w-full max-w-md p-8 rounded-2xl border text-center shadow-xl ${
+                darkMode ? 'bg-[#15151e] border-white/10' : 'bg-white border-neutral-200'
+              }`}
+            >
               <h2 className="text-2xl font-bold mb-1">Workout Complete</h2>
               <p className="text-xs text-neutral-400 uppercase tracking-wider font-semibold mb-6">
                 {summaryData.exercise} Summary
@@ -710,17 +1134,92 @@ export const RealtimeTracker = () => {
                 </div>
               </div>
 
+              {/* Sets & Reps Breakdown for Manual Exercises */}
+              {summaryData.exerciseSets &&
+                Object.entries(summaryData.exerciseSets).some(([, sets]) => sets.length > 0) && (
+                  <div className="p-3.5 rounded-xl bg-neutral-100 dark:bg-white/5 mb-4 text-xs text-left max-h-56 overflow-y-auto">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-2.5">
+                      Sets & Reps Breakdown
+                    </span>
+                    <div className="space-y-3">
+                      {Object.entries(summaryData.exerciseSets).map(([exId, sets]) => {
+                        if (sets.length === 0) return null;
+                        const info = EXERCISE_INFO[exId];
+                        const totalCount = sets.reduce((acc, s) => acc + s.reps, 0);
+                        const isPlank = exId === 'plank';
+                        return (
+                          <div
+                            key={exId}
+                            className="p-2.5 rounded-lg bg-black/5 dark:bg-black/30 border border-neutral-200/40 dark:border-white/5"
+                          >
+                            <div className="flex items-center justify-between font-semibold text-neutral-800 dark:text-neutral-200 mb-1.5">
+                              <span>{info?.name || exId}</span>
+                              <span className="text-[11px] text-orange-500 font-mono">
+                                Total: {isPlank ? `${totalCount}s` : `${totalCount} reps`} ({sets.length} {sets.length === 1 ? 'set' : 'sets'})
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                              {sets.map((s) => (
+                                <div
+                                  key={s.setNumber}
+                                  className="flex items-center justify-between px-2 py-1 rounded bg-white/60 dark:bg-white/5 text-neutral-600 dark:text-neutral-400 font-mono"
+                                >
+                                  <span>Set {s.setNumber}:</span>
+                                  <span className="font-bold text-orange-600 dark:text-orange-400">
+                                    {s.isPlank ? `${s.reps}s` : `${s.reps} reps`}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+              {/* Per-Exercise Breakdown if Auto-detect session totals recorded */}
+              {summaryData.sessionTotals &&
+                Object.values(summaryData.sessionTotals).some((v) => v > 0) && (
+                  <div className="p-3 rounded-xl bg-neutral-100 dark:bg-white/5 mb-4 text-xs">
+                    <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-2">
+                      Session Auto-Detect Totals
+                    </span>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      {Object.entries(summaryData.sessionTotals).map(([key, val]) => {
+                        if (val === 0) return null;
+                        const info = EXERCISE_INFO[key];
+                        return (
+                          <div
+                            key={key}
+                            className="flex justify-between px-2 py-1 rounded bg-black/10 dark:bg-black/30"
+                          >
+                            <span className="text-neutral-400">{info?.name || key}:</span>
+                            <span className="font-mono font-bold text-orange-500">
+                              {key === 'plank' ? `${val}s` : `${val} reps`}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
               {/* Start and End Timestamps */}
               <div className="p-3 rounded-xl bg-neutral-100 dark:bg-white/5 mb-6 text-xs flex items-center justify-around text-neutral-400">
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-neutral-400">Started</span>
+                  <span className="block text-[10px] uppercase font-bold text-neutral-400">
+                    Started
+                  </span>
                   <span className="font-mono font-bold text-neutral-700 dark:text-neutral-200">
                     {summaryData.sessionStarted}
                   </span>
                 </div>
                 <div className="h-5 w-px bg-neutral-300 dark:bg-white/10" />
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-neutral-400">Finished</span>
+                  <span className="block text-[10px] uppercase font-bold text-neutral-400">
+                    Finished
+                  </span>
                   <span className="font-mono font-bold text-neutral-700 dark:text-neutral-200">
                     {summaryData.sessionCompleted}
                   </span>
@@ -732,6 +1231,16 @@ export const RealtimeTracker = () => {
                   onClick={() => {
                     setSummaryData(null);
                     setWorkoutDuration(0);
+                    setExerciseSets({
+                      squat: [],
+                      pushup: [],
+                      plank: [],
+                      jumpingjack: [],
+                      bicepcurl: [],
+                    });
+                    if (engineRef.current) {
+                      engineRef.current.resetSessionTotals();
+                    }
                     handleResetReps();
                     startCamera();
                   }}
