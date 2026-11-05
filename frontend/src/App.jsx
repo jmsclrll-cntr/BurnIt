@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import ScrollRevealManager from './components/ScrollRevealManager';
 import Homepage from './pages/homepage';
 import { RealtimeTracker } from './pages/tracker/RealtimeTracker';
 import AdminRecorder from './pages/tracker/AdminRecorder';
@@ -9,6 +10,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
+        <ScrollRevealManager />
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/tracker" element={<RealtimeTracker />} />

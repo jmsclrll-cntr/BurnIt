@@ -2,7 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide scrollbars during fullscreen mode across all browsers */
+/* ========================================================= */
+/* FULLSCREEN SCROLLBAR NORMALIZATION                        */
+/* ========================================================= */
+
 :fullscreen,
 :fullscreen *,
 html:fullscreen,
@@ -36,36 +39,67 @@ html.fullscreen-active *::-webkit-scrollbar {
   height: 0 !important;
 }
 
-/* Hide scrollbars during fullscreen mode across all browsers */
-:fullscreen,
-:fullscreen *,
-html:fullscreen,
-body:fullscreen {
-  scrollbar-width: none !important; /* Firefox */
-  -ms-overflow-style: none !important; /* IE & Edge */
+html {
+  scroll-behavior: smooth;
 }
 
-:fullscreen::-webkit-scrollbar,
-:fullscreen *::-webkit-scrollbar,
-html:fullscreen::-webkit-scrollbar,
-body:fullscreen::-webkit-scrollbar {
-  display: none !important; /* Chrome, Safari, Edge */
-  width: 0 !important;
-  height: 0 !important;
+/* ========================================================= */
+/* SHARED SCROLL REVEAL ANIMATIONS (ALL PAGES & SECTIONS)    */
+/* ========================================================= */
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px) scale(0.985);
+  filter: blur(4px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+  backface-visibility: hidden;
 }
 
-/* Fallback class toggled synchronously via JavaScript */
-html.fullscreen-active,
-html.fullscreen-active body,
-html.fullscreen-active * {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+.scroll-reveal.is-revealed {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+  filter: blur(0px) !important;
 }
 
-html.fullscreen-active::-webkit-scrollbar,
-html.fullscreen-active body::-webkit-scrollbar,
-html.fullscreen-active *::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+/* Stagger utility for sibling items (e.g. cards in grids) */
+.scroll-reveal-stagger > *:nth-child(1) { transition-delay: 0ms; }
+.scroll-reveal-stagger > *:nth-child(2) { transition-delay: 90ms; }
+.scroll-reveal-stagger > *:nth-child(3) { transition-delay: 180ms; }
+.scroll-reveal-stagger > *:nth-child(4) { transition-delay: 270ms; }
+.scroll-reveal-stagger > *:nth-child(5) { transition-delay: 360ms; }
+.scroll-reveal-stagger > *:nth-child(6) { transition-delay: 450ms; }
+.scroll-reveal-stagger > *:nth-child(7) { transition-delay: 540ms; }
+.scroll-reveal-stagger > *:nth-child(8) { transition-delay: 630ms; }
+
+/* Subtle floating pulse glow for primary hero button */
+@keyframes softPulseGlow {
+  0%, 100% {
+    box-shadow: 0 10px 25px -5px rgba(234, 88, 12, 0.35), 0 8px 10px -6px rgba(234, 88, 12, 0.25);
+  }
+  50% {
+    box-shadow: 0 16px 32px -4px rgba(234, 88, 12, 0.55), 0 10px 14px -5px rgba(234, 88, 12, 0.35);
+  }
+}
+
+.btn-glow-pulse {
+  animation: softPulseGlow 3.5s ease-in-out infinite;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .scroll-reveal,
+  .scroll-reveal.is-revealed,
+  .btn-glow-pulse {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
 }
