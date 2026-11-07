@@ -84,8 +84,8 @@ export default function Navbar() {
             <Flame className="w-4 h-4 text-white fill-white" />
           </div>
           <div
-            className={`flex items-center gap-1.5 font-semibold text-base tracking-tight ${
-              darkMode ? 'text-white' : 'text-[#202124]'
+            className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${
+              darkMode ? 'text-white' : 'text-black'
             }`}
           >
             <span>BURN</span>
@@ -116,7 +116,7 @@ export default function Navbar() {
                           : 'text-orange-600 bg-orange-50/80'
                         : darkMode
                         ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                        : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
+                        : 'text-black font-semibold hover:text-orange-600 hover:bg-neutral-100'
                     }`}
                   >
                     <span>{item.label}</span>
@@ -127,7 +127,7 @@ export default function Navbar() {
                             ? 'rotate-180 text-orange-500'
                             : darkMode
                             ? 'text-neutral-500'
-                            : 'text-neutral-400'
+                            : 'text-neutral-700'
                         }`}
                       />
                     )}
@@ -139,10 +139,10 @@ export default function Navbar() {
                       isCurrent
                         ? darkMode
                           ? 'text-orange-400 bg-orange-500/10'
-                          : 'text-orange-600 bg-orange-50'
+                          : 'text-orange-600 bg-orange-50 font-bold'
                         : darkMode
                         ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                        : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
+                        : 'text-black font-semibold hover:text-orange-600 hover:bg-neutral-100'
                     }`}
                   >
                     <span>{item.label}</span>

@@ -4,6 +4,8 @@ import PageWrapper from '../../components/PageWrapper';
 import { useTheme } from '../../hooks/useTheme';
 import { BiomechanicsEngine, EXERCISE_INFO } from '../../lib/mediapipeTracker';
 import { drawPoseSkeleton, drawWorkoutHUD } from '../../lib/skeletonRenderer';
+import SetTrackerStepper from '../../components/tracker/SetTrackerStepper';
+import { useSetTracker } from '../../hooks/useSetTracker';
 
 const EXERCISES = [
   { id: 'auto', name: 'Auto-Detect' },
@@ -298,18 +300,9 @@ export const RealtimeTracker = () => {
               }
 
               drawWorkoutHUD(ctx, canvas.width, canvas.height, {
-                reps: result.reps,
-                phase: result.phase,
-                formScore: result.formScore,
                 feedback: result.feedback,
                 bodyVisible: result.bodyVisible,
-                activeExercise: result.exercise,
-                holdSeconds: result.holdSeconds,
-                isAuto: result.isAuto,
-                detectedInfo: result.detectedInfo,
-                confidence: result.confidence,
-                exerciseStartedFormatted: result.exerciseStartedFormatted,
-                startTimeFormatted: sessionStartTimeFormatted,
+                formScore: result.formScore,
               });
             });
 
@@ -362,7 +355,27 @@ export const RealtimeTracker = () => {
     }));
   };
 
-  const handleFinishWorkout = () => {
+  const currentExercise = activeExercise !== 'auto' ? activeExercise : telemetry.exercise;
+  const currentRepCount = currentExercise === 'plank' ? Math.floor(telemetry.holdSeconds) : telemetry.reps;
+
+  const {
+    exerciseGroups,
+    activeSet,
+    isResting,
+    currentSetNumber,
+    displayReps,
+    restDuration,
+    now: trackerNow,
+    endActiveSet,
+    startNextSet,
+    resetAllSets,
+  } = useSetTracker({
+    exercise: currentExercise,
+    repCount: currentRepCount,
+    isPaused,
+  });
+
+  const handleFinishWorkout = useCallback(() => {
     stopCamera();
     const cals = Math.round((workoutDuration / 60) * 7.5);
     setSummaryData({
@@ -374,8 +387,9 @@ export const RealtimeTracker = () => {
       errors: telemetry.formErrors,
       sessionStarted: sessionStartTimeFormatted,
       sessionCompleted: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      sets: exerciseGroups,
     });
-  };
+  }, [stopCamera, workoutDuration, telemetry, activeExercise, sessionStartTimeFormatted, exerciseGroups]);
 
   const formatDuration = (secs) => {
     const m = Math.floor(secs / 60);
@@ -389,11 +403,11 @@ export const RealtimeTracker = () => {
         {/* Clean, Simple Top Header with Workout Selectors (No Icons) */}
         <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-black dark:text-white">
               Workout Tracker
             </h1>
             {sessionStartTimeFormatted && (
-              <p className="text-xs text-neutral-400 font-mono mt-0.5">
+              <p className="text-xs text-neutral-800 dark:text-neutral-400 font-mono font-medium mt-0.5">
                 Started at {sessionStartTimeFormatted}
               </p>
             )}
@@ -407,12 +421,12 @@ export const RealtimeTracker = () => {
                 <button
                   key={ex.id}
                   onClick={() => setActiveExercise(ex.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-orange-600 text-white shadow-sm'
                       : darkMode
-                      ? 'bg-white/5 text-neutral-400 hover:text-white border border-white/10 hover:bg-white/10'
-                      : 'bg-neutral-100 text-neutral-600 hover:text-black border border-neutral-200 hover:bg-neutral-200/60'
+                      ? 'bg-white/5 text-neutral-300 hover:text-white border border-white/10 hover:bg-white/10'
+                      : 'bg-neutral-100 text-black hover:text-orange-600 border border-neutral-300 hover:border-black hover:bg-neutral-200/60'
                   }`}
                 >
                   {ex.name}
@@ -426,17 +440,17 @@ export const RealtimeTracker = () => {
         {cameraError && (
           <div className="mb-4 p-5 rounded-2xl bg-red-500/10 border border-red-500/30 text-center max-w-lg mx-auto">
             <h3 className="text-sm font-bold text-red-500 mb-1">Camera Access Required</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed mb-3">{cameraError}</p>
+            <p className="text-xs text-black dark:text-neutral-400 font-medium leading-relaxed mb-3">{cameraError}</p>
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={() => startCamera('camera')}
-                className="px-5 py-2 rounded-full text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all"
+                className="px-5 py-2 rounded-full text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all cursor-pointer"
               >
                 Retry Camera
               </button>
               <button
                 onClick={() => startCamera('demo')}
-                className="px-5 py-2 rounded-full text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 shadow-sm transition-all"
+                className="px-5 py-2 rounded-full text-xs font-bold bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 shadow-sm transition-all cursor-pointer"
               >
                 Try Demo Athlete Video
               </button>
@@ -448,7 +462,7 @@ export const RealtimeTracker = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
           {/* Main Video View - Enlarged 9 Columns */}
           <div className="lg:col-span-9 flex flex-col">
-            <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-black/90 border border-neutral-200/40 dark:border-white/10 shadow-lg">
+            <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-black/90 border border-neutral-300 dark:border-white/10 shadow-lg">
               {/* Webcam or Demo Athlete Video */}
               <video
                 ref={videoRef}
@@ -466,7 +480,7 @@ export const RealtimeTracker = () => {
                 className="absolute inset-0 w-full h-full pointer-events-none"
               />
 
-              {/* Minimal Top Badges on Video */}
+              {/* Minimal Top Badges on Video (Clean & Uncluttered) */}
               <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-auto">
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] border border-white/10 text-neutral-300 font-mono">
                   <span
@@ -475,12 +489,6 @@ export const RealtimeTracker = () => {
                     }`}
                   />
                   <span>{fps} FPS</span>
-                </div>
-
-                <div className="px-3 py-1 rounded-full bg-orange-600 text-white text-xs font-semibold uppercase tracking-wider">
-                  {activeExercise === 'auto'
-                    ? `AUTO (2s): ${telemetry.detectedInfo?.shortName || 'DETECTING'}`
-                    : activeExercise}
                 </div>
 
                 {isPaused && (
@@ -497,7 +505,7 @@ export const RealtimeTracker = () => {
                     const next = videoSource === 'camera' ? 'demo' : 'camera';
                     startCamera(next);
                   }}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
                     videoSource === 'demo'
                       ? 'bg-orange-600 border-orange-500 text-white shadow-sm'
                       : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
@@ -508,7 +516,7 @@ export const RealtimeTracker = () => {
                 </button>
                 <button
                   onClick={() => setShowJoints(!showJoints)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
                     showJoints
                       ? 'bg-orange-600/90 border-orange-500 text-white'
                       : 'bg-black/60 border-white/10 text-neutral-400 hover:text-white'
@@ -518,7 +526,7 @@ export const RealtimeTracker = () => {
                 </button>
                 <button
                   onClick={() => setShowAngles(!showAngles)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
                     showAngles
                       ? 'bg-orange-600/90 border-orange-500 text-white'
                       : 'bg-black/60 border-white/10 text-neutral-400 hover:text-white'
@@ -528,7 +536,7 @@ export const RealtimeTracker = () => {
                 </button>
                 <button
                   onClick={() => setIsMirrored(!isMirrored)}
-                  className="px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/10 text-xs text-neutral-300 hover:text-white transition-all"
+                  className="px-2.5 py-1 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/10 text-xs font-semibold text-neutral-300 hover:text-white transition-all"
                 >
                   Mirror
                 </button>
@@ -538,12 +546,12 @@ export const RealtimeTracker = () => {
               {!isCameraActive && !cameraError && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 p-6 text-center">
                   <h3 className="text-lg font-bold text-white mb-2">Camera Ready</h3>
-                  <p className="text-xs text-neutral-400 max-w-sm mb-4">
+                  <p className="text-xs text-neutral-300 max-w-sm mb-4">
                     Real-time pose and joint tracking will begin immediately.
                   </p>
                   <button
                     onClick={startCamera}
-                    className="px-6 py-2.5 rounded-full text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white shadow-md transition-all"
+                    className="px-6 py-2.5 rounded-full text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md transition-all cursor-pointer"
                   >
                     Start Camera
                   </button>
@@ -555,33 +563,90 @@ export const RealtimeTracker = () => {
           {/* Simple, Unified Right Stats & Controls Sidebar (3 Columns) */}
           <div className="lg:col-span-3 flex flex-col">
             <div className={`p-6 rounded-2xl border flex-1 flex flex-col justify-between ${
-              darkMode ? 'bg-[#15151e] border-white/5' : 'bg-white border-neutral-200/80 shadow-sm'
+              darkMode ? 'bg-[#15151e] border-white/5' : 'bg-white border-neutral-300 shadow-sm'
             }`}>
               <div className="space-y-6">
-                {/* Reps / Hold Time */}
+                {/* Current Set & Rep Counter */}
                 <div>
-                  <div className="flex items-center justify-between text-xs text-neutral-400 mb-1">
-                    <span className="font-semibold uppercase tracking-wider text-[11px]">
-                      {telemetry.exercise === 'plank' ? 'Hold Time' : 'Completed Reps'}
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className="font-black uppercase tracking-wider text-xs text-black dark:text-white flex items-center gap-1.5">
+                      <span>Set {currentSetNumber}</span>
+                      {activeSet && (
+                        <span className="w-2 h-2 rounded-full bg-orange-600 animate-pulse" />
+                      )}
                     </span>
-                    <span className="font-bold uppercase text-[10px] text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-full">
-                      {telemetry.phase}
+                    <span className={`font-black uppercase text-[10px] px-2.5 py-0.5 rounded-full ${
+                      activeSet
+                        ? 'text-orange-600 bg-orange-500/10'
+                        : isResting
+                        ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10'
+                        : 'text-black dark:text-neutral-300 bg-neutral-200/70 dark:bg-white/5'
+                    }`}>
+                      {activeSet ? (telemetry.phase || 'ACTIVE') : isResting ? 'RESTING' : 'READY'}
                     </span>
                   </div>
-                  <div className="text-6xl font-extrabold text-orange-600 tracking-tight">
-                    {telemetry.exercise === 'plank' ? `${Math.floor(telemetry.holdSeconds)}s` : telemetry.reps}
+
+                  <div className="text-6xl font-black text-orange-600 tracking-tight">
+                    {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
+                  </div>
+
+                  <div className="text-xs text-black dark:text-neutral-300 font-mono font-bold mt-1 flex items-center justify-between">
+                    <span>{currentExercise === 'plank' ? 'Hold Time' : 'Completed Reps'}</span>
+                    {activeSet && (
+                      <span className="text-[10px] text-neutral-800 dark:text-neutral-400 font-medium">10s auto-end</span>
+                    )}
+                  </div>
+
+                  {/* Rest Counter (Live when resting after set completion) */}
+                  {isResting && (
+                    <div className="mt-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-ping" />
+                        <span className="text-xs font-black text-emerald-950 dark:text-emerald-300">
+                          Rest Counter
+                        </span>
+                      </div>
+                      <span className="font-mono font-black text-sm text-emerald-800 dark:text-emerald-400">
+                        {formatDuration(restDuration)}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Action: End Set or Start Next Set */}
+                  <div className="mt-3">
+                    {activeSet ? (
+                      <button
+                        onClick={() => endActiveSet()}
+                        className="w-full py-2.5 rounded-full text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all cursor-pointer"
+                      >
+                        End Set {activeSet.setNumber}
+                      </button>
+                    ) : isResting ? (
+                      <button
+                        onClick={() => startNextSet()}
+                        className="w-full py-2.5 rounded-full text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all cursor-pointer"
+                      >
+                        Start Set {currentSetNumber + 1}
+                      </button>
+                    ) : (
+                      <p className="text-[11px] text-neutral-800 dark:text-neutral-400 font-bold italic text-center">
+                        Perform your first rep to start Set 1
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* Form Precision Score */}
-                <div className="pt-4 border-t border-neutral-100 dark:border-white/5">
+                <div className="pt-4 border-t border-neutral-300 dark:border-white/5">
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="text-neutral-400 font-semibold uppercase tracking-wider text-[11px]">Form Precision</span>
-                    <span className={`font-bold ${telemetry.formScore >= 80 ? 'text-green-500' : 'text-orange-500'}`}>
+                    <span className="text-black dark:text-neutral-300 font-black uppercase tracking-wider text-[11px]">
+                      Form Precision
+                    </span>
+                    <span className={`font-black ${telemetry.formScore >= 80 ? 'text-green-600 dark:text-green-500' : 'text-orange-600 dark:text-orange-500'}`}>
                       {telemetry.formScore}%
                     </span>
                   </div>
-                  <div className="w-full bg-neutral-100 dark:bg-white/5 rounded-full h-2 overflow-hidden">
+                  <div className="w-full bg-neutral-200 dark:bg-white/5 rounded-full h-2 overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-300"
                       style={{
@@ -593,32 +658,24 @@ export const RealtimeTracker = () => {
                 </div>
 
                 {/* Exercise & Time Summary */}
-                <div className="pt-4 border-t border-neutral-100 dark:border-white/5 space-y-2 text-xs">
+                <div className="pt-4 border-t border-neutral-300 dark:border-white/5 space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-400">{activeExercise === 'auto' ? 'Auto-Detected:' : 'Exercise:'}</span>
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-100">
+                    <span className="text-neutral-800 dark:text-neutral-400 font-bold">{activeExercise === 'auto' ? 'Auto-Detected:' : 'Exercise:'}</span>
+                    <span className="font-black text-black dark:text-neutral-100">
                       {telemetry.detectedInfo?.name || activeExercise}
                     </span>
                   </div>
-                  {activeExercise === 'auto' && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-400">Sample Interval:</span>
-                      <span className="font-mono text-neutral-700 dark:text-neutral-300 font-medium">
-                        Every 2.0s
-                      </span>
-                    </div>
-                  )}
                   {sessionStartTimeFormatted && (
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-400">Started:</span>
-                      <span className="font-mono text-neutral-700 dark:text-neutral-300 font-medium">
+                      <span className="text-neutral-800 dark:text-neutral-400 font-bold">Started:</span>
+                      <span className="font-mono text-black dark:text-neutral-300 font-bold">
                         {sessionStartTimeFormatted}
                       </span>
                     </div>
                   )}
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-400">Duration:</span>
-                    <span className="font-mono font-bold text-orange-600">
+                    <span className="text-neutral-800 dark:text-neutral-400 font-bold">Duration:</span>
+                    <span className="font-mono font-black text-orange-600 dark:text-orange-500">
                       {formatDuration(workoutDuration)}
                     </span>
                   </div>
@@ -626,24 +683,24 @@ export const RealtimeTracker = () => {
               </div>
 
               {/* Minimal Clean Action Buttons */}
-              <div className="pt-6 border-t border-neutral-100 dark:border-white/5 space-y-2 mt-6">
+              <div className="pt-6 border-t border-neutral-300 dark:border-white/5 space-y-2 mt-6">
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => setIsPaused(!isPaused)}
-                    className={`py-2.5 rounded-full text-xs font-semibold border transition-all ${
+                    className={`py-2.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                       darkMode
                         ? 'border-white/10 text-neutral-200 hover:bg-white/5'
-                        : 'border-neutral-200 text-neutral-700 hover:bg-neutral-100'
+                        : 'border-neutral-900 text-black hover:bg-neutral-100'
                     }`}
                   >
                     {isPaused ? 'Resume' : 'Pause'}
                   </button>
                   <button
                     onClick={handleResetReps}
-                    className={`py-2.5 rounded-full text-xs font-semibold border transition-all ${
+                    className={`py-2.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                       darkMode
                         ? 'border-white/10 text-neutral-200 hover:bg-white/5'
-                        : 'border-neutral-200 text-neutral-700 hover:bg-neutral-100'
+                        : 'border-neutral-900 text-black hover:bg-neutral-100'
                     }`}
                   >
                     Reset
@@ -652,7 +709,7 @@ export const RealtimeTracker = () => {
 
                 <button
                   onClick={handleFinishWorkout}
-                  className="w-full py-3 rounded-full text-xs font-semibold bg-red-600 hover:bg-red-500 text-white shadow-sm transition-all"
+                  className="w-full py-3 rounded-full text-xs font-black bg-red-600 hover:bg-red-500 text-white shadow-sm transition-all cursor-pointer"
                 >
                   Finish Workout
                 </button>
@@ -661,20 +718,49 @@ export const RealtimeTracker = () => {
           </div>
         </div>
 
+        {/* Set Tracker Progression Stepper (Moved to Bottom) */}
+        <div className="mt-6">
+          <div className={`p-6 rounded-2xl border ${
+            darkMode ? 'bg-[#15151e] border-white/5' : 'bg-white border-neutral-300 shadow-sm'
+          }`}>
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-300 dark:border-white/5">
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-wider text-black dark:text-white">
+                  Set History & Progression
+                </h3>
+                <p className="text-xs text-neutral-800 dark:text-neutral-300 font-medium mt-0.5">
+                  Sets auto-record below upon completion or after 10 seconds of rest
+                </p>
+              </div>
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400">
+                10s Auto-End
+              </span>
+            </div>
+
+            <SetTrackerStepper
+              exerciseGroups={exerciseGroups}
+              activeSet={activeSet}
+              currentExercise={currentExercise}
+              now={trackerNow}
+              onEndSet={endActiveSet}
+            />
+          </div>
+        </div>
+
         {/* Minimal Performance Summary Modal */}
         {summaryData && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
             <div className={`w-full max-w-md p-8 rounded-2xl border text-center shadow-xl ${
-              darkMode ? 'bg-[#15151e] border-white/10' : 'bg-white border-neutral-200'
+              darkMode ? 'bg-[#15151e] border-white/10' : 'bg-white border-neutral-300'
             }`}>
-              <h2 className="text-2xl font-bold mb-1">Workout Complete</h2>
-              <p className="text-xs text-neutral-400 uppercase tracking-wider font-semibold mb-6">
+              <h2 className="text-2xl font-black mb-1 text-black dark:text-white">Workout Complete</h2>
+              <p className="text-xs text-neutral-800 dark:text-neutral-400 uppercase tracking-wider font-bold mb-6">
                 {summaryData.exercise} Summary
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="p-4 rounded-xl bg-neutral-100 dark:bg-white/5">
-                  <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+                  <span className="text-[10px] font-black uppercase text-black dark:text-neutral-400 block mb-1">
                     {telemetry.exercise === 'plank' ? 'Hold Time' : 'Reps Completed'}
                   </span>
                   <span className="text-3xl font-extrabold text-orange-600">
@@ -683,7 +769,7 @@ export const RealtimeTracker = () => {
                 </div>
 
                 <div className="p-4 rounded-xl bg-neutral-100 dark:bg-white/5">
-                  <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+                  <span className="text-[10px] font-black uppercase text-black dark:text-neutral-400 block mb-1">
                     Form Score
                   </span>
                   <span className="text-3xl font-extrabold text-orange-600">
@@ -692,36 +778,66 @@ export const RealtimeTracker = () => {
                 </div>
 
                 <div className="p-4 rounded-xl bg-neutral-100 dark:bg-white/5">
-                  <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+                  <span className="text-[10px] font-black uppercase text-black dark:text-neutral-400 block mb-1">
                     Duration
                   </span>
-                  <span className="text-lg font-bold font-mono">
+                  <span className="text-lg font-black font-mono text-black dark:text-white">
                     {formatDuration(summaryData.duration)}
                   </span>
                 </div>
 
                 <div className="p-4 rounded-xl bg-neutral-100 dark:bg-white/5">
-                  <span className="text-[10px] font-bold uppercase text-neutral-400 block mb-1">
+                  <span className="text-[10px] font-black uppercase text-black dark:text-neutral-400 block mb-1">
                     Est. Calories
                   </span>
-                  <span className="text-lg font-bold font-mono">
+                  <span className="text-lg font-black font-mono text-black dark:text-white">
                     {summaryData.calories} kcal
                   </span>
                 </div>
               </div>
 
+              {/* Sets Summary Breakdown */}
+              {summaryData.sets && Object.keys(summaryData.sets).length > 0 && (
+                <div className="p-3.5 rounded-xl bg-neutral-100 dark:bg-white/5 mb-6 text-left max-h-48 overflow-y-auto">
+                  <span className="block text-[10px] uppercase font-black text-black dark:text-neutral-400 mb-2">
+                    Sets Breakdown
+                  </span>
+                  <div className="space-y-3">
+                    {Object.entries(summaryData.sets).map(([exKey, setsList]) => {
+                      const exInfo = EXERCISE_INFO[exKey] || { name: exKey.toUpperCase() };
+                      return (
+                        <div key={exKey} className="space-y-1">
+                          <div className="text-xs font-black text-black dark:text-neutral-100">
+                            {exInfo.name}
+                          </div>
+                          {setsList.map((s) => (
+                            <div
+                              key={s.setNumber}
+                              className="flex items-center justify-between font-mono text-[11px] text-black dark:text-neutral-300 font-bold pl-2"
+                            >
+                              <span>Set {s.setNumber}: {s.reps} {exKey === 'plank' ? 'secs' : 'reps'}</span>
+                              <span>{formatDuration(s.duration)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Start and End Timestamps */}
-              <div className="p-3 rounded-xl bg-neutral-100 dark:bg-white/5 mb-6 text-xs flex items-center justify-around text-neutral-400">
+              <div className="p-3 rounded-xl bg-neutral-100 dark:bg-white/5 mb-6 text-xs flex items-center justify-around text-neutral-800 dark:text-neutral-400">
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-neutral-400">Started</span>
-                  <span className="font-mono font-bold text-neutral-700 dark:text-neutral-200">
+                  <span className="block text-[10px] uppercase font-black text-black dark:text-neutral-400">Started</span>
+                  <span className="font-mono font-black text-black dark:text-neutral-200">
                     {summaryData.sessionStarted}
                   </span>
                 </div>
-                <div className="h-5 w-px bg-neutral-300 dark:bg-white/10" />
+                <div className="h-5 w-px bg-neutral-400 dark:bg-white/10" />
                 <div>
-                  <span className="block text-[10px] uppercase font-bold text-neutral-400">Finished</span>
-                  <span className="font-mono font-bold text-neutral-700 dark:text-neutral-200">
+                  <span className="block text-[10px] uppercase font-black text-black dark:text-neutral-400">Finished</span>
+                  <span className="font-mono font-black text-black dark:text-neutral-200">
                     {summaryData.sessionCompleted}
                   </span>
                 </div>
@@ -732,16 +848,17 @@ export const RealtimeTracker = () => {
                   onClick={() => {
                     setSummaryData(null);
                     setWorkoutDuration(0);
+                    resetAllSets();
                     handleResetReps();
                     startCamera();
                   }}
-                  className="flex-1 py-2.5 rounded-full text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all"
+                  className="flex-1 py-2.5 rounded-full text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all cursor-pointer"
                 >
                   New Session
                 </button>
                 <Link
                   to="/"
-                  className="flex-1 py-2.5 rounded-full text-xs font-semibold border border-neutral-200 dark:border-white/10 hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-700 dark:text-neutral-300 transition-all text-center"
+                  className="flex-1 py-2.5 rounded-full text-xs font-bold border border-neutral-900 dark:border-white/10 hover:bg-neutral-100 dark:hover:bg-white/5 text-black dark:text-neutral-300 transition-all text-center"
                 >
                   Home
                 </Link>

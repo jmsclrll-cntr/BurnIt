@@ -154,17 +154,9 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
   if (!ctx) return;
 
   const {
-    reps = 0,
-    phase = 'ready',
-    formScore = 100,
     feedback = '',
     bodyVisible = true,
-    activeExercise = 'squat',
-    holdSeconds = 0,
-    isAuto = false,
-    detectedInfo = null,
-    exerciseStartedFormatted = '',
-    startTimeFormatted = ''
+    formScore = 100,
   } = data;
 
   ctx.save();
@@ -186,104 +178,8 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
     return;
   }
 
-  // 2. Rep / Hold Counter (Top-Left)
-  const isPlank = activeExercise === 'plank';
-  const displayVal = isPlank ? `${Math.floor(holdSeconds)}s` : String(reps);
-  const displaySub = isPlank ? 'HOLD' : 'REPS';
-
-  ctx.fillStyle = 'rgba(14, 14, 20, 0.85)';
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(20, 20, 110, 68, 16);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 32px Inter, system-ui, sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText(displayVal, 32, 58);
-
-  ctx.fillStyle = '#9ca3af';
-  ctx.font = 'bold 10px Inter, system-ui, sans-serif';
-  ctx.fillText(displaySub, 34, 76);
-
-  // 3. Movement Phase Tag (Next to Reps)
-  const phaseX = 140;
-  const phaseY = 20;
-  ctx.fillStyle = phase.toLowerCase() === 'down' || phase.toLowerCase() === 'bottom'
-    ? 'rgba(234, 88, 12, 0.9)'
-    : 'rgba(255, 255, 255, 0.15)';
-  ctx.beginPath();
-  ctx.roundRect(phaseX, phaseY, 85, 30, 15);
-  ctx.fill();
-
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 11px Inter, system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(phase.toUpperCase(), phaseX + 42, phaseY + 19);
-
-  // 4. Auto-Detection Canvas Badge (Top Center)
-  if (isAuto && detectedInfo) {
-    const timeLabel = exerciseStartedFormatted ? ` • ${exerciseStartedFormatted}` : '';
-    const labelText = `AUTO (2s): ${detectedInfo.shortName.toUpperCase()}${timeLabel}`;
-    ctx.font = 'bold 12px Inter, system-ui, sans-serif';
-    const textWidth = ctx.measureText(labelText).width;
-    const badgeW = textWidth + 30;
-    const badgeH = 32;
-    const badgeX = (width - badgeW) / 2;
-    const badgeY = 20;
-
-    ctx.fillStyle = 'rgba(234, 88, 12, 0.92)';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 16);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.fillText(labelText, width / 2, badgeY + 20);
-  } else if (startTimeFormatted) {
-    // Show start time pill when not in auto mode
-    const labelText = `STARTED: ${startTimeFormatted}`;
-    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
-    const textWidth = ctx.measureText(labelText).width;
-    const badgeW = textWidth + 24;
-    const badgeH = 28;
-    const badgeX = (width - badgeW) / 2;
-    const badgeY = 20;
-
-    ctx.fillStyle = 'rgba(14, 14, 20, 0.85)';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 14);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#9ca3af';
-    ctx.textAlign = 'center';
-    ctx.fillText(labelText, width / 2, badgeY + 18);
-  }
-
-  // 5. Form Precision Badge (Top-Right)
-  const scoreX = width - 110;
-  const scoreY = 20;
-  ctx.fillStyle = 'rgba(14, 14, 20, 0.85)';
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-  ctx.beginPath();
-  ctx.roundRect(scoreX, scoreY, 90, 44, 14);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = formScore >= 80 ? '#22c55e' : formScore >= 60 ? '#f59e0b' : '#ef4444';
-  ctx.font = 'bold 18px Inter, system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(`${formScore}%`, scoreX + 45, scoreY + 28);
-
-  // 6. High-Contrast Coaching Banner (Bottom Center)
+  // 2. High-Contrast Coaching Banner (Bottom Center)
+  // Only shows helpful coaching corrections without cluttering the view with duplicate reps/time
   if (feedback) {
     ctx.font = '600 14px Inter, system-ui, sans-serif';
     const textWidth = ctx.measureText(feedback).width;

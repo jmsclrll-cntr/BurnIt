@@ -17,6 +17,15 @@ export function ThemeProvider({ children }) {
 
   const [isFullscreen, setIsFullscreen] = useState(false)
 
+  // Synchronize 'dark' class on <html> with darkMode state for Tailwind class strategy
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [darkMode])
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       const active = Boolean(document.fullscreenElement)
