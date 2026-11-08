@@ -4,15 +4,20 @@ import os
 
 class Settings(BaseSettings):
     SECRET_KEY: str = "burnit-super-secret-key-change-in-production-2026"
-    DATABASE_PATH: str = "burnit.db"
-    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
+    DB_HOST: str = "127.0.0.1"
+    DB_PORT: int = 3306
+    DB_USER: str = "root"
+    DB_PASSWORD: str = ""
+    DB_NAME: str = "burnit_db"
+    DATABASE_PATH: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "burnit.db")
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,https://localhost:5173,https://127.0.0.1:5173"
     MEDIAPIPE_MODEL: str = "lite"  # 'lite' or 'full'
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "burnitadmin2026"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRY_MINUTES: int = 120
-    DATASET_DIR: str = "dataset_records"
-    MODEL_DIR: str = "models"
+    DATASET_DIR: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dataset_records")
+    MODEL_DIR: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 
     @property
     def cors_origins_list(self) -> List[str]:

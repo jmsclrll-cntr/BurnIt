@@ -3,8 +3,8 @@ import time
 import json
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
-import aiosqlite
 from config import settings
+from database import get_db
 from angle_utils import AngleSmoother
 from exercise_counters import create_counter
 
@@ -41,12 +41,11 @@ class SessionManager:
         self.active_sessions[session_id] = ActiveSessionState(session_id, exercise, user_id)
 
         now = datetime.now(timezone.utc).isoformat()
-        async with aiosqlite.connect(settings.DATABASE_PATH) as db:
-            await db.execute("""
+        async with get_db() as cur:
+            await cur.execute("""
                 INSERT INTO sessions (id, user_id, exercise, start_time, total_reps, avg_form_score, duration_seconds, calories)
-                VALUES (?, ?, ?, ?, 0, 0.0, 0.0, 0.0)
+                VALUES (%s, %s, %s, %s, 0, 0.0, 0.0, 0.0)
             """, (session_id, user_id, exercise, now))
-            await db.commit()
 
         return session_id
 
@@ -95,13 +94,12 @@ class SessionManager:
             if "calories" in finish_data and finish_data["calories"] > 0:
                 calories = float(finish_data["calories"])
 
-        async with aiosqlite.connect(settings.DATABASE_PATH) as db:
-            await db.execute("""
+        async with get_db() as cur:
+            await cur.execute("""
                 UPDATE sessions
-                SET end_time = ?, total_reps = ?, avg_form_score = ?, duration_seconds = ?, calories = ?, common_errors = ?
-                WHERE id = ?
+                SET end_time = %s, total_reps = %s, avg_form_score = %s, duration_seconds = %s, calories = %s, common_errors = %s
+                WHERE id = %s
             """, (now, reps, avg_score, duration, calories, json.dumps(common_errors), session_id))
-            await db.commit()
 
         return {
             "id": session_id,
@@ -114,10 +112,9 @@ class SessionManager:
         }
 
     async def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
-        async with aiosqlite.connect(settings.DATABASE_PATH) as db:
-            db.row_factory = aiosqlite.Row
-            cursor = await db.execute("SELECT * FROM sessions WHERE id = ?", (session_id,))
-            row = await cursor.fetchone()
+        async with get_db() as cur:
+            await cur.execute("SELECT * FROM sessions WHERE id = %s", (session_id,))
+            row = await cur.fetchone()
             if not row:
                 return None
             return {
@@ -134,13 +131,12 @@ class SessionManager:
             }
 
     async def get_user_history(self, user_id: str) -> List[Dict[str, Any]]:
-        async with aiosqlite.connect(settings.DATABASE_PATH) as db:
-            db.row_factory = aiosqlite.Row
-            cursor = await db.execute(
-                "SELECT * FROM sessions WHERE user_id = ? ORDER BY created_at DESC LIMIT 20",
+        async with get_db() as cur:
+            await cur.execute(
+                "SELECT * FROM sessions WHERE user_id = %s ORDER BY created_at DESC LIMIT 20",
                 (user_id,)
             )
-            rows = await cursor.fetchall()
+            rows = await cur.fetchall()
             return [
                 {
                     "id": r["id"],
@@ -149,7 +145,7 @@ class SessionManager:
                     "avg_form_score": r["avg_form_score"],
                     "duration_seconds": r["duration_seconds"],
                     "calories": r["calories"],
-                    "created_at": r["created_at"],
+                    "created_at": str(r["created_at"]),
                 }
                 for r in rows
             ]

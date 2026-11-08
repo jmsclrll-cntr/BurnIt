@@ -230,8 +230,7 @@ class HeartRateService {
       }
 
       this.device = selectedDevice;
-      this.deviceName = selectedDevice.name || 'Xiaomi Smart Band 9';
-      this.deviceName = selectedDevice.name || 'Bluetooth Smartwatch';
+      this.deviceName = selectedDevice.name || 'Bluetooth Smartwatch / Band';
 
       // 3. Attach disconnect listener
       this.device.removeEventListener('gattserverdisconnected', this.handleGattDisconnected);
@@ -244,15 +243,12 @@ class HeartRateService {
     } catch (err) {
       console.error('Bluetooth connection failed:', err);
 
-      let userFriendlyMessage = 'Failed to connect to heart rate monitor.';
       let userFriendlyMessage = 'Failed to connect to smartwatch or heart rate monitor.';
       if (err.name === 'NotFoundError') {
-        userFriendlyMessage = 'Device selection was cancelled. Tap "Connect Band" to try again.';
         userFriendlyMessage = 'Device selection was cancelled. Tap "Connect Smartwatch" to try again.';
       } else if (err.name === 'SecurityError') {
         userFriendlyMessage = 'Bluetooth permission was blocked by the browser. Please allow Bluetooth and Location permissions in Android settings.';
       } else if (err.message && err.message.toLowerCase().includes('user cancelled')) {
-        userFriendlyMessage = 'Device selection was cancelled. Tap "Connect Band" to try again.';
         userFriendlyMessage = 'Device selection was cancelled. Tap "Connect Smartwatch" to try again.';
       } else {
         userFriendlyMessage = err.message || userFriendlyMessage;
@@ -275,79 +271,62 @@ class HeartRateService {
     // Connect to GATT server
     this.server = await this.device.gatt.connect();
 
-    // Retrieve Primary Heart Rate Service (with clear troubleshooting error)
-    let service;
-    try {
-      service = await this.server.getPrimaryService(HEART_RATE_SERVICE_UUID);
-    } catch {
-      // Retrieve Primary Heart Rate Service across all standard UUID formats
-      let service = null;
-      const serviceCandidates = [HEART_RATE_SERVICE_UUID, 0x180d, HEART_RATE_SERVICE_128];
-      for (const candidate of serviceCandidates) {
-        try {
-          service = await this.server.getPrimaryService(0x180d);
-        } catch (serviceErr) {
-          console.error('Heart Rate Service (0x180D) not found on device:', serviceErr);
-          throw new Error(
-            `Connected to "${this.deviceName}", but it did not provide the standard Heart Rate Service. Please make sure "Heart Rate Broadcast / Sharing" is turned ON in your band settings or during a workout.`
-          );
-          service = await this.server.getPrimaryService(candidate);
-          if (service) break;
-        } catch {
-          // try next candidate
-        }
-      }
-
-      // Retrieve Heart Rate Measurement Characteristic
-      let characteristic;
+    // Retrieve Primary Heart Rate Service across all standard UUID formats
+    let service = null;
+    const serviceCandidates = [HEART_RATE_SERVICE_UUID, 0x180d, HEART_RATE_SERVICE_128];
+    for (const candidate of serviceCandidates) {
       try {
-        characteristic = await service.getCharacteristic(HEART_RATE_MEASUREMENT_UUID);
+        service = await this.server.getPrimaryService(candidate);
+        if (service) break;
       } catch {
-        characteristic = await service.getCharacteristic(0x2a37);
-        if (!service) {
-          throw new Error(
-            `Connected to "${this.deviceName}", but the standard Heart Rate Service was not found. Please enable "Heart Rate Broadcast / Sharing" on your smartwatch (Garmin, Apple Watch, Galaxy Watch, or Xiaomi Band).`
-          );
-        }
-
-        // Retrieve Heart Rate Measurement Characteristic across all standard formats
-        let characteristic = null;
-        const charCandidates = [HEART_RATE_MEASUREMENT_UUID, 0x2a37, HEART_RATE_MEASUREMENT_128];
-        for (const candidate of charCandidates) {
-          try {
-            characteristic = await service.getCharacteristic(candidate);
-            if (characteristic) break;
-          } catch {
-            // try next candidate
-          }
-        }
-
-        if (!characteristic) {
-          throw new Error(
-            `Connected to "${this.deviceName}", but could not subscribe to the Heart Rate Measurement characteristic (0x2A37).`
-          );
-        }
-
-        this.characteristic = characteristic;
-
-        // Subscribe to continuous live notifications
-        await this.characteristic.startNotifications();
-        this.characteristic.removeEventListener(
-          'characteristicvaluechanged',
-          this.handleCharacteristicValueChanged
-        );
-        this.characteristic.addEventListener(
-          'characteristicvaluechanged',
-          this.handleCharacteristicValueChanged
-        );
-
-        // Acquire Screen Wake Lock while connected
-        await this.requestScreenWakeLock();
-
-        // Reset retry counter and update status
-        this.autoRetryCount = 0;
-        this.updateStatus('Connected');
+        // try next candidate
       }
+    }
+
+    if (!service) {
+      throw new Error(
+        `Connected to "${this.deviceName}", but the standard Heart Rate Service was not found. Please enable "Heart Rate Broadcast / Sharing" on your smartwatch (Garmin, Apple Watch, Galaxy Watch, or Xiaomi Band).`
+      );
+    }
+
+    // Retrieve Heart Rate Measurement Characteristic across all standard formats
+    let characteristic = null;
+    const charCandidates = [HEART_RATE_MEASUREMENT_UUID, 0x2a37, HEART_RATE_MEASUREMENT_128];
+    for (const candidate of charCandidates) {
+      try {
+        characteristic = await service.getCharacteristic(candidate);
+        if (characteristic) break;
+      } catch {
+        // try next candidate
+      }
+    }
+
+    if (!characteristic) {
+      throw new Error(
+        `Connected to "${this.deviceName}", but could not subscribe to the Heart Rate Measurement characteristic (0x2A37).`
+      );
+    }
+
+    this.characteristic = characteristic;
+
+    // Subscribe to continuous live notifications
+    await this.characteristic.startNotifications();
+    this.characteristic.removeEventListener(
+      'characteristicvaluechanged',
+      this.handleCharacteristicValueChanged
+    );
+    this.characteristic.addEventListener(
+      'characteristicvaluechanged',
+      this.handleCharacteristicValueChanged
+    );
+
+    // Acquire Screen Wake Lock while connected
+    await this.requestScreenWakeLock();
+
+    // Reset retry counter and update status
+    this.autoRetryCount = 0;
+    this.updateStatus('Connected');
+  }
 
       /**
        * Parse Bluetooth GATT Heart Rate Data Packet according to Bluetooth SIG:

@@ -15,14 +15,18 @@ import {
   Moon,
   Maximize,
   Minimize,
+  LogOut,
 } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
+import { useAuth } from '../context/AuthContext'
+import UserMenu from '../components/auth/UserMenu'
 
 
 const CURRENT_YEAR = new Date().getFullYear()
 
 export default function Homepage() {
   const { darkMode, toggleDarkMode, isFullscreen, enterFullScreen } = useTheme()
+  const { isAuthenticated, user, openLogin, logout } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
   const [activeDropdown, setActiveDropdown] = useState(null)
@@ -271,12 +275,40 @@ export default function Homepage() {
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            <Link
-              to="/tracker"
-              className="ml-1 inline-flex items-center gap-2 px-5 py-2 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-medium shadow-sm hover:shadow transition-all"
-            >
-              <span>Join Now</span>
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2 ml-1">
+                <Link
+                  to="/tracker"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-medium shadow-sm hover:shadow transition-all"
+                >
+                  <span>Workout Tracker</span>
+                </Link>
+                <UserMenu isTransparentNav={!scrolled} />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 ml-1">
+                <button
+                  type="button"
+                  onClick={() => openLogin('/tracker')}
+                  className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    !scrolled
+                      ? 'text-white/90 hover:text-white hover:bg-white/10'
+                      : darkMode
+                      ? 'text-neutral-300 hover:text-white hover:bg-neutral-800'
+                      : 'text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100'
+                  }`}
+                >
+                  Log In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openLogin('/tracker')}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-medium shadow-sm hover:shadow transition-all"
+                >
+                  <span>Join Now</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Mobile Right Controls */}
@@ -392,13 +424,47 @@ export default function Homepage() {
                 {item}
               </a>
             ))}
-            <a
-              href="#join"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-center w-full py-2.5 rounded-full bg-orange-600 text-white text-sm font-medium"
-            >
-              Join Now
-            </a>
+            {isAuthenticated ? (
+              <div className="pt-2 border-t border-neutral-800/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-bold text-white">{user?.name || user?.username}</div>
+                    <div className="text-xs text-neutral-400">@{user?.username}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 font-semibold"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Log Out</span>
+                  </button>
+                </div>
+                <Link
+                  to="/tracker"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-center w-full py-2.5 rounded-full bg-orange-600 text-white text-sm font-semibold shadow-md shadow-orange-600/30"
+                >
+                  Launch Workout Tracker
+                </Link>
+              </div>
+            ) : (
+              <div className="pt-2 border-t border-neutral-800/40 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openLogin('/tracker');
+                  }}
+                  className="block text-center w-full py-2.5 rounded-full bg-orange-600 text-white text-sm font-semibold shadow-md shadow-orange-600/30"
+                >
+                  Join Now / Log In
+                </button>
+              </div>
+            )}
           </div>
         )}
       </header>
@@ -475,13 +541,24 @@ export default function Homepage() {
                 : 'opacity-0 translate-y-7 blur-[3px]'
             }`}
           >
-            <Link
-              to="/tracker"
-              className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base font-semibold shadow-lg shadow-orange-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
-            >
-              <span>GET STARTED</span>
-              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                to="/tracker"
+                className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base font-semibold shadow-lg shadow-orange-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
+              >
+                <span>GET STARTED</span>
+                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openLogin('/tracker')}
+                className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base font-semibold shadow-lg shadow-orange-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
+              >
+                <span>GET STARTED</span>
+                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+              </button>
+            )}
             <a
               href="#programs"
               className="inline-flex items-center justify-center px-8 py-3.5 rounded-full text-base font-semibold border border-white/20 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white backdrop-blur-md shadow-sm hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
@@ -673,7 +750,7 @@ export default function Homepage() {
                   className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
                     }`}
                 >
-                  Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">GET STARTED</strong> in the hero section or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar. The system initializes your workout session instantly in your browser—no app installations, account credentials, or setup wizards required.
+                  Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">GET STARTED</strong> in the hero section or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar. Simply log in or create your free account to unlock real-time tracking, personalized rep counters, and caloric expenditure analysis.
                 </p>
               </div>
               <div
