@@ -1,60 +1,31 @@
 {
   "model_type": "RandomForestRegressor",
+  "dataset_source": "kaggle_calories_burnt.csv",
   "saved_model_path": "C:\\BurnIt\\backend\\models\\calorie_model.joblib",
   "feature_names": [
     "gender_binary",
-    "age",
-    "height_cm",
-    "weight_kg",
-    "duration_min",
-    "avg_heart_rate",
-    "max_heart_rate",
-    "total_reps",
-    "total_sets",
-    "avg_form_score",
-    "exercise_bicepcurl",
-    "exercise_jumpingjack",
-    "exercise_mixed",
-    "exercise_plank",
-    "exercise_pushup",
-    "exercise_squat"
+    "Age",
+    "Height",
+    "Weight",
+    "Duration",
+    "Heart_Rate"
   ],
-  "numeric_features": [
-    "gender_binary",
-    "age",
-    "height_cm",
-    "weight_kg",
-    "duration_min",
-    "avg_heart_rate",
-    "max_heart_rate",
-    "total_reps",
-    "total_sets",
-    "avg_form_score"
-  ],
-  "exercise_categories": [
-    "bicepcurl",
-    "jumpingjack",
-    "mixed",
-    "plank",
-    "pushup",
-    "squat"
-  ],
-  "dataset_rows": 973,
-  "train_rows": 778,
-  "test_rows": 195,
+  "dataset_rows": 15000,
+  "train_rows": 12000,
+  "test_rows": 3000,
   "comparison": {
     "linear_regression": {
-      "r2_score": 0.9812,
-      "mae_kcal": 29.61,
-      "rmse_kcal": 39.58
+      "r2_score": 0.959,
+      "mae_kcal": 9.69,
+      "rmse_kcal": 12.87
     },
     "random_forest": {
-      "r2_score": 0.9741,
-      "mae_kcal": 34.03,
-      "rmse_kcal": 46.52,
-      "cv_5fold_r2": 0.9675
+      "r2_score": 0.9984,
+      "mae_kcal": 1.63,
+      "rmse_kcal": 2.57,
+      "cv_5fold_r2": 0.9977
     },
     "winner": "RandomForestRegressor",
-    "reason": "Significantly higher R\u00b2 score and substantially lower prediction error (MAE/RMSE) capturing non-linear metabolic thresholds and exercise-weight interaction."
+    "reason": "Significantly higher R\u00b2 score (0.9984) and near-zero prediction error (MAE \u00b11.62 kcal) capturing non-linear cardiac output and body mass work."
   }
 }

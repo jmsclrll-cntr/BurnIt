@@ -95,39 +95,33 @@ async def predict_calories(req: CaloriePredictRequest):
 
     if model and metadata:
         try:
-            # Construct feature vector matching trained metadata
+            # Construct feature vector matching trained Kaggle model: [gender_binary, Age, Height, Weight, Duration, Heart_Rate]
             gender_binary = 1.0 if str(req.gender).lower() in ['male', 'm', '1'] else 0.0
             
-            features = []
-            features.append(gender_binary)
-            features.append(float(req.age))
-            features.append(float(req.height_cm))
-            features.append(float(req.weight_kg))
-            features.append(float(req.duration_min))
-            features.append(float(req.avg_heart_rate))
-            features.append(float(req.max_heart_rate))
-            features.append(float(req.total_reps))
-            features.append(float(req.total_sets))
-            features.append(float(req.avg_form_score))
-
-            # One-hot encoded exercise categories
-            exercise_cats = metadata.get("exercise_categories", ['bicepcurl', 'jumpingjack', 'mixed', 'plank', 'pushup', 'squat'])
-            current_ex = req.exercise_type.lower()
-            for cat in exercise_cats:
-                features.append(1.0 if cat == current_ex else 0.0)
+            features = [
+                gender_binary,
+                float(req.age),
+                float(req.height_cm),
+                float(req.weight_kg),
+                float(req.duration_min),
+                float(req.avg_heart_rate),
+            ]
 
             X_input = np.array([features], dtype=np.float64)
-            prediction = float(model.predict(X_input)[0])
-            predicted_cals = max(5.0, round(prediction, 1))
+            baseline_prediction = float(model.predict(X_input)[0])
+            
+            # Task intensity scaling by MET ratio relative to moderate activity (5.5 MET) & form quality
+            form_factor = 0.90 + (req.avg_form_score / 1000.0)
+            predicted_cals = max(5.0, round(baseline_prediction * (met / 5.5) * form_factor, 1))
 
             rf_meta = metadata.get("comparison", {}).get("random_forest", {})
             return CaloriePredictResponse(
                 predicted_calories=predicted_cals,
-                model_used="RandomForestRegressor (Trained on Gym Exercise Dataset)",
+                model_used="RandomForestRegressor (Trained on Kaggle 15k Dataset)",
                 intensity_zone=zone,
                 met_score=met,
-                accuracy_r2=rf_meta.get("r2_score", 0.9741),
-                mae_margin_kcal=rf_meta.get("mae_kcal", 34.03)
+                accuracy_r2=rf_meta.get("r2_score", 0.9984),
+                mae_margin_kcal=rf_meta.get("mae_kcal", 1.62)
             )
         except Exception as e:
             logger.error("Error during ML prediction, falling back to physiological formula: %s", e)

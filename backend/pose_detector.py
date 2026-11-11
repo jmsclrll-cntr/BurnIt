@@ -22,6 +22,10 @@ class PoseDetector:
             cls._instance._init_detector()
         return cls._instance
 
+    @property
+    def use_mediapipe(self) -> bool:
+        return self.detector is not None
+
     def _init_detector(self):
         self.detector = None
         self.mode = None
