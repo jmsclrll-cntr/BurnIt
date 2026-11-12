@@ -155,14 +155,21 @@ export default function Homepage() {
         }`}
         onMouseLeave={() => setActiveDropdown(null)}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo on the left */}
-          <a href="#" className="flex items-center gap-2.5 group">
+          <a
+            href="#home"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="flex items-center gap-2.5 group"
+          >
             <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
               <Flame className="w-4 h-4 text-white fill-white" />
             </div>
             <div
-              className={`flex items-center gap-1.5 font-semibold text-base tracking-tight ${
+              className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${
                 !scrolled
                   ? 'text-white'
                   : darkMode
@@ -175,139 +182,102 @@ export default function Homepage() {
             </div>
           </a>
 
-          {/* Center Links (Desktop Mega-Menu) */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {['Home', 'Tracker', 'Programs', 'Workouts', 'Coaching', 'About'].map((item) => {
-              const hasDropdown = navDropdowns[item]
+          {/* Center Links (Direct Section Navigation, Thicker Font, No Dropdowns) */}
+          <nav className="hidden lg:flex items-center gap-1 sm:gap-2">
+            {[
+              { label: 'Home', target: 'home' },
+              { label: 'Tracker', path: '/tracker' },
+              { label: 'Programs', target: 'programs' },
+              { label: 'Workouts', target: 'workouts' },
+              { label: 'Coaching', target: 'coaching' },
+              { label: 'About', target: 'about' },
+            ].map((item) => {
+              const isTracker = item.path === '/tracker';
+
+              if (isTracker) {
+                return (
+                  <Link
+                    key={item.label}
+                    to="/tracker"
+                    className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1.5 ${
+                      !scrolled
+                        ? 'text-neutral-100 hover:text-white hover:bg-white/10'
+                        : darkMode
+                          ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
+                          : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
+                    }`}
+                  >
+                    <span>Tracker</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse ml-0.5" />
+                  </Link>
+                );
+              }
+
               return (
-                <div
-                  key={item}
-                  className="relative"
-                  onMouseEnter={() => hasDropdown && setActiveDropdown(item)}
+                <a
+                  key={item.label}
+                  href={`#${item.target}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (item.target === 'home') {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                      const el = document.getElementById(item.target);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }
+                  }}
+                  className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1 ${
+                    !scrolled
+                      ? 'text-neutral-100 hover:text-white hover:bg-white/10'
+                      : darkMode
+                        ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
+                        : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
+                  }`}
                 >
-                  {item === 'Tracker' ? (
-                    <Link
-                      to="/tracker"
-                      className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                        !scrolled
-                          ? 'text-neutral-200 hover:text-white hover:bg-white/10'
-                          : darkMode
-                            ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                            : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
-                      }`}
-                    >
-                      <span>Tracker</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse ml-0.5" />
-                    </Link>
-                  ) : (
-                    <a
-                      href={`#${item.toLowerCase()}`}
-                      className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                        activeDropdown === item
-                          ? !scrolled
-                            ? 'text-orange-400 bg-white/10'
-                            : darkMode
-                              ? 'text-orange-500 bg-orange-500/10'
-                              : 'text-orange-600 bg-orange-50/80'
-                          : !scrolled
-                            ? 'text-neutral-200 hover:text-white hover:bg-white/10'
-                            : darkMode
-                              ? 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                              : 'text-[#5F6368] hover:text-[#202124] hover:bg-neutral-100'
-                      }`}
-                    >
-                      <span>{item}</span>
-                      {hasDropdown && (
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                            activeDropdown === item
-                              ? !scrolled
-                                ? 'rotate-180 text-orange-400'
-                                : 'rotate-180 text-orange-500'
-                              : !scrolled
-                                ? 'text-neutral-300'
-                                : darkMode
-                                  ? 'text-neutral-500'
-                                  : 'text-neutral-400'
-                          }`}
-                        />
-                      )}
-                    </a>
-                  )}
-                </div>
-              )
+                  <span>{item.label}</span>
+                </a>
+              );
             })}
           </nav>
 
-          {/* Right Side: Theme Toggle, Fullscreen & Primary CTA */}
-          <div className="hidden sm:flex items-center gap-2">
-            {/* Fullscreen Toggle */}
+          {/* Right Side: Fullscreen & Profile Icon Only (Big Icons) */}
+          <div className="hidden sm:flex items-center gap-3">
+            {/* Fullscreen Toggle placed right next to Profile Icon */}
             <button
               type="button"
               onClick={() => enterFullScreen()}
-              className={`p-2 rounded-full transition-colors ${
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${
                 !scrolled
-                  ? 'text-neutral-200 hover:text-white hover:bg-white/10'
+                  ? 'border-white/25 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md'
                   : darkMode
-                    ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/80'
-                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                    ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
+                    : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/80 text-neutral-700 shadow-neutral-900/10'
               }`}
               title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
               aria-label={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
             >
-              {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              {isFullscreen ? <Minimize className="w-5 h-5 sm:w-6 sm:h-6" /> : <Maximize className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
 
-            {/* Light / Dark Mode Toggle */}
-            <button
-              type="button"
-              onClick={toggleDarkMode}
-              className={`p-2 rounded-full transition-colors ${
-                !scrolled
-                  ? 'text-amber-300 hover:bg-white/10'
-                  : darkMode
-                    ? 'text-amber-400 hover:bg-neutral-800/80'
-                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
-              }`}
-              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              aria-label="Toggle theme"
-            >
-              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
-
+            {/* Profile Icon (Profile only, no name) */}
             {isAuthenticated ? (
-              <div className="flex items-center gap-2 ml-1">
-                <Link
-                  to="/tracker"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-medium shadow-sm hover:shadow transition-all"
-                >
-                  <span>Workout Tracker</span>
-                </Link>
-                <UserMenu isTransparentNav={!scrolled} />
-              </div>
+              <UserMenu isTransparentNav={!scrolled} />
             ) : (
-              <div className="flex items-center gap-2 ml-1">
-                <button
-                  type="button"
-                  onClick={() => openLogin('/tracker')}
-                  className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                    !scrolled
-                      ? 'text-white/90 hover:text-white hover:bg-white/10'
-                      : darkMode
-                      ? 'text-neutral-300 hover:text-white hover:bg-neutral-800'
-                      : 'text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100'
-                  }`}
-                >
-                  Log In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openLogin('/tracker')}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-medium shadow-sm hover:shadow transition-all"
-                >
-                  <span>Join Now</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => openLogin('/tracker')}
+                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                  !scrolled
+                    ? 'text-white hover:bg-white/10 border border-white/20'
+                    : darkMode
+                    ? 'text-white hover:bg-neutral-800 border border-neutral-700'
+                    : 'text-neutral-900 hover:bg-neutral-100 border border-neutral-300'
+                }`}
+              >
+                Log In
+              </button>
             )}
           </div>
 
@@ -326,18 +296,9 @@ export default function Homepage() {
             >
               {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
             </button>
-            <button
-              type="button"
-              onClick={toggleDarkMode}
-              className={`p-2 rounded-full transition-colors ${
-                !scrolled
-                  ? 'text-amber-300 hover:bg-white/10'
-                  : darkMode ? 'text-amber-400' : 'text-neutral-600'
-              }`}
-              aria-label="Toggle theme"
-            >
-              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </button>
+            {isAuthenticated && (
+              <UserMenu isTransparentNav={!scrolled} />
+            )}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -353,79 +314,61 @@ export default function Homepage() {
           </div>
         </div>
 
-        {/* Dropdown Mega-Menu Overlay */}
-        {activeDropdown && navDropdowns[activeDropdown] && (
-          <div
-            className={`hidden lg:block absolute left-0 right-0 top-full border-b shadow-xl animate-in fade-in slide-in-from-top-1 duration-150 ${darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-white border-neutral-200'
-              }`}
-            onMouseEnter={() => setActiveDropdown(activeDropdown)}
-            onMouseLeave={() => setActiveDropdown(null)}
-          >
-            <div className="max-w-7xl mx-auto px-8 py-8">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-                {navDropdowns[activeDropdown].map((group, idx) => (
-                  <div key={idx} className="space-y-3">
-                    <div
-                      className={`text-[11px] font-bold uppercase tracking-wider ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                        }`}
-                    >
-                      {group.category}
-                    </div>
-                    <ul className="space-y-2.5">
-                      {group.links.map((link, lIdx) => (
-                        <li key={lIdx}>
-                          <a
-                            href="#programs"
-                            onClick={() => setActiveDropdown(null)}
-                            className={`group block p-2 rounded-lg transition-colors ${darkMode ? 'hover:bg-neutral-800/60' : 'hover:bg-neutral-50'
-                              }`}
-                          >
-                            <div
-                              className={`text-sm font-medium transition-colors ${darkMode
-                                ? 'text-neutral-200 group-hover:text-orange-400'
-                                : 'text-neutral-900 group-hover:text-orange-600'
-                                }`}
-                            >
-                              {link.name}
-                            </div>
-                            <div
-                              className={`text-xs mt-0.5 line-clamp-1 ${darkMode ? 'text-neutral-500' : 'text-neutral-500'
-                                }`}
-                            >
-                              {link.desc}
-                            </div>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Mobile dropdown */}
         {mobileMenuOpen && (
           <div
-            className={`lg:hidden border-b px-6 py-6 space-y-4 ${darkMode ? 'bg-[#13131a] border-neutral-800' : 'bg-white border-neutral-200'
-              }`}
+            className={`lg:hidden border-b px-6 py-6 space-y-3 ${
+              darkMode ? 'bg-[#13131a] border-neutral-800' : 'bg-white border-neutral-200'
+            }`}
           >
-            {['Home', 'Programs', 'Workouts', 'Coaching', 'About'].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block text-sm font-medium py-1 ${darkMode
-                  ? 'text-neutral-300 hover:text-orange-400'
-                  : 'text-neutral-800 hover:text-orange-600'
+            {[
+              { label: 'Home', target: 'home' },
+              { label: 'Tracker', path: '/tracker' },
+              { label: 'Workouts', target: 'programs' },
+              { label: 'Guide', target: 'workouts' },
+              { label: 'Coaching', target: 'coaching' },
+              { label: 'About', target: 'about' },
+            ].map((item) => {
+              if (item.path) {
+                return (
+                  <Link
+                    key={item.label}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block text-base font-bold py-1.5 ${
+                      darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
+              return (
+                <a
+                  key={item.label}
+                  href={`#${item.target}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMobileMenuOpen(false);
+                    if (item.target === 'home') {
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                      const el = document.getElementById(item.target);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }
+                  }}
+                  className={`block text-base font-bold py-1.5 ${
+                    darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
                   }`}
-              >
-                {item}
-              </a>
-            ))}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
             {isAuthenticated ? (
-              <div className="pt-2 border-t border-neutral-800/40 space-y-3">
+              <div className="pt-3 border-t border-neutral-800/40 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-sm font-bold text-white">{user?.name || user?.username}</div>
@@ -443,25 +386,18 @@ export default function Homepage() {
                     <span>Log Out</span>
                   </button>
                 </div>
-                <Link
-                  to="/tracker"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-center w-full py-2.5 rounded-full bg-orange-600 text-white text-sm font-semibold shadow-md shadow-orange-600/30"
-                >
-                  Launch Workout Tracker
-                </Link>
               </div>
             ) : (
-              <div className="pt-2 border-t border-neutral-800/40 space-y-2">
+              <div className="pt-2 border-t border-neutral-800/40">
                 <button
                   type="button"
                   onClick={() => {
                     setMobileMenuOpen(false);
                     openLogin('/tracker');
                   }}
-                  className="block text-center w-full py-2.5 rounded-full bg-orange-600 text-white text-sm font-semibold shadow-md shadow-orange-600/30"
+                  className="w-full py-2.5 rounded-full bg-orange-600 text-white text-sm font-bold shadow-md shadow-orange-600/30 text-center"
                 >
-                  Join Now / Log In
+                  Log In
                 </button>
               </div>
             )}
@@ -473,6 +409,7 @@ export default function Homepage() {
       {/* HERO SECTION (EXACTLY 100VH FULLSCREEN)                   */}
       {/* ========================================================= */}
       <section
+        id="home"
         style={{ height: '100vh', minHeight: '100vh' }}
         className="hero-section relative flex items-center justify-center text-center overflow-hidden h-screen min-h-screen w-full px-4 sm:px-6 lg:px-8"
       >
@@ -597,7 +534,7 @@ export default function Homepage() {
           </div>
 
           {/* Interactive Feature Tabs */}
-          <div className="mt-12 flex justify-center flex-wrap gap-2 sm:gap-3 scroll-reveal">
+          <div id="workouts" className="mt-12 flex justify-center flex-wrap gap-2 sm:gap-3 scroll-reveal">
             {detectableExercises.map((ex, idx) => {
               const Icon = ex.icon
               const isActive = activeTab === idx
@@ -695,7 +632,7 @@ export default function Homepage() {
       {/* HOW TO USE THIS SYSTEM (LIVE WORKFLOW GUIDE)              */}
       {/* ========================================================= */}
       <section
-        id="how-to-use"
+        id="coaching"
         className={`py-24 sm:py-28 border-t transition-colors duration-300 ${darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
           }`}
       >
@@ -952,9 +889,10 @@ export default function Homepage() {
       </section>
 
       {/* ========================================================= */}
-      {/* CLOSING TAGLINE                                           */}
+      {/* CLOSING TAGLINE / ABOUT                                   */}
       {/* ========================================================= */}
       <section
+        id="about"
         className={`py-20 sm:py-28 border-t text-center transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
           }`}
       >

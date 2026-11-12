@@ -130,32 +130,42 @@ async def get_current_user_profile(auth_user: dict = Depends(require_authenticat
 async def update_profile(body: UserProfileUpdate, auth_user: dict = Depends(require_authenticated_user)):
     username = auth_user["username"]
 
-    clean_name = body.name.strip()
-    if not clean_name:
-        raise HTTPException(status_code=400, detail="Name cannot be empty")
-    if body.age <= 0 or body.age > 120:
-        raise HTTPException(status_code=400, detail="Age must be between 1 and 120")
-    if body.weight <= 0 or body.weight > 400:
-        raise HTTPException(status_code=400, detail="Weight must be valid (in kg)")
-    if body.height <= 0 or body.height > 260:
-        raise HTTPException(status_code=400, detail="Height must be valid (in cm)")
+    if body.age is None or body.age < 10 or body.age > 100:
+        raise HTTPException(status_code=400, detail="Enter an age between 10 and 100.")
 
-    clean_sex = body.sex.strip().lower()
-    if clean_sex not in ["male", "female", "other"]:
-        clean_sex = "other"
+    if body.weight is None or body.weight < 20 or body.weight > 300:
+        raise HTTPException(status_code=400, detail="Enter a weight between 20 and 300 kg.")
+
+    if body.height is None or body.height < 100 or body.height > 250:
+        raise HTTPException(status_code=400, detail="Enter a height between 100 and 250 cm.")
+
+    raw_sex = (body.sex or "").strip()
+    clean_sex = None
+    for valid_gender in ["Male", "Female", "Other"]:
+        if raw_sex.lower() == valid_gender.lower():
+            clean_sex = valid_gender
+            break
+    if not clean_sex:
+        raise HTTPException(status_code=400, detail="Select gender: Male, Female, or Other.")
 
     async with get_db() as cur:
+        await cur.execute("SELECT name FROM users WHERE username = %s", (username,))
+        existing_user = await cur.fetchone()
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="User record not found")
+
+        current_name = existing_user.get("name") or username
+        clean_name = body.name.strip() if (body.name and body.name.strip()) else current_name
+
         await cur.execute(
             """
             UPDATE users
             SET name = %s, age = %s, sex = %s, weight = %s, height = %s, is_profile_completed = 1
             WHERE username = %s
             """,
-            (clean_name, body.age, clean_sex, float(body.weight), float(body.height), username)
+            (clean_name, int(body.age), clean_sex, float(body.weight), float(body.height), username)
         )
 
         await cur.execute("SELECT * FROM users WHERE username = %s", (username,))
         updated_user = await cur.fetchone()
-        if not updated_user:
-            raise HTTPException(status_code=404, detail="User record not found")
         return user_row_to_profile(updated_user)

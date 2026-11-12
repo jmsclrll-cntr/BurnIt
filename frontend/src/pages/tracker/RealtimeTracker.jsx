@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Heart, Flame, Watch, Camera, CameraOff, X, ChevronDown } from 'lucide-react';
 import PageWrapper from '../../components/PageWrapper';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../context/AuthContext';
 import { BiomechanicsEngine, EXERCISE_INFO } from '../../lib/mediapipeTracker';
 import { drawPoseSkeleton, drawWorkoutHUD } from '../../lib/skeletonRenderer';
 import SetTrackerStepper from '../../components/tracker/SetTrackerStepper';
@@ -18,8 +19,22 @@ const EXERCISES = [
   { id: 'bicepcurl', name: 'Bicep curls' },
 ];
 
+const mapToAllowedExercise = (name) => {
+  if (!name) return 'Auto-detect';
+  const clean = String(name).trim();
+  const lower = clean.toLowerCase().replace(/[^a-z]/g, '');
+  if (lower.includes('squat')) return 'Squats';
+  if (lower.includes('pushup') || lower.includes('push')) return 'Push-ups';
+  if (lower.includes('plank')) return 'Plank';
+  if (lower.includes('jump')) return 'Jumping jacks';
+  if (lower.includes('curl') || lower.includes('bicep')) return 'Bicep curls';
+  return 'Auto-detect';
+};
+
 export const RealtimeTracker = () => {
   const { darkMode } = useTheme();
+  const { user, token } = useAuth();
+  const currentSavedItemIdRef = useRef(null);
 
   // State
   const [activeExercise, setActiveExercise] = useState('auto');
@@ -464,6 +479,48 @@ export const RealtimeTracker = () => {
     isPaused: !isCameraActive,
   });
 
+  const saveWorkoutToHistory = useCallback(async (cals, stats, inputs) => {
+    if (!token) return;
+    try {
+      const rawEx = stats?.exercise || activeExercise;
+      const normEx = mapToAllowedExercise(rawEx);
+      const isPlank = normEx === 'Plank';
+      const finalReps = isPlank ? 0 : Math.max(0, Math.round(Number(stats?.totalReps ?? telemetry.reps ?? 0)));
+      const durationSec = Math.max(1, Math.round(Number(stats?.duration || workoutDuration || 1)));
+      const finalKcal = Math.max(0, Math.round(Number(cals || 0)));
+
+      const bodyData = {
+        id: currentSavedItemIdRef.current || undefined,
+        exercise_name: normEx,
+        duration_seconds: durationSec,
+        reps: finalReps,
+        calories_burned: finalKcal,
+        start_time: stats?.sessionStarted || sessionStartTimeFormatted || undefined,
+        end_time: stats?.sessionCompleted || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        avg_form_score: Number(stats?.avgFormScore ?? telemetry.formScore ?? 100),
+        common_errors: stats?.errors ?? telemetry.formErrors ?? [],
+        avg_heart_rate: Number(inputs?.avgHeartRate || calorieInputs.avgHeartRate || 138),
+      };
+
+      const res = await fetch('/api/history/item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bodyData),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.item_id) {
+          currentSavedItemIdRef.current = data.item_id;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save workout to history and sessions table:', err);
+    }
+  }, [token, activeExercise, workoutDuration, telemetry.reps, telemetry.formScore, telemetry.formErrors, sessionStartTimeFormatted, calorieInputs.avgHeartRate]);
+
   const predictCalories = useCallback(async (inputs, sessionStats) => {
     setIsPredictingCal(true);
     const durationMin = Math.max(0.5, (sessionStats?.duration || workoutDuration) / 60);
@@ -494,6 +551,7 @@ export const RealtimeTracker = () => {
         const data = await res.json();
         setCalorieResult(data);
         setIsPredictingCal(false);
+        saveWorkoutToHistory(data.predicted_calories, sessionStats, inputs);
         return;
       }
     } catch {
@@ -528,7 +586,8 @@ export const RealtimeTracker = () => {
       mae_margin_kcal: 34.0,
     });
     setIsPredictingCal(false);
-  }, [workoutDuration, activeExercise, telemetry.reps, telemetry.formScore]);
+    saveWorkoutToHistory(calculatedCals, sessionStats, inputs);
+  }, [workoutDuration, activeExercise, telemetry.reps, telemetry.formScore, saveWorkoutToHistory]);
 
   const handleFinishWorkout = useCallback(() => {
     stopCamera();
@@ -578,6 +637,7 @@ export const RealtimeTracker = () => {
     };
 
     setCalorieResult(null);
+    currentSavedItemIdRef.current = null;
     setSummaryData(summary);
   }, [stopCamera, calorieInputs, exerciseGroups, telemetry, activeExercise, workoutDuration, sessionStartTimeFormatted]);
 
@@ -599,29 +659,29 @@ export const RealtimeTracker = () => {
     <PageWrapper hideFooter={true}>
       <div className="w-full min-h-[calc(100vh-64px)] bg-[#eceef1] dark:bg-[#0b0b0d] py-6 sm:py-8 px-4 sm:px-8 text-[#16161a] dark:text-[#f4f4f5] transition-colors">
         <div className="max-w-7xl mx-auto font-sans">
-          {/* Header: title "Workout tracker" with muted "Started at hh:mm" under it */}
-          <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Header: title "Workout tracker" with muted "Started at hh:mm" under it (Enlarged) */}
+          <div className="mb-7 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-[#16161a] dark:text-[#f4f4f5]">
+              <h1 className="text-3xl sm:text-4xl md:text-[42px] font-black tracking-tight text-[#16161a] dark:text-[#f4f4f5] leading-tight">
                 Workout tracker
               </h1>
-              <p className="text-xs mt-1 font-normal text-[#6b6b76] dark:text-[#8b8b94]">
+              <p className="text-sm sm:text-base mt-1.5 font-medium text-[#6b6b76] dark:text-[#8b8b94]">
                 Started at {sessionStartTimeFormatted || '04:37 PM'}
               </p>
             </div>
 
             {/* Exercise pills on the right: selected is filled orange, others outlined/gray */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
               {EXERCISES.map((ex) => {
                 const isSelected = activeExercise === ex.id;
                 return (
                   <button
                     key={ex.id}
                     onClick={() => setActiveExercise(ex.id)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
+                    className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-[#ea580c] text-white shadow-sm'
-                        : 'bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#4b5563] dark:text-[#8b8b94] hover:text-[#16161a] dark:hover:text-[#f4f4f5]'
+                        ? 'bg-[#ea580c] text-white shadow-md shadow-orange-600/30 scale-105'
+                        : 'bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#4b5563] dark:text-[#8b8b94] hover:text-[#16161a] dark:hover:text-[#f4f4f5] hover:bg-[#d8dadf] dark:hover:bg-[#25252e]'
                     }`}
                   >
                     {ex.name}
@@ -882,6 +942,7 @@ export const RealtimeTracker = () => {
               onClick={() => {
                 setSummaryData(null);
                 setCalorieResult(null);
+                currentSavedItemIdRef.current = null;
               }}
               className="absolute top-7 right-7 text-[#6b6b76] hover:text-[#16161a] dark:text-[#8b8b94] dark:hover:text-[#f4f4f5] transition-colors p-1 rounded-lg focus:outline-none"
               title="Close"
@@ -1045,6 +1106,7 @@ export const RealtimeTracker = () => {
                     onClick={() => {
                       setSummaryData(null);
                       setCalorieResult(null);
+                      currentSavedItemIdRef.current = null;
                       setWorkoutDuration(0);
                       resetAllSets();
                       handleResetReps();

@@ -8,6 +8,16 @@ const getApiBase = () => {
   return '';
 };
 
+const safeJson = async (res) => {
+  try {
+    const text = await res.text();
+    if (!text) return {};
+    return JSON.parse(text);
+  } catch {
+    return {};
+  }
+};
+
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => {
     try {
@@ -30,6 +40,7 @@ export function AuthProvider({ children }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login'); // 'login' | 'signup'
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [redirectPath, setRedirectPath] = useState(null);
 
   // Sync profile metrics to individual localStorage keys for calorie prediction integration
@@ -61,8 +72,8 @@ export function AuthProvider({ children }) {
           },
         });
         if (res.ok) {
-          const profile = await res.json();
-          if (isMounted) {
+          const profile = await safeJson(res);
+          if (profile && profile.username && isMounted) {
             setUser(profile);
             localStorage.setItem('burnit_user', JSON.stringify(profile));
             syncBiometricsToStorage(profile);
@@ -113,6 +124,14 @@ export function AuthProvider({ children }) {
     setIsOnboardingOpen(false);
   }, []);
 
+  const openProfileModal = useCallback(() => {
+    setIsProfileModalOpen(true);
+  }, []);
+
+  const closeProfileModal = useCallback(() => {
+    setIsProfileModalOpen(false);
+  }, []);
+
   const login = useCallback(
     async (username, password) => {
       try {
@@ -122,8 +141,11 @@ export function AuthProvider({ children }) {
           body: JSON.stringify({ username, password }),
         });
 
-        const data = await res.json();
+        const data = await safeJson(res);
         if (!res.ok) {
+          if (res.status === 502 || res.status === 503 || res.status === 504) {
+            throw new Error('Cannot connect to backend server. Please verify backend is running on port 8000.');
+          }
           throw new Error(data.detail || 'Login failed. Please check your credentials.');
         }
 
@@ -165,8 +187,11 @@ export function AuthProvider({ children }) {
           body: JSON.stringify({ username, password }),
         });
 
-        const data = await res.json();
+        const data = await safeJson(res);
         if (!res.ok) {
+          if (res.status === 502 || res.status === 503 || res.status === 504) {
+            throw new Error('Cannot connect to backend server. Please verify backend is running on port 8000.');
+          }
           throw new Error(data.detail || 'Registration failed.');
         }
 
@@ -217,8 +242,11 @@ export function AuthProvider({ children }) {
           }),
         });
 
-        const data = await res.json();
+        const data = await safeJson(res);
         if (!res.ok) {
+          if (res.status === 502 || res.status === 503 || res.status === 504) {
+            throw new Error('Cannot connect to backend server. Please verify backend is running on port 8000.');
+          }
           throw new Error(data.detail || 'Failed to update profile.');
         }
 
@@ -272,12 +300,15 @@ export function AuthProvider({ children }) {
         authModalMode,
         setAuthModalMode,
         isOnboardingOpen,
+        isProfileModalOpen,
         redirectPath,
         openLogin,
         openSignUp,
         closeAuthModal,
         openOnboarding,
         closeOnboarding,
+        openProfileModal,
+        closeProfileModal,
         clearRedirect,
         login,
         register,

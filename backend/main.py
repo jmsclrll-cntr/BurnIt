@@ -13,6 +13,7 @@ from routes.exercises import router as exercises_router
 from routes.dataset import router as dataset_router
 from routes.model import router as model_router
 from routes.calories import router as calories_router
+from routes.history import router as history_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -57,6 +58,7 @@ app.include_router(exercises_router)
 app.include_router(dataset_router)
 app.include_router(model_router)
 app.include_router(calories_router)
+app.include_router(history_router)
 
 # WebSocket endpoint for real-time frame streaming and pose telemetry
 @app.websocket("/ws/workout/{session_id}")

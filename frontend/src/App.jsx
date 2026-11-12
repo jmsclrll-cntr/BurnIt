@@ -9,6 +9,9 @@ import AdminRecorder from './pages/tracker/AdminRecorder';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthModal from './components/auth/AuthModal';
 import OnboardingModal from './components/auth/OnboardingModal';
+import ProfileModal from './components/auth/ProfileModal';
+import FloatingThemeToggle from './components/FloatingThemeToggle';
+import FloatingGuideToggle from './components/FloatingGuideToggle';
 
 export default function App() {
   return (
@@ -18,6 +21,9 @@ export default function App() {
           <ScrollRevealManager />
           <AuthModal />
           <OnboardingModal />
+          <ProfileModal />
+          <FloatingThemeToggle />
+          <FloatingGuideToggle />
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route

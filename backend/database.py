@@ -97,6 +97,8 @@ def ensure_database_exists() -> bool:
 
 async def get_pool() -> Optional[aiomysql.Pool]:
     global _pool
+    if _pool is not None and getattr(_pool, "_closed", False):
+        _pool = None
     if _pool is None:
         try:
             _pool = await aiomysql.create_pool(
@@ -131,17 +133,31 @@ async def close_pool():
 
 @asynccontextmanager
 async def get_db():
-    """Async context manager yielding an aiomysql DictCursor for executing queries."""
+    """Async context manager yielding an aiomysql DictCursor for executing queries with auto-reconnect."""
     from fastapi import HTTPException, status
+    global _pool
     pool = await get_pool()
     if pool is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Database service is offline. Please ensure MySQL in XAMPP is started.",
         )
-    async with pool.acquire() as conn:
-        async with conn.cursor(aiomysql.DictCursor) as cur:
-            yield cur
+    try:
+        async with pool.acquire() as conn:
+            async with conn.cursor(aiomysql.DictCursor) as cur:
+                yield cur
+    except (pymysql.err.OperationalError, aiomysql.OperationalError, pymysql.err.InterfaceError) as oe:
+        logger.warning(f"Database connection dropped ({oe}), resetting pool and retrying...")
+        await close_pool()
+        new_pool = await get_pool()
+        if new_pool is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Database service is offline. Please ensure MySQL in XAMPP is started.",
+            )
+        async with new_pool.acquire() as conn:
+            async with conn.cursor(aiomysql.DictCursor) as cur:
+                yield cur
 
 async def init_db():
     if not ensure_database_exists():
@@ -203,6 +219,36 @@ async def init_db():
                             frame_count INT DEFAULT 0,
                             csv_path VARCHAR(255) DEFAULT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                    """)
+
+                    # 4. Workout History Table (one row per user per date)
+                    await cur.execute("""
+                        CREATE TABLE IF NOT EXISTS workout_history (
+                            id VARCHAR(64) PRIMARY KEY,
+                            user_id VARCHAR(64) NOT NULL,
+                            date DATE NOT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            UNIQUE KEY uq_user_date (user_id, date),
+                            INDEX idx_user_date (user_id, date),
+                            CONSTRAINT fk_wh_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                    """)
+
+                    # 5. Workout History Items Table (content of each day, one row per workout)
+                    await cur.execute("""
+                        CREATE TABLE IF NOT EXISTS workout_history_items (
+                            id VARCHAR(64) PRIMARY KEY,
+                            history_id VARCHAR(64) NOT NULL,
+                            exercise_name VARCHAR(64) NOT NULL,
+                            start_time VARCHAR(64) NOT NULL,
+                            duration_seconds INT NOT NULL,
+                            reps INT NOT NULL DEFAULT 0,
+                            calories_burned DOUBLE NOT NULL DEFAULT 0.0,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            INDEX idx_whi_history (history_id),
+                            CONSTRAINT fk_whi_history FOREIGN KEY (history_id) REFERENCES workout_history(id) ON DELETE CASCADE
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """)
 

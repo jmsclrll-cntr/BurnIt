@@ -22,7 +22,7 @@ class UserProfile(BaseModel):
     is_admin: bool = False
 
 class UserProfileUpdate(BaseModel):
-    name: str
+    name: Optional[str] = None
     age: int
     sex: str
     weight: float
