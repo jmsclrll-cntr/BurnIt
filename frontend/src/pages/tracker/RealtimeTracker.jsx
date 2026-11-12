@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Flame, Watch, Camera, CameraOff, X } from 'lucide-react';
+import { Heart, Flame, Watch, Camera, CameraOff, X, ChevronDown } from 'lucide-react';
 import PageWrapper from '../../components/PageWrapper';
 import { useTheme } from '../../hooks/useTheme';
 import { BiomechanicsEngine, EXERCISE_INFO } from '../../lib/mediapipeTracker';
@@ -10,12 +10,12 @@ import { useSetTracker } from '../../hooks/useSetTracker';
 import { heartRateService } from '../../services/heartRateService';
 
 const EXERCISES = [
-  { id: 'auto', name: 'Auto-Detect' },
+  { id: 'auto', name: 'Auto-detect' },
   { id: 'squat', name: 'Squats' },
-  { id: 'pushup', name: 'Push-Ups' },
+  { id: 'pushup', name: 'Push-ups' },
   { id: 'plank', name: 'Plank' },
-  { id: 'jumpingjack', name: 'Jumping Jacks' },
-  { id: 'bicepcurl', name: 'Bicep Curls' },
+  { id: 'jumpingjack', name: 'Jumping jacks' },
+  { id: 'bicepcurl', name: 'Bicep curls' },
 ];
 
 export const RealtimeTracker = () => {
@@ -38,6 +38,7 @@ export const RealtimeTracker = () => {
   const [fps, setFps] = useState(0);
   const [workoutDuration, setWorkoutDuration] = useState(0);
   const [summaryData, setSummaryData] = useState(null);
+  const [detailsOpen, setDetailsOpen] = useState(true);
 
   // Post-Workout Calorie Prediction State
   const [calorieInputs, setCalorieInputs] = useState({
@@ -504,7 +505,7 @@ export const RealtimeTracker = () => {
     const avgHr = Number(inputs.avgHeartRate) || 135;
     const wt = Number(inputs.weightKg) || 70;
     const ag = Number(inputs.age) || 25;
-    
+
     const eeMin = isMale
       ? ((-55.0969 + (0.6309 * avgHr) + (0.1988 * wt) + (0.2017 * ag)) / 4.184)
       : ((-20.4022 + (0.4472 * avgHr) - (0.1263 * wt) + (0.074 * ag)) / 4.184);
@@ -586,573 +587,487 @@ export const RealtimeTracker = () => {
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
+  const getExerciseDisplayName = () => {
+    const currentEx = EXERCISES.find((e) => e.id === activeExercise);
+    if (activeExercise === 'auto') {
+      return telemetry.detectedInfo?.name || 'Auto-detect';
+    }
+    return currentEx?.name || activeExercise;
+  };
+
   return (
     <PageWrapper hideFooter={true}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-        {/* Clean, Simple Top Header with Workout Selectors (No Icons) */}
-        <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-black dark:text-white">
-              Workout Tracker
-            </h1>
-            {sessionStartTimeFormatted && (
-              <p className="text-xs text-neutral-800 dark:text-neutral-400 font-mono font-medium mt-0.5">
-                Started at {sessionStartTimeFormatted}
+      <div className="w-full min-h-[calc(100vh-64px)] bg-[#eceef1] dark:bg-[#0b0b0d] py-6 sm:py-8 px-4 sm:px-8 text-[#16161a] dark:text-[#f4f4f5] transition-colors">
+        <div className="max-w-7xl mx-auto font-sans">
+          {/* Header: title "Workout tracker" with muted "Started at hh:mm" under it */}
+          <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-[#16161a] dark:text-[#f4f4f5]">
+                Workout tracker
+              </h1>
+              <p className="text-xs mt-1 font-normal text-[#6b6b76] dark:text-[#8b8b94]">
+                Started at {sessionStartTimeFormatted || '04:37 PM'}
               </p>
-            )}
+            </div>
+
+            {/* Exercise pills on the right: selected is filled orange, others outlined/gray */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+              {EXERCISES.map((ex) => {
+                const isSelected = activeExercise === ex.id;
+                return (
+                  <button
+                    key={ex.id}
+                    onClick={() => setActiveExercise(ex.id)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#ea580c] text-white shadow-sm'
+                        : 'bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#4b5563] dark:text-[#8b8b94] hover:text-[#16161a] dark:hover:text-[#f4f4f5]'
+                    }`}
+                  >
+                    {ex.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Exercise Selector Pills - Clean Text Without Icons */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-            {EXERCISES.map((ex) => {
-              const isSelected = activeExercise === ex.id;
-              return (
+          {/* Camera Permission Alert (if blocked) */}
+          {cameraError && (
+            <div className="mb-5 p-5 rounded-[28px] border border-red-500/30 bg-red-500/10 text-center max-w-lg mx-auto">
+              <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">Camera access required</h3>
+              <p className="text-xs mb-3 font-normal text-[#6b6b76] dark:text-[#8b8b94] leading-relaxed">
+                {cameraError}
+              </p>
+              <div className="flex items-center justify-center gap-2">
                 <button
-                  key={ex.id}
-                  onClick={() => setActiveExercise(ex.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${isSelected
-                      ? 'bg-orange-600 text-white shadow-sm'
-                      : darkMode
-                        ? 'bg-white/5 text-neutral-300 hover:text-white border border-white/10 hover:bg-white/10'
-                        : 'bg-neutral-100 text-black hover:text-orange-600 border border-neutral-300 hover:border-black hover:bg-neutral-200/60'
-                    }`}
+                  onClick={() => startCamera('camera')}
+                  className="px-4 py-2 rounded-[14px] text-xs font-semibold bg-[#ea580c] hover:bg-[#c2410c] text-white transition-all cursor-pointer"
                 >
-                  {ex.name}
+                  Retry camera
                 </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Camera Permission Alert (if blocked) */}
-        {cameraError && (
-          <div className="mb-4 p-5 rounded-2xl bg-red-500/10 border border-red-500/30 text-center max-w-lg mx-auto">
-            <h3 className="text-sm font-bold text-red-500 mb-1">Camera Access Required</h3>
-            <p className="text-xs text-black dark:text-neutral-400 font-medium leading-relaxed mb-3">{cameraError}</p>
-            <div className="flex items-center justify-center gap-2">
-              <button
-                onClick={() => startCamera('camera')}
-                className="px-5 py-2 rounded-full text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all cursor-pointer"
-              >
-                Retry Camera
-              </button>
-              <button
-                onClick={() => startCamera('demo')}
-                className="px-5 py-2 rounded-full text-xs font-bold bg-neutral-800 hover:bg-neutral-700 text-white border border-white/10 shadow-sm transition-all cursor-pointer"
-              >
-                Try Demo Athlete Video
-              </button>
+                <button
+                  onClick={() => startCamera('demo')}
+                  className="px-4 py-2 rounded-[14px] text-xs font-semibold bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#16161a] dark:text-[#f4f4f5] transition-all cursor-pointer"
+                >
+                  Try demo video
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Larger Camera View Layout (lg:col-span-9) paired with Unified Clean Sidebar (lg:col-span-3) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          {/* Main Video View - Enlarged 9 Columns */}
-          <div className="lg:col-span-9 flex flex-col">
-            <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-black border border-neutral-300 dark:border-white/10 shadow-lg">
-              {/* Webcam or Demo Athlete Video */}
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className={`w-full h-full object-cover transition-transform duration-200 ${
-                  videoSource === 'demo' ? '' : '-scale-x-100'
-                } ${!isCameraActive ? 'hidden' : 'block'}`}
-              />
+          {/* Main Grid: Camera Panel & Side Panel (Stacks on tablet/mobile) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            {/* Camera Panel: Large rounded white/dark panel */}
+            <div className="lg:col-span-8 xl:col-span-9 flex flex-col">
+              <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-white dark:bg-[#131316] border border-[#e2e4e9] dark:border-[#26262c] shadow-sm">
+                {/* Webcam or Demo Athlete Video */}
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`w-full h-full object-cover transition-transform duration-200 ${
+                    videoSource === 'demo' ? '' : '-scale-x-100'
+                  } ${!isCameraActive ? 'hidden' : 'block'}`}
+                />
 
-              {/* MediaPipe Visible Joints & Skeleton Canvas Overlay */}
-              <canvas
-                ref={canvasRef}
-                className={`absolute inset-0 w-full h-full pointer-events-none ${
-                  !isCameraActive ? 'hidden' : 'block'
-                }`}
-              />
+                {/* MediaPipe Visible Joints & Skeleton Canvas Overlay */}
+                <canvas
+                  ref={canvasRef}
+                  className={`absolute inset-0 w-full h-full pointer-events-none ${
+                    !isCameraActive ? 'hidden' : 'block'
+                  }`}
+                />
 
-              {/* Minimal Top Badges on Video (Only while camera active) */}
-              {isCameraActive && (
-                <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-auto">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] border border-white/10 text-neutral-300 font-mono">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span>{fps} FPS</span>
+                {/* Minimal Top Badges on Video (Only while camera active) */}
+                {isCameraActive && (
+                  <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-auto">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] border border-white/10 text-white font-mono">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>{fps} FPS</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Minimal Top-Right Controls on Video (Only while camera active) */}
-              {isCameraActive && (
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 pointer-events-auto flex-wrap justify-end">
-                  <button
-                    onClick={() => {
-                      const next = videoSource === 'camera' ? 'demo' : 'camera';
-                      startCamera(next);
-                    }}
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
-                      videoSource === 'demo'
-                        ? 'bg-orange-600 border-orange-500 text-white shadow-sm'
-                        : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
-                    }`}
-                    title="Switch between live camera and demo athlete video"
-                  >
-                    {videoSource === 'demo' ? 'Demo User: Active' : 'Demo User'}
-                  </button>
-                  <button
-                    onClick={() => setShowJoints(!showJoints)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
-                      showJoints
-                        ? 'bg-orange-600/90 border-orange-500 text-white'
-                        : 'bg-black/60 border-white/10 text-neutral-400 hover:text-white'
-                    }`}
-                  >
-                    Joints: {showJoints ? 'ON' : 'OFF'}
-                  </button>
-                  <button
-                    onClick={() => setShowAngles(!showAngles)}
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border transition-all ${
-                      showAngles
-                        ? 'bg-orange-600/90 border-orange-500 text-white'
-                        : 'bg-black/60 border-white/10 text-neutral-400 hover:text-white'
-                    }`}
-                  >
-                    Angles
-                  </button>
-                </div>
-              )}
-
-              {/* Start Camera / Camera Off Standby Prompt (Clean Opaque Background, Zero Ghosting) */}
-              {!isCameraActive && !cameraError && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black p-6 text-center z-20">
-                  <div className="w-14 h-14 rounded-full bg-neutral-900 text-neutral-400 flex items-center justify-center mb-3 border border-white/10 shadow-inner">
-                    <CameraOff className="w-7 h-7 text-neutral-400" />
+                {/* Minimal Top-Right Controls on Video (Only while camera active) */}
+                {isCameraActive && (
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 pointer-events-auto flex-wrap justify-end">
+                    <button
+                      onClick={() => {
+                        const next = videoSource === 'camera' ? 'demo' : 'camera';
+                        startCamera(next);
+                      }}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
+                        videoSource === 'demo'
+                          ? 'bg-[#ea580c] border-[#ea580c] text-white'
+                          : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
+                      }`}
+                      title="Switch between live camera and demo video"
+                    >
+                      {videoSource === 'demo' ? 'Demo active' : 'Demo user'}
+                    </button>
+                    <button
+                      onClick={() => setShowJoints(!showJoints)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
+                        showJoints
+                          ? 'bg-[#ea580c]/90 border-[#ea580c] text-white'
+                          : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
+                      }`}
+                    >
+                      Joints: {showJoints ? 'on' : 'off'}
+                    </button>
+                    <button
+                      onClick={() => setShowAngles(!showAngles)}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
+                        showAngles
+                          ? 'bg-[#ea580c]/90 border-[#ea580c] text-white'
+                          : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
+                      }`}
+                    >
+                      Angles
+                    </button>
                   </div>
-                  <h3 className="text-xl font-black text-white mb-1.5 tracking-tight">Camera is Off</h3>
-                  <p className="text-xs text-neutral-400 max-w-sm mb-5 font-medium leading-relaxed">
-                    Camera streaming and pose tracking are currently off. Turn camera on to resume workout detection.
-                  </p>
-                  <button
-                    onClick={() => startCamera()}
-                    className="px-6 py-2.5 rounded-full text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
-                  >
-                    <Camera className="w-4 h-4" />
-                    <span>Turn On Camera</span>
-                  </button>
-                </div>
-              )}
+                )}
+
+                {/* Centered Camera-Off Standby State (Pure white in light mode, dark in dark mode) */}
+                {!isCameraActive && !cameraError && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-[#131316] p-6 text-center z-20">
+                    <div className="w-12 h-12 rounded-full bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#6b6b76] dark:text-[#8b8b94] flex items-center justify-center mb-3">
+                      <CameraOff className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-lg font-bold text-[#16161a] dark:text-[#f4f4f5] mb-1 tracking-tight">
+                      Camera is off
+                    </h3>
+                    <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] max-w-xs mb-4 font-normal leading-relaxed">
+                      Turn the camera on to resume pose tracking and rep detection.
+                    </p>
+                    <button
+                      onClick={() => startCamera()}
+                      className="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold text-xs rounded-[14px] px-5 py-2.5 active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                    >
+                      Turn on camera
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Simple, Unified Right Stats & Controls Sidebar (3 Columns) */}
-          <div className="lg:col-span-3 flex flex-col">
-            <div className={`p-6 rounded-2xl border flex-1 flex flex-col justify-between ${darkMode ? 'bg-[#15151e] border-white/5' : 'bg-white border-neutral-300 shadow-sm'
-              }`}>
-              <div className="space-y-6">
-                {/* Current Set & Rep Counter */}
+            {/* Side Panel (Card): 28px radius, matching reference UI in both light & dark mode */}
+            <div className="lg:col-span-4 xl:col-span-3 flex flex-col">
+              <div className="p-6 rounded-[28px] border border-[#e2e4e9] dark:border-[#26262c] bg-[#f4f5f7] dark:bg-[#131316] text-[#16161a] dark:text-[#f4f4f5] shadow-sm dark:shadow-xl flex-1 flex flex-col justify-between transition-colors">
                 <div>
-                  <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="font-black uppercase tracking-wider text-xs text-black dark:text-white flex items-center gap-1.5">
-                      <span>Set {currentSetNumber}</span>
-                      {activeSet && (
-                        <span className="w-2 h-2 rounded-full bg-orange-600 animate-pulse" />
-                      )}
-                    </span>
-                    <span className={`font-black uppercase text-[10px] px-2.5 py-0.5 rounded-full ${activeSet
-                        ? 'text-orange-600 bg-orange-500/10'
-                        : isResting
-                          ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10'
-                          : 'text-black dark:text-neutral-300 bg-neutral-200/70 dark:bg-white/5'
-                      }`}>
-                      {activeSet ? (telemetry.phase || 'ACTIVE') : isResting ? 'RESTING' : 'READY'}
-                    </span>
+                  {/* Set 1 at top left */}
+                  <div className="text-sm font-bold text-left text-[#16161a] dark:text-white">
+                    Set {currentSetNumber}
                   </div>
 
-                  <div className="text-6xl font-black text-orange-600 tracking-tight">
-                    {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
+                  {/* Huge Centered Orange Rep Number */}
+                  <div className="text-center py-6 sm:py-7">
+                    <div className="text-[100px] sm:text-[110px] font-[800] text-[#f97316] leading-none tracking-tight font-sans">
+                      {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
+                    </div>
+                    <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] font-normal lowercase text-center mt-3">
+                      {currentExercise === 'plank' ? 'hold time' : 'completed reps'}
+                    </div>
                   </div>
 
-                  <div className="text-xs text-black dark:text-neutral-300 font-mono font-bold mt-1 flex items-center justify-between">
-                    <span>{currentExercise === 'plank' ? 'Hold Time' : 'Completed Reps'}</span>
-                    {activeSet && (
-                      <span className="text-[10px] text-neutral-800 dark:text-neutral-400 font-medium">10s auto-end</span>
+                  {/* Details Card */}
+                  <div className="rounded-[18px] bg-white dark:bg-[#1a1a1f] border border-[#e2e4e9] dark:border-[#26262c] p-4 text-xs shadow-sm dark:shadow-none transition-colors">
+                    <button
+                      type="button"
+                      onClick={() => setDetailsOpen(!detailsOpen)}
+                      className="w-full flex items-center justify-between text-left font-bold text-[#16161a] dark:text-white text-sm focus:outline-none cursor-pointer"
+                    >
+                      <span>Details</span>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 text-[#6b6b76] dark:text-[#8b8b94] transition-transform duration-200 ${
+                          detailsOpen ? 'rotate-0' : '-rotate-90'
+                        }`}
+                      />
+                    </button>
+
+                    {detailsOpen && (
+                      <div className="mt-3.5 space-y-3 pt-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#6b6b76] dark:text-[#8b8b94] font-normal text-xs">Duration</span>
+                          <span className="text-[#16161a] dark:text-white font-bold font-mono text-sm">
+                            {formatDuration(workoutDuration)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#6b6b76] dark:text-[#8b8b94] font-normal text-xs">Exercise</span>
+                          <span className="text-[#16161a] dark:text-white font-bold text-sm">
+                            {getExerciseDisplayName()}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#6b6b76] dark:text-[#8b8b94] font-normal text-xs">Form precision</span>
+                          <span className="text-[#16161a] dark:text-white font-bold text-sm">
+                            {telemetry.formScore}%
+                          </span>
+                        </div>
+                      </div>
                     )}
                   </div>
+                </div>
 
-                  {/* Rest Counter (Live when resting after set completion) */}
-                  {isResting && (
-                    <div className="mt-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-ping" />
-                        <span className="text-xs font-black text-emerald-950 dark:text-emerald-300">
-                          Rest Counter
+                {/* Action Buttons: [Turn off camera] [Reset] + [Finish & predict calories] */}
+                <div className="space-y-3 pt-4 mt-4">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={isCameraActive ? stopCamera : () => startCamera()}
+                      className="py-3 px-3 rounded-[14px] text-xs sm:text-sm font-medium bg-[#e2e4e9] hover:bg-[#d8dadf] dark:bg-[#1a1a1f] dark:hover:bg-[#26262c] border border-[#e2e4e9] dark:border-[#26262c] text-[#16161a] dark:text-white active:scale-[0.98] transition-all cursor-pointer text-center"
+                    >
+                      {isCameraActive ? 'Turn off camera' : 'Turn on camera'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleResetReps}
+                      className="py-3 px-3 rounded-[14px] text-xs sm:text-sm font-medium bg-[#e2e4e9] hover:bg-[#d8dadf] dark:bg-[#1a1a1f] dark:hover:bg-[#26262c] border border-[#e2e4e9] dark:border-[#26262c] text-[#16161a] dark:text-white active:scale-[0.98] transition-all cursor-pointer text-center"
+                    >
+                      Reset
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleFinishWorkout}
+                    className="w-full bg-[#f97316] hover:bg-[#ea580c] text-white rounded-[14px] py-3.5 text-xs sm:text-sm font-semibold active:scale-[0.98] transition-all cursor-pointer shadow-none text-center"
+                  >
+                    Finish & predict calories
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Set History Card: 28px radius */}
+          <div className="mt-6">
+            <div className="p-6 rounded-[28px] border border-[#e2e4e9] dark:border-[#26262c] bg-[#f4f5f7] dark:bg-[#131316] text-[#16161a] dark:text-[#f4f4f5] shadow-sm">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#e2e4e9] dark:border-[#26262c]">
+                <div>
+                  <h3 className="text-sm font-bold text-[#16161a] dark:text-[#f4f4f5]">
+                    Set history
+                  </h3>
+                  <p className="text-xs mt-0.5 font-normal text-[#6b6b76] dark:text-[#8b8b94]">
+                    Sets save automatically after a rep goal or 10 seconds of rest.
+                  </p>
+                </div>
+                <span className="text-xs font-normal px-3 py-0.5 rounded-full border border-[#e2e4e9] dark:border-[#26262c] text-[#6b6b76] dark:text-[#8b8b94]">
+                  10s auto-end
+                </span>
+              </div>
+
+              <SetTrackerStepper
+                exerciseGroups={exerciseGroups}
+                activeSet={activeSet}
+                currentExercise={currentExercise}
+                now={trackerNow}
+                onEndSet={endActiveSet}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Post-Workout Progress & Calorie Prediction Modal */}
+      {summaryData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto font-sans">
+          <div className="relative w-full max-w-[440px] p-8 rounded-[28px] bg-white dark:bg-[#131316] border border-[#e2e4e9] dark:border-[#26262c] shadow-2xl text-[#16161a] dark:text-[#f4f4f5] my-auto space-y-6 animate-in fade-in zoom-in-95 duration-150">
+            {/* Small × close top-right */}
+            <button
+              type="button"
+              onClick={() => {
+                setSummaryData(null);
+                setCalorieResult(null);
+              }}
+              className="absolute top-7 right-7 text-[#6b6b76] hover:text-[#16161a] dark:text-[#8b8b94] dark:hover:text-[#f4f4f5] transition-colors p-1 rounded-lg focus:outline-none"
+              title="Close"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Screen 1: Before Prediction */}
+            {!calorieResult && (
+              <>
+                {/* Title & Muted Subtitle */}
+                <div className="pr-8">
+                  <h2 className="text-2xl font-bold text-[#16161a] dark:text-[#f4f4f5] tracking-tight">
+                    Workout complete
+                  </h2>
+                  <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-1 font-normal">
+                    Enter your average heart rate to estimate calories.
+                  </p>
+                </div>
+
+                {/* Centered Duration Stat (48px bold number + muted "duration" below) */}
+                <div className="text-center py-2">
+                  <div className="text-[48px] font-bold text-[#16161a] dark:text-[#f4f4f5] leading-none tracking-tight font-mono">
+                    {formatDuration(summaryData.duration)}
+                  </div>
+                  <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-2 font-normal lowercase">
+                    duration
+                  </div>
+                </div>
+
+                {/* Average Heart Rate Input Bar */}
+                <div>
+                  <label className="block text-xs text-[#6b6b76] dark:text-[#8b8b94] mb-2 font-normal">
+                    Average heart rate
+                  </label>
+                  <div className="flex items-center gap-2.5 p-1.5 pl-4 bg-[#f4f5f7] dark:bg-[#1a1a1f] border border-[#e2e4e9] dark:border-[#26262c] rounded-[16px] focus-within:border-[#ea580c] focus-within:ring-2 focus-within:ring-[#ea580c]/20 transition-all">
+                    <Heart className="w-4 h-4 text-[#ea580c] fill-[#ea580c] shrink-0" />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={calorieInputs.avgHeartRate ?? ''}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        if (raw === '') {
+                          setCalorieInputs({ ...calorieInputs, avgHeartRate: '' });
+                          return;
+                        }
+                        const digitsOnly = raw.replace(/\D/g, '');
+                        if (digitsOnly.length <= 3) {
+                          setCalorieInputs({ ...calorieInputs, avgHeartRate: digitsOnly });
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          predictCalories(calorieInputs, summaryData);
+                        }
+                      }}
+                      placeholder="138"
+                      className="w-full bg-transparent text-[#16161a] dark:text-[#f4f4f5] font-semibold text-base focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none min-w-0"
+                    />
+                    <span className="text-xs font-medium text-[#6b6b76] dark:text-[#8b8b94] shrink-0">
+                      BPM
+                    </span>
+                    <button
+                      type="button"
+                      disabled={isPredictingCal}
+                      onClick={() => predictCalories(calorieInputs, summaryData)}
+                      className="shrink-0 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-[12px] px-4 py-2.5 font-semibold text-xs active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 shadow-sm"
+                    >
+                      {isPredictingCal ? 'Calculating...' : 'Predict calories'}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Screen 2: After Prediction */}
+            {calorieResult && (
+              <>
+                {/* Title & Muted Subtitle */}
+                <div className="pr-8">
+                  <h2 className="text-2xl font-bold text-[#16161a] dark:text-[#f4f4f5] tracking-tight">
+                    Workout complete
+                  </h2>
+                  <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-1 font-normal">
+                    Here's your estimated burn.
+                  </p>
+                </div>
+
+                {/* Hero: Huge Centered Calorie Number (~100px, 800 weight) + Muted "kcal burned" + 30px Duration */}
+                <div className="text-center pt-2">
+                  <div className="text-[100px] font-[800] text-[#ea580c] leading-none tracking-tight font-sans">
+                    {calorieResult.predicted_calories}
+                  </div>
+                  <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-2 font-normal lowercase">
+                    kcal burned
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="text-[30px] font-bold text-[#16161a] dark:text-[#f4f4f5] leading-none font-mono">
+                      {formatDuration(summaryData.duration)}
+                    </div>
+                    <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-1 font-normal lowercase">
+                      duration
+                    </div>
+                  </div>
+                </div>
+
+                {/* Heart Rate Adjuster, Start New Session, Return to Dashboard */}
+                <div className="space-y-4 pt-1">
+                  <div>
+                    <label className="block text-xs text-[#6b6b76] dark:text-[#8b8b94] mb-2 font-normal">
+                      Average heart rate
+                    </label>
+                    <div className="flex items-center gap-2.5">
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={calorieInputs.avgHeartRate ?? ''}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') {
+                              setCalorieInputs({ ...calorieInputs, avgHeartRate: '' });
+                              return;
+                            }
+                            const digitsOnly = raw.replace(/\D/g, '');
+                            if (digitsOnly.length <= 3) {
+                              setCalorieInputs({ ...calorieInputs, avgHeartRate: digitsOnly });
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              predictCalories(calorieInputs, summaryData);
+                            }
+                          }}
+                          placeholder="138"
+                          className="w-full bg-[#f4f5f7] dark:bg-[#1a1a1f] border border-[#e2e4e9] dark:border-[#26262c] text-[#16161a] dark:text-[#f4f4f5] rounded-[14px] px-4 py-2.5 pr-12 font-semibold text-sm focus:outline-none focus:border-[#ea580c] focus:ring-2 focus:ring-[#ea580c]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
+                        />
+                        <span className="absolute right-3.5 top-3 text-xs font-medium text-[#6b6b76] dark:text-[#8b8b94] pointer-events-none">
+                          BPM
                         </span>
                       </div>
-                      <span className="font-mono font-black text-sm text-emerald-800 dark:text-emerald-400">
-                        {formatDuration(restDuration)}
-                      </span>
-                    </div>
-                  )}
 
-                  {/* Action: End Set or Start Next Set */}
-                  <div className="mt-3">
-                    {activeSet ? (
                       <button
-                        onClick={() => endActiveSet()}
-                        className="w-full py-2.5 rounded-full text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all cursor-pointer"
+                        type="button"
+                        disabled={isPredictingCal}
+                        onClick={() => predictCalories(calorieInputs, summaryData)}
+                        className="bg-[#f4f5f7] dark:bg-[#1a1a1f] hover:bg-[#e2e4e9] dark:hover:bg-[#26262c] text-[#16161a] dark:text-[#f4f4f5] border border-[#e2e4e9] dark:border-[#26262c] rounded-[14px] px-5 py-2.5 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap disabled:opacity-50"
                       >
-                        End Set {activeSet.setNumber}
+                        {isPredictingCal ? '...' : 'Recalculate'}
                       </button>
-                    ) : isResting ? (
-                      <button
-                        onClick={() => startNextSet()}
-                        className="w-full py-2.5 rounded-full text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all cursor-pointer"
-                      >
-                        Start Set {currentSetNumber + 1}
-                      </button>
-                    ) : (
-                      <p className="text-[11px] text-neutral-800 dark:text-neutral-400 font-bold italic text-center">
-                        Perform your first rep to start Set 1
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Form Precision Score */}
-                <div className="pt-4 border-t border-neutral-300 dark:border-white/5">
-                  <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="text-black dark:text-neutral-300 font-black uppercase tracking-wider text-[11px]">
-                      Form Precision
-                    </span>
-                    <span className={`font-black ${telemetry.formScore >= 80 ? 'text-green-600 dark:text-green-500' : 'text-orange-600 dark:text-orange-500'}`}>
-                      {telemetry.formScore}%
-                      {telemetry.formScore}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-neutral-200 dark:bg-white/5 rounded-full h-2 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{
-                        width: `${telemetry.formScore}%`,
-                        backgroundColor: telemetry.formScore >= 80 ? '#22c55e' : '#ea580c',
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Exercise & Time Summary */}
-                <div className="pt-4 border-t border-neutral-300 dark:border-white/5 space-y-2 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-800 dark:text-neutral-400 font-bold">{activeExercise === 'auto' ? 'Auto-Detected:' : 'Exercise:'}</span>
-                    <span className="font-black text-black dark:text-neutral-100">
-                      {telemetry.detectedInfo?.name || activeExercise}
-                    </span>
-                  </div>
-                  {sessionStartTimeFormatted && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-800 dark:text-neutral-400 font-bold">Started:</span>
-                      <span className="font-mono text-black dark:text-neutral-300 font-bold">
-                        {sessionStartTimeFormatted}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-800 dark:text-neutral-400 font-bold">Duration:</span>
-                    <span className="font-mono font-black text-orange-600 dark:text-orange-500">
-                      {formatDuration(workoutDuration)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Minimal Clean Action Buttons: [Off/On Camera] [Reset] + [Finish & Predict Calories] */}
-              <div className="pt-6 border-t border-neutral-300 dark:border-white/5 space-y-2 mt-6">
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={isCameraActive ? stopCamera : () => startCamera()}
-                    className={`py-2.5 rounded-full text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                      isCameraActive
-                        ? darkMode
-                          ? 'border-red-500/40 text-red-400 hover:bg-red-500/10'
-                          : 'border-red-300 text-red-600 hover:bg-red-50'
-                        : darkMode
-                          ? 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10'
-                          : 'border-emerald-300 text-emerald-600 hover:bg-emerald-50'
-                    }`}
-                  >
-                    {isCameraActive ? (
-                      <>
-                        <CameraOff className="w-3.5 h-3.5" />
-                        <span>Off Camera</span>
-                      </>
-                    ) : (
-                      <>
-                        <Camera className="w-3.5 h-3.5" />
-                        <span>On Camera</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={handleResetReps}
-                    className={`py-2.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
-                      darkMode
-                        ? 'border-white/10 text-neutral-200 hover:bg-white/5'
-                        : 'border-neutral-900 text-black hover:bg-neutral-100'
-                    }`}
-                  >
-                    Reset
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleFinishWorkout}
-                  className="w-full py-3 rounded-full text-xs font-black bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white shadow-md active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <Flame className="w-4 h-4" />
-                  <span>Finish & Predict Calories</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Set Tracker Progression Stepper (Moved to Bottom) */}
-        <div className="mt-6">
-          <div className={`p-6 rounded-2xl border ${darkMode ? 'bg-[#15151e] border-white/5' : 'bg-white border-neutral-300 shadow-sm'
-            }`}>
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-neutral-300 dark:border-white/5">
-              <div>
-                <h3 className="text-sm font-black uppercase tracking-wider text-black dark:text-white">
-                  Set History & Progression
-                </h3>
-                <p className="text-xs text-neutral-800 dark:text-neutral-300 font-medium mt-0.5">
-                  Sets auto-record below upon completion or after 10 seconds of rest
-                </p>
-              </div>
-              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400">
-                10s Auto-End
-              </span>
-            </div>
-
-            <SetTrackerStepper
-              exerciseGroups={exerciseGroups}
-              activeSet={activeSet}
-              currentExercise={currentExercise}
-              now={trackerNow}
-              onEndSet={endActiveSet}
-            />
-          </div>
-        </div>
-
-        {/* Post-Workout Progress & Calorie Prediction Modal */}
-        {summaryData && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
-            <div
-              className={`relative w-full max-w-2xl p-6 sm:p-8 rounded-3xl border shadow-2xl transition-all duration-300 my-auto ${
-                darkMode
-                  ? 'bg-[#12121c] border-white/10 shadow-black/80'
-                  : 'bg-white border-neutral-200 shadow-xl'
-              }`}
-            >
-              {/* Subtle Close Button */}
-              <button
-                onClick={() => {
-                  setSummaryData(null);
-                  setCalorieResult(null);
-                }}
-                className="absolute top-4 right-4 p-1.5 rounded-full text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              {/* Minimal Clean Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6 pb-4 border-b border-neutral-200/80 dark:border-white/10">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center border border-orange-500/20 shadow-sm">
-                    <Flame className="w-5 h-5 fill-orange-500" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-black text-black dark:text-white tracking-tight">
-                      Workout Completed!
-                    </h2>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
-                      Enter your heart rate to estimate calories burned
-                    </p>
-                  </div>
-                </div>
-
-                <div className="self-start sm:self-auto px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 font-mono text-xs font-bold border border-orange-500/20">
-                  Duration: {formatDuration(summaryData.duration)}
-                </div>
-              </div>
-
-              {/* Initial State: Clean Centered Input & Predict Button */}
-              {!calorieResult && (
-                <div className="space-y-5 animate-in fade-in duration-200">
-                  <div className="space-y-2">
-                    <label className="block text-xs font-black uppercase tracking-wider text-black dark:text-neutral-300 flex items-center gap-1.5">
-                      <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
-                      <span>Average Heartbeat</span>
-                    </label>
-
-                    <div className="relative">
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={calorieInputs.avgHeartRate ?? ''}
-                        onChange={(e) => {
-                          const raw = e.target.value;
-                          if (raw === '') {
-                            setCalorieInputs({ ...calorieInputs, avgHeartRate: '' });
-                            return;
-                          }
-                          const digitsOnly = raw.replace(/\D/g, '');
-                          if (digitsOnly.length <= 3) {
-                            setCalorieInputs({ ...calorieInputs, avgHeartRate: digitsOnly });
-                          }
-                        }}
-                        placeholder="e.g. 138"
-                        className="w-full px-4 py-3.5 pr-14 rounded-2xl text-xl sm:text-2xl font-black font-mono border border-neutral-300 dark:border-white/15 bg-white dark:bg-black/50 text-black dark:text-white focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all shadow-inner"
-                      />
-                      <span className="absolute right-4 top-4 text-xs font-black font-mono text-neutral-400 pointer-events-none">
-                        BPM
-                      </span>
                     </div>
                   </div>
 
                   <button
                     type="button"
-                    disabled={isPredictingCal}
-                    onClick={() => predictCalories(calorieInputs, summaryData)}
-                    className="w-full py-3.5 rounded-2xl text-sm font-black bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white shadow-lg shadow-orange-600/25 active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                    onClick={() => {
+                      setSummaryData(null);
+                      setCalorieResult(null);
+                      setWorkoutDuration(0);
+                      resetAllSets();
+                      handleResetReps();
+                      heartRateSamplesRef.current = [];
+                      startCamera();
+                    }}
+                    className="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-[14px] py-3.5 font-semibold text-xs active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                   >
-                    <Flame className="w-4 h-4 fill-white" />
-                    <span>{isPredictingCal ? 'Calculating Calories...' : 'Predict Burned Calories'}</span>
+                    Start new session
                   </button>
+
+                  <Link
+                    to="/"
+                    className="block w-full text-center text-xs text-[#6b6b76] hover:text-[#16161a] dark:text-[#8b8b94] dark:hover:text-[#f4f4f5] transition-colors py-1"
+                  >
+                    Return to dashboard
+                  </Link>
                 </div>
-              )}
-
-              {/* Post-Prediction State: Wider, Balanced 2-Column Layout */}
-              {calorieResult && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 items-stretch animate-in fade-in zoom-in-95 duration-200">
-                  {/* Left Column: Calorie Result Hero Card */}
-                  <div className="p-6 rounded-2xl bg-gradient-to-b from-orange-500/15 via-orange-500/5 to-transparent border border-orange-500/20 flex flex-col justify-between text-center sm:text-left">
-                    <div>
-                      <span className="text-[11px] font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400 block mb-1">
-                        Predicted Calories Burned
-                      </span>
-
-                      <div className="flex items-baseline justify-center sm:justify-start gap-1.5 my-2">
-                        {isPredictingCal ? (
-                          <span className="text-5xl font-black text-orange-400 animate-pulse tracking-tight">...</span>
-                        ) : (
-                          <span className="text-5xl sm:text-6xl font-black text-orange-600 dark:text-orange-500 tracking-tight">
-                            {calorieResult.predicted_calories}
-                          </span>
-                        )}
-                        <span className="text-lg font-bold text-neutral-500 dark:text-neutral-400 font-mono">kcal</span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
-                        {calorieResult?.intensity_zone && (
-                          <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/30">
-                            {calorieResult.intensity_zone}
-                          </span>
-                        )}
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono text-neutral-500 dark:text-neutral-400 bg-black/10 dark:bg-white/5 border border-white/5">
-                          Duration: {formatDuration(summaryData.duration)}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-orange-500/10 text-center sm:text-left">
-                      <span className="text-[10px] font-mono text-neutral-500 block">
-                        RandomForestRegressor (Kaggle 15k Dataset)
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Right Column: Heartbeat Adjuster & Action Buttons */}
-                  <div className="p-6 rounded-2xl bg-neutral-100/80 dark:bg-white/[0.03] border border-neutral-200/80 dark:border-white/10 flex flex-col justify-between space-y-4">
-                    {/* Heartbeat Input */}
-                    <div>
-                      <label className="block text-xs font-black uppercase tracking-wider text-black dark:text-neutral-300 mb-1.5 flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-                          <span>Average Heartbeat</span>
-                        </span>
-                        <span className="text-[10px] text-neutral-400 font-mono font-normal">Edit & recalculate</span>
-                      </label>
-
-                      <div className="flex items-center gap-2">
-                        <div className="relative flex-1">
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            value={calorieInputs.avgHeartRate ?? ''}
-                            onChange={(e) => {
-                              const raw = e.target.value;
-                              if (raw === '') {
-                                setCalorieInputs({ ...calorieInputs, avgHeartRate: '' });
-                                return;
-                              }
-                              const digitsOnly = raw.replace(/\D/g, '');
-                              if (digitsOnly.length <= 3) {
-                                setCalorieInputs({ ...calorieInputs, avgHeartRate: digitsOnly });
-                              }
-                            }}
-                            placeholder="138"
-                            className="w-full px-3.5 py-2.5 pr-12 rounded-xl text-lg font-black font-mono border border-neutral-300 dark:border-white/15 bg-white dark:bg-black/50 text-black dark:text-white focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />
-                          <span className="absolute right-3 top-3 text-[10px] font-bold font-mono text-neutral-400 pointer-events-none">
-                            BPM
-                          </span>
-                        </div>
-
-                        <button
-                          type="button"
-                          disabled={isPredictingCal}
-                          onClick={() => predictCalories(calorieInputs, summaryData)}
-                          className="px-3.5 py-2.5 rounded-xl text-xs font-bold border border-orange-500/30 text-orange-600 dark:text-orange-400 hover:bg-orange-500/10 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
-                          title="Recalculate with updated heart rate"
-                        >
-                          {isPredictingCal ? '...' : 'Recalculate'}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="space-y-2 pt-2">
-                      <button
-                        onClick={() => {
-                          setSummaryData(null);
-                          setCalorieResult(null);
-                          setWorkoutDuration(0);
-                          resetAllSets();
-                          handleResetReps();
-                          heartRateSamplesRef.current = [];
-                          startCamera();
-                        }}
-                        className="w-full py-3 rounded-xl text-sm font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/20 active:scale-[0.99] transition-all cursor-pointer"
-                      >
-                        Start New Session
-                      </button>
-                      <Link
-                        to="/"
-                        className="block w-full py-2 text-center text-xs font-semibold text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white transition-colors"
-                      >
-                        Return to Dashboard
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </PageWrapper>
   );
 };
