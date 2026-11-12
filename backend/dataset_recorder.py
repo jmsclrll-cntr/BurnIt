@@ -4,7 +4,7 @@ import time
 import logging
 from typing import Dict, List, Optional, Any
 from config import settings
-import aiosqlite
+from database import get_db
 
 logger = logging.getLogger("burnit.recorder")
 
@@ -109,10 +109,10 @@ class DatasetRecorder:
         exercise = rec["exercise"].lower().replace(" ", "_")
         csv_path = os.path.join(settings.DATASET_DIR, f"{exercise}.csv")
 
-        async with aiosqlite.connect(settings.DATABASE_PATH) as db:
-            await db.execute("""
+        async with get_db() as cur:
+            await cur.execute("""
                 INSERT INTO dataset_metadata (id, exercise, phase, form_label, error_type, subject_id, camera_view, frame_count, csv_path)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 recording_id,
                 rec["exercise"],
@@ -124,7 +124,6 @@ class DatasetRecorder:
                 rec["frame_count"],
                 csv_path,
             ))
-            await db.commit()
 
         return rec
 

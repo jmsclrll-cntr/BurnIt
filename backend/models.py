@@ -10,11 +10,30 @@ class UserCreate(BaseModel):
     password: str
     is_admin: bool = False
 
+class UserProfile(BaseModel):
+    id: str
+    username: str
+    name: Optional[str] = None
+    age: Optional[int] = None
+    sex: Optional[str] = None
+    weight: Optional[float] = None
+    height: Optional[float] = None
+    is_profile_completed: bool = False
+    is_admin: bool = False
+
+class UserProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    age: int
+    sex: str
+    weight: float
+    height: float
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     username: str
     is_admin: bool
+    user: Optional[UserProfile] = None
 
 class SessionCreate(BaseModel):
     user_id: Optional[str] = "guest"

@@ -184,7 +184,6 @@ export default function LiveHeartRate() {
         : 'Connecting...';
     }
     if (isConnected) {
-      return `Connected: ${deviceName || 'Xiaomi Smart Band 9'}`;
       return `Connected: ${deviceName || 'Bluetooth Smartwatch'}`;
     }
     if (isDisconnected) {
@@ -207,12 +206,10 @@ export default function LiveHeartRate() {
             <ArrowLeft className="w-4 h-4" />
             <span>Workout Tracker</span>
           </Link>
-          <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">
-            Web Bluetooth Vitals
-            <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-1">
-              <Watch className="w-3.5 h-3.5 text-rose-500" />
-              <span>Universal BLE Heart Rate</span>
-            </span>
+          <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-1">
+            <Watch className="w-3.5 h-3.5 text-rose-500" />
+            <span>Universal BLE Heart Rate</span>
+          </span>
         </div>
 
         {/* Main Vitals Card */}
@@ -319,7 +316,6 @@ export default function LiveHeartRate() {
                 className="w-full sm:w-auto px-8 py-3.5 rounded-full text-sm font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center gap-2 cursor-wait"
               >
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Connecting to Band...</span>
                 <span>Searching & Connecting...</span>
               </button>
             )}
@@ -363,81 +359,61 @@ export default function LiveHeartRate() {
             </div>
           )}
 
-          {/* Setup & Troubleshooting Instructions */}
-          <div className="p-4 rounded-2xl bg-neutral-100/70 dark:bg-white/5 border border-neutral-200/60 dark:border-white/5 text-left text-xs space-y-2.5">
-            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-200 font-semibold">
-              <Smartphone className="w-4 h-4 text-orange-500" />
-              <span>Xiaomi Smart Band 9 Setup Checklist</span>
-              {/* Universal Watch Pairing Guide */}
-              <div className="p-4 rounded-2xl bg-neutral-100/70 dark:bg-white/5 border border-neutral-200/60 dark:border-white/5 text-left text-xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-200 font-semibold">
-                    <Smartphone className="w-4 h-4 text-orange-500" />
-                    <span>Select Your Smartwatch Brand:</span>
-                  </div>
-                  <span className="text-[10px] text-neutral-400 font-mono">Standard BLE 0x180D</span>
+          {/* Universal Watch Pairing Guide */}
+          <div className="p-4 rounded-2xl bg-neutral-100/70 dark:bg-white/5 border border-neutral-200/60 dark:border-white/5 text-left text-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-200 font-semibold">
+                <Smartphone className="w-4 h-4 text-orange-500" />
+                <span>Select Your Smartwatch Brand:</span>
+              </div>
+              <span className="text-[10px] text-neutral-400 font-mono">Standard BLE 0x180D</span>
+            </div>
+
+            {/* Brand Switcher Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {Object.values(WATCH_GUIDES).map((brand) => (
+                <button
+                  key={brand.id}
+                  onClick={() => setActiveBrandTab(brand.id)}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap ${
+                    activeBrandTab === brand.id
+                      ? 'bg-orange-600 text-white shadow-sm'
+                      : darkMode
+                        ? 'bg-white/5 text-neutral-400 hover:text-white'
+                        : 'bg-neutral-200/60 text-neutral-600 hover:text-black'
+                  }`}
+                >
+                  {brand.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Step-by-Step Instructions for Selected Brand */}
+            <div className="pt-2 border-t border-neutral-200/60 dark:border-white/5 text-[11px] text-neutral-600 dark:text-neutral-300 space-y-1.5">
+              <div className="font-semibold text-orange-500">
+                How to connect {currentGuide.name}:
+              </div>
+              {currentGuide.steps.map((step, idx) => (
+                <div key={idx} className="flex items-start gap-2">
+                  <span className="w-4 h-4 rounded-full bg-orange-500/10 text-orange-500 font-bold font-mono text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    {idx + 1}
+                  </span>
+                  <span className="leading-relaxed">{step}</span>
                 </div>
-                <p className="text-neutral-500 dark:text-neutral-400 text-[11px] leading-relaxed">
-                  On the band, start a workout and turn on heart rate broadcast in Mi Fitness. If the band
-                  is not in the list, close the Mi Fitness app and try again.
-                </p>
-                <div className="pt-2 border-t border-neutral-200/60 dark:border-white/5 text-[11px] text-neutral-500 dark:text-neutral-400 space-y-1.5 font-mono">
-                  <div className="flex items-start gap-1.5">
-                    <span className="text-orange-500 font-bold">1.</span>
-                    <span><strong>Phone Location (GPS):</strong> Must be turned <strong>ON</strong> in Android quick settings (required by Android for BLE scanning).</span>
+              ))}
+              <div className="pt-1.5 text-[10px] text-neutral-400 font-mono">
+                💡 <em>Android requirement:</em> Keep Location (GPS) turned ON in phone settings for BLE device discovery.
+              </div>
+            </div>
+          </div>
 
-                    {/* Brand Switcher Pills */}
-                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                      {Object.values(WATCH_GUIDES).map((brand) => (
-                        <button
-                          key={brand.id}
-                          onClick={() => setActiveBrandTab(brand.id)}
-                          className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap ${activeBrandTab === brand.id
-                              ? 'bg-orange-600 text-white shadow-sm'
-                              : darkMode
-                                ? 'bg-white/5 text-neutral-400 hover:text-white'
-                                : 'bg-neutral-200/60 text-neutral-600 hover:text-black'
-                            }`}
-                        >
-                          {brand.name}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Step-by-Step Instructions for Selected Brand */}
-                    <div className="pt-2 border-t border-neutral-200/60 dark:border-white/5 text-[11px] text-neutral-600 dark:text-neutral-300 space-y-1.5">
-                      <div className="font-semibold text-orange-500">
-                        How to connect {currentGuide.name}:
-                      </div>
-                      <div className="flex items-start gap-1.5">
-                        <span className="text-orange-500 font-bold">2.</span>
-                        <span><strong>Band Workout:</strong> On the band, open <strong>Workouts</strong> → start <strong>Freestyle</strong> (optical sensor turns green).</span>
-                        {currentGuide.steps.map((step, idx) => (
-                          <div key={idx} className="flex items-start gap-2">
-                            <span className="w-4 h-4 rounded-full bg-orange-500/10 text-orange-500 font-bold font-mono text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
-                              {idx + 1}
-                            </span>
-                            <span className="leading-relaxed">{step}</span>
-                          </div>
-                        ))}
-                        <div className="pt-1.5 text-[10px] text-neutral-400 font-mono">
-                          💡 <em>Android requirement:</em> Keep Location (GPS) turned ON in phone settings for BLE device discovery.
-                        </div>
-                        <div className="flex items-start gap-1.5">
-                          <span className="text-orange-500 font-bold">3.</span>
-                          <span><strong>Close Mi Fitness:</strong> Swipe away / Force Stop the Mi Fitness app so Android frees up the Bluetooth link.</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Medical Disclaimer Note (Required by Stage 1 & Stage 2) */}
-                  {/* Medical Disclaimer Note */}
-                  <p className="mt-6 text-center text-[11px] text-neutral-400 max-w-sm mx-auto leading-relaxed">
-                    Heart rate readings are captured from a consumer fitness wearable and are not intended for
-                    medical diagnosis or clinical treatment.
-                  </p>
-                </div>
-              </PageWrapper>
-              );
+          {/* Medical Disclaimer Note */}
+          <p className="mt-6 text-center text-[11px] text-neutral-400 max-w-sm mx-auto leading-relaxed">
+            Heart rate readings are captured from a consumer fitness wearable and are not intended for
+            medical diagnosis or clinical treatment.
+          </p>
+        </div>
+      </div>
+    </PageWrapper>
+  );
 }

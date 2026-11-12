@@ -5,7 +5,6 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
-import aiosqlite
 from config import settings
 
 security = HTTPBearer(auto_error=False)
@@ -50,7 +49,15 @@ async def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] =
     except JWTError:
         return None
 
-async def require_admin(user: Optional[dict] = Depends(get_current_user)):
+async def require_authenticated_user(user: Optional[dict] = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication credentials required",
+        )
+    return user
+
+async def require_admin(user: Optional[dict] = Depends(require_authenticated_user)):
     if not user or not user.get("is_admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

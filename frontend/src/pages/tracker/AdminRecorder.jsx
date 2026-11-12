@@ -49,7 +49,7 @@ export default function AdminRecorder() {
   // Fetch dataset stats from backend
   const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/dataset/stats')
+      const res = await fetch('/api/dataset/stats')
       if (res.ok) {
         const data = await res.json()
         setDatasetStats(data)
@@ -119,7 +119,7 @@ export default function AdminRecorder() {
   const handleToggleRecording = async () => {
     if (!isRecording) {
       try {
-        const res = await fetch('http://localhost:8000/api/dataset/start', {
+        const res = await fetch('/api/dataset/start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -140,7 +140,7 @@ export default function AdminRecorder() {
       }
     } else {
       try {
-        await fetch('http://localhost:8000/api/dataset/stop', {
+        await fetch('/api/dataset/stop', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ session_id: sessionId }),
@@ -170,7 +170,7 @@ export default function AdminRecorder() {
     formData.append('camera_view', cameraView)
 
     try {
-      const res = await fetch('http://localhost:8000/api/dataset/import-video', {
+      const res = await fetch('/api/dataset/import-video', {
         method: 'POST',
         body: formData,
       })
@@ -191,7 +191,7 @@ export default function AdminRecorder() {
     setIsTraining(true)
     setTrainingResult(null)
     try {
-      const res = await fetch('http://localhost:8000/api/model/train', {
+      const res = await fetch('/api/model/train', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ n_estimators: 100, test_size: 0.2 }),
@@ -422,7 +422,7 @@ export default function AdminRecorder() {
                 {['squat', 'pushup', 'plank', 'jumping_jack', 'bicep_curl'].map((ex) => (
                   <a
                     key={ex}
-                    href={`http://localhost:8000/api/dataset/export/${ex}`}
+                    href={`/api/dataset/export/${ex}`}
                     target="_blank"
                     rel="noreferrer"
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider border transition-colors ${

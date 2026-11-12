@@ -24,8 +24,10 @@ export function useWorkoutWebSocket(sessionId, onPoseData) {
     }
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const host = window.location.hostname || 'localhost'
-    const wsUrl = `${protocol}//${host}:8000/ws/workout/${sessionId}`
+    const isHttps = window.location.protocol === 'https:'
+    const wsUrl = isHttps
+      ? `${protocol}//${window.location.host}/ws/workout/${sessionId}`
+      : `${protocol}//${window.location.hostname || 'localhost'}:8000/ws/workout/${sessionId}`
 
     try {
       const ws = new WebSocket(wsUrl)

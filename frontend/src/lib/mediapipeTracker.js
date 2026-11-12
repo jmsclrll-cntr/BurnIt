@@ -1,10 +1,76 @@
 /**
  * Real-Time MediaPipe Pose Detection & Biomechanical Posture Tracker
- * Features Interval-Based Auto-Detection (periodic interval sampling instead of continuous frame-by-frame)
- * for rock-solid stability and zero mid-frame flicker.
+ * Features High-Accuracy Multi-Exercise Classifier and Configurable Threshold Settings.
  */
 
+/**
+ * ==============================================================================
+ * EXERCISE DETECTION SETTINGS & ADJUSTABLE THRESHOLDS
+ * 
+ * Edit these numbers below to easily customize or tune any exercise:
+ * - Smaller depth angle = must squat or curl deeper.
+ * - Larger depth angle = more forgiving / easier to trigger.
+ * ==============================================================================
+ */
+export const TRACKER_SETTINGS = {
+  // 1. SQUATS
+  squat: {
+    depthKneeAngle: 104,          // Deepest point of squat (degrees). Default: 104. Lower = deeper squat.
+    standingKneeAngle: 150,       // Lockout angle when standing up. Default: 150. Higher = must stand straighter.
+    startDescentAngle: 125,       // Knee angle where downward squat phase begins. Default: 125.
+    maxTorsoLean: 42,             // Max forward torso lean allowed (degrees). Default: 42. Prevents bending over from counting as squat.
+    minKneeBothMax: 118,          // Both left & right knees must be below this angle (prevents 1-leg stepping false reps).
+  },
+
+  // 2. BICEP CURLS
+  bicepcurl: {
+    curlPeakFlexion: 86,          // Top squeeze of curl (degrees). Default: 86. Lower = tighter curl required.
+    armExtensionReturn: 136,      // Bottom extension (degrees). Default: 136. Higher = arm must fully straighten.
+    maxTorsoSwing: 22,            // Max torso momentum swing allowed before penalty. Default: 22 deg.
+    maxElbowRibOffset: 0.15,      // Max elbow displacement from shoulder axis (keeps elbows pinned to ribcage).
+    debounceMs: 400,              // Min milliseconds between consecutive reps to avoid double-counting bilateral curls.
+  },
+
+  // 3. JUMPING JACKS
+  jumpingjack: {
+    feetWideRatio: 1.28,          // How wide feet must jump relative to hips (default: 1.28x).
+    feetTogetherRatio: 1.15,      // How close feet must return together (default: 1.15x).
+    overheadWristMargin: 0.04,    // Wrists must be above shoulders by at least this margin.
+  },
+
+  // 4. PUSH-UPS
+  pushup: {
+    bottomElbowAngle: 90,         // Depth of chest to floor (degrees). Default: 90.
+    topElbowAngle: 155,           // Full arm lockout at top of pushup. Default: 155.
+    minHipPlankAngle: 150,        // Prevents butt sticking up (piking). Default: 150.
+    maxHipPlankAngle: 200,        // Prevents sagging lower back. Default: 200.
+  },
+
+  // 5. PLANK HOLD
+  plank: {
+    minHipAngle: 155,             // Lower bound for straight hip line. Default: 155.
+    maxHipAngle: 195,             // Upper bound for straight hip line. Default: 195.
+  },
+
+  // 6. CALIBRATION & POSITIONING
+  positioning: {
+    minJointVisibility: 0.50,     // Minimum visibility score for shoulders, hips, and knees. Default: 0.50.
+    minShoulderWidth: 0.11,       // Minimum distance between shoulders (ensures user faces camera, not side-profile).
+    straightTorsoMax: 18,         // Max torso lean for straight standing calibration (degrees). Default: 18.
+    straightKneeMin: 142,         // Min knee angle for straight standing calibration (degrees). Default: 142.
+    straightElbowMin: 115,        // Min elbow angle for relaxed arms down (degrees). Default: 115.
+    calibrationHoldMs: 800,       // Duration (ms) user must hold straight posture before "GO!" signal. Default: 800ms.
+  }
+};
+
 export const EXERCISE_INFO = {
+  auto: {
+    id: 'auto',
+    name: 'Auto-Detect',
+    shortName: 'Auto AI',
+    category: 'Full Body',
+    cue: 'Perform any exercise (Squats, Bicep Curls, Plank, Push-Ups, Jumping Jacks)',
+  },
   squat: {
     id: 'squat',
     name: 'Squats',
@@ -38,7 +104,7 @@ export const EXERCISE_INFO = {
     name: 'Bicep Curls',
     shortName: 'Bicep Curls',
     category: 'Arms Isolation',
-    cue: 'Pin elbows to ribcage, eliminate torso swing',
+    cue: 'Pin elbows to ribcage, isolate arms smoothly',
   },
 };
 
@@ -62,13 +128,13 @@ export function calculateTorsoAngle(shoulder, hip) {
 }
 
 export class BiomechanicsEngine {
-  constructor(detectionIntervalMs = 2000) {
+  constructor(detectionIntervalMs = 300) {
     this.reps = 0;
     this.phase = 'ready';
     this.formScore = 100;
     this.formErrors = [];
-    this.feedback = 'Stand in view to start tracking';
-    this.activeExercise = 'squat';
+    this.feedback = 'Stand straight to start workout';
+    this.activeExercise = 'auto';
 
     // Start timestamps
     this.sessionStartTime = Date.now();
@@ -86,11 +152,22 @@ export class BiomechanicsEngine {
     // Moving average buffers for smoothing
     this.angleBuffers = {};
 
-    // Interval-based detection state (samples every 2000ms by default)
+    // Dynamic auto-detection state
     this.detectionIntervalMs = detectionIntervalMs;
     this.lastDetectionCheckTime = 0;
-    this.detectedExercise = 'squat';
+    this.detectedExercise = 'auto';
     this.detectionConfidence = 96;
+
+    // Straight Posture Calibration Gate & Direct GO Signal (No countdown)
+    this.isReadyToCount = false;
+    this.straightPostureStartTime = 0;
+    this.goSignalActive = false;
+    this.goSignalTimestamp = 0;
+
+    // Independent arm tracking for bicep curls (supports bilateral, single-arm, and alternating curls)
+    this.leftArmPhase = 'down';
+    this.rightArmPhase = 'down';
+    this.lastRepTimestamp = 0;
 
     // Kinematic velocities & previous frame cache
     this.lastAngles = null;
@@ -98,7 +175,7 @@ export class BiomechanicsEngine {
   }
 
   setInterval(intervalMs) {
-    this.detectionIntervalMs = Math.max(500, intervalMs);
+    this.detectionIntervalMs = Math.max(200, intervalMs);
   }
 
   reset() {
@@ -106,11 +183,18 @@ export class BiomechanicsEngine {
     this.phase = 'ready';
     this.formScore = 100;
     this.formErrors = [];
-    this.feedback = 'Ready';
+    this.feedback = 'Stand straight to start workout';
+    this.isReadyToCount = false;
+    this.straightPostureStartTime = 0;
+    this.goSignalActive = false;
+    this.goSignalTimestamp = 0;
     this.holdSeconds = 0;
     this.lastHoldTick = Date.now();
     this.angleBuffers = {};
     this.lastDetectionCheckTime = 0;
+    this.leftArmPhase = 'down';
+    this.rightArmPhase = 'down';
+    this.lastRepTimestamp = 0;
     this.exerciseStartTime = Date.now();
     this.exerciseStartedFormatted = new Date().toLocaleTimeString([], {
       hour: '2-digit',
@@ -122,6 +206,7 @@ export class BiomechanicsEngine {
   setExercise(exercise) {
     if (this.activeExercise !== exercise) {
       this.activeExercise = exercise;
+      this.detectedExercise = exercise;
       this.reset();
     }
   }
@@ -139,59 +224,102 @@ export class BiomechanicsEngine {
   }
 
   /**
-   * Interval-Based Posture Classifier:
-   * Only evaluated periodically (every interval, e.g. 2.0s) instead of every frame.
-   * Compares joint geometry and velocities to classify posture and confidence.
+   * High-Accuracy Posture & Movement Classifier
    */
-  classifyPostureAtInterval(angles, landmarks, velocities) {
-    const { torso, knee, elbow } = angles;
-    const { elbowVelocity, hipYDelta } = velocities;
+  classifyPosture(angles, landmarks, velocities) {
+    const { torso, leftKnee, rightKnee, leftElbow, rightElbow } = angles;
+    const minElbow = Math.min(leftElbow, rightElbow);
+    const minKnee = Math.min(leftKnee, rightKnee);
 
     // 1. Horizontal Posture (Floor exercises: Push-Up or Plank)
-    if (torso >= 42) {
-      if (elbowVelocity > 1.0 || elbow <= 110) {
-        return { exercise: 'pushup', confidence: 95 };
+    if (torso >= 40) {
+      if (velocities.elbowVelocity > 0.8 || minElbow <= 115) {
+        return { exercise: 'pushup', confidence: 96 };
       }
-      return { exercise: 'plank', confidence: 94 };
+      return { exercise: 'plank', confidence: 95 };
     }
 
-    // 2. Upright Standing Posture (torso < 42°)
-    const armsUp = landmarks[15].y < landmarks[11].y && landmarks[16].y < landmarks[12].y;
-    const feetDist = Math.abs(landmarks[27].x - landmarks[28].x);
-    const hipDist = Math.abs(landmarks[23].x - landmarks[24].x);
-    const feetWide = feetDist > (hipDist * 1.4) || feetDist > 0.32;
+    // Geometry checks
+    const leftWrist = landmarks[15];
+    const rightWrist = landmarks[16];
+    const leftElbowJoint = landmarks[13];
+    const rightElbowJoint = landmarks[14];
+    const leftShoulder = landmarks[11];
+    const rightShoulder = landmarks[12];
+    const leftAnkle = landmarks[27];
+    const rightAnkle = landmarks[28];
+    const leftHip = landmarks[23];
+    const rightHip = landmarks[24];
 
-    // Jumping Jacks: Arms raised high or feet wide
-    if (armsUp || feetWide) {
-      return { exercise: 'jumpingjack', confidence: 96 };
+    const feetDist = Math.abs((leftAnkle?.x || 0) - (rightAnkle?.x || 0));
+    const hipDist = Math.max(0.08, Math.abs((leftHip?.x || 0) - (rightHip?.x || 0)));
+    const feetWide = feetDist > (hipDist * TRACKER_SETTINGS.jumpingjack.feetWideRatio) || feetDist > 0.22;
+
+    const wristsNearOrAboveShoulders =
+      (leftWrist && leftShoulder && leftWrist.y <= leftShoulder.y + 0.08) ||
+      (rightWrist && rightShoulder && rightWrist.y <= rightShoulder.y + 0.08);
+
+    // 2. Jumping Jacks: Wrists raised overhead AND feet wide
+    if (wristsNearOrAboveShoulders && (feetWide || velocities.elbowVelocity > 0.7)) {
+      return { exercise: 'jumpingjack', confidence: 97 };
     }
 
-    // Squats: Knee flexion (<= 135°) or active vertical hip descent
-    if (knee <= 135 || hipYDelta > 0.012) {
-      return { exercise: 'squat', confidence: 95 };
+    // 3. Squats:
+    // Both knees bending down (minKnee <= startDescentAngle) and elbows are NOT curling.
+    if (minKnee <= TRACKER_SETTINGS.squat.startDescentAngle && minElbow > 105 && torso <= TRACKER_SETTINGS.squat.maxTorsoLean) {
+      return { exercise: 'squat', confidence: 96 };
     }
 
-    // Bicep Curls: Elbow flexed (<= 115°) with knees straight (> 145°)
-    if (elbow <= 115 && knee > 145) {
-      return { exercise: 'bicepcurl', confidence: 94 };
+    // 4. Bicep Curls:
+    // Distinctive signature:
+    // - Wrists and elbows are strictly below shoulder level (never overhead)
+    // - Elbow flexes (minElbow <= curlPeakFlexion + 20)
+    // - Knees remain straight (minKnee > 135)
+    // - Torso is upright (torso < 30)
+    // - Feet are in normal stance (not jumping jack wide)
+    const wristsBelowShoulders =
+      leftWrist && rightWrist && leftShoulder && rightShoulder &&
+      leftWrist.y > leftShoulder.y && rightWrist.y > rightShoulder.y;
+
+    const elbowsBelowShoulders =
+      leftElbowJoint && rightElbowJoint && leftShoulder && rightShoulder &&
+      leftElbowJoint.y > leftShoulder.y && rightElbowJoint.y > rightShoulder.y;
+
+    if (
+      minElbow <= (TRACKER_SETTINGS.bicepcurl.curlPeakFlexion + 22) &&
+      minKnee > 135 &&
+      torso < 30 &&
+      wristsBelowShoulders &&
+      elbowsBelowShoulders &&
+      !feetWide
+    ) {
+      return { exercise: 'bicepcurl', confidence: 98 };
     }
 
-    // Neutral standing rest position: maintain current detected standing exercise
-    return { exercise: this.detectedExercise || 'squat', confidence: 92 };
+    // 5. Neutral Standing Rest (Between Reps):
+    // Retain current exercise so user can rest between reps without reset or set switching!
+    if (this.detectedExercise && this.detectedExercise !== 'auto') {
+      return { exercise: this.detectedExercise, confidence: 95 };
+    }
+
+    return { exercise: 'auto', confidence: 85 };
   }
 
   process(landmarks, selectedExercise = 'auto') {
     if (!landmarks || landmarks.length < 33) {
+      this.straightPostureStartTime = 0;
       return {
         bodyVisible: false,
+        isReadyToCount: false,
+        goSignalActive: false,
         reps: this.reps,
         phase: this.phase,
         formScore: 100,
         formErrors: ['body_not_visible'],
-        feedback: 'Step into frame so your whole body is visible',
+        feedback: 'Step into frame so your body is visible',
         angles: {},
         holdSeconds: this.holdSeconds,
-        detectedInfo: EXERCISE_INFO[this.detectedExercise] || EXERCISE_INFO.squat,
+        detectedInfo: EXERCISE_INFO[this.detectedExercise] || EXERCISE_INFO.auto,
         confidence: this.detectionConfidence,
         exerciseStartedFormatted: this.exerciseStartedFormatted,
         exerciseActiveDurationSecs: 0,
@@ -199,23 +327,34 @@ export class BiomechanicsEngine {
       };
     }
 
-    // Landmark visibility check (shoulders, hips, knees)
+    // Key joint visibility check (shoulders, hips, knees)
     const keyIndices = [11, 12, 23, 24, 25, 26];
     const avgVis =
       keyIndices.reduce((acc, idx) => acc + (landmarks[idx]?.visibility ?? 1.0), 0) /
       keyIndices.length;
 
-    if (avgVis < 0.40) {
+    // Strict Positioning Check: Ensure user is properly facing the camera
+    const shoulderWidth = Math.abs((landmarks[11]?.x || 0) - (landmarks[12]?.x || 0));
+    const isFacingCamera = shoulderWidth >= TRACKER_SETTINGS.positioning.minShoulderWidth;
+
+    if (avgVis < TRACKER_SETTINGS.positioning.minJointVisibility || !isFacingCamera) {
+      this.straightPostureStartTime = 0;
+      const warningFeedback = !isFacingCamera 
+        ? 'Face the camera directly to track exercise'
+        : 'Adjust camera; ensure shoulders, hips & knees are in view';
+
       return {
         bodyVisible: false,
+        isReadyToCount: false,
+        goSignalActive: false,
         reps: this.reps,
-        phase: this.phase,
+        phase: 'positioning',
         formScore: 100,
-        formErrors: ['poor_visibility'],
-        feedback: 'Adjust camera; ensure shoulders, hips & knees are in view',
+        formErrors: ['poor_positioning'],
+        feedback: warningFeedback,
         angles: {},
         holdSeconds: this.holdSeconds,
-        detectedInfo: EXERCISE_INFO[this.detectedExercise] || EXERCISE_INFO.squat,
+        detectedInfo: EXERCISE_INFO[this.detectedExercise] || EXERCISE_INFO.auto,
         confidence: this.detectionConfidence,
         exerciseStartedFormatted: this.exerciseStartedFormatted,
         exerciseActiveDurationSecs: 0,
@@ -245,6 +384,9 @@ export class BiomechanicsEngine {
     const hip = Math.round((leftHip + rightHip) / 2);
     const elbow = Math.round((leftElbow + rightElbow) / 2);
 
+    const minElbow = Math.min(leftElbow, rightElbow);
+    const minKnee = Math.min(leftKnee, rightKnee);
+
     const angles = {
       knee,
       hip,
@@ -256,37 +398,109 @@ export class BiomechanicsEngine {
       rightHip,
       leftElbow,
       rightElbow,
+      minElbow,
+      minKnee,
     };
 
     // Calculate kinematic velocities
-    const midHipY = (landmarks[23].y + landmarks[24].y) / 2;
-    const hipYDelta = this.lastHipY !== null ? Math.abs(midHipY - this.lastHipY) : 0;
     const kneeVelocity = this.lastAngles ? Math.abs(knee - this.lastAngles.knee) : 0;
     const elbowVelocity = this.lastAngles ? Math.abs(elbow - this.lastAngles.elbow) : 0;
-
     this.lastAngles = { knee, hip, elbow, torso };
-    this.lastHipY = midHipY;
 
-    // Handle Interval-Based Auto-Detection
     const isAuto =
       selectedExercise.toLowerCase() === 'auto' ||
       selectedExercise.toLowerCase() === 'auto-detect';
 
     let effectiveExercise = selectedExercise.toLowerCase();
 
+    // 1. Straight Posture Calibration Gate:
+    // Before any rep counting starts, user must stand straight in view.
+    // While calibrating: strictly reset and clamp all exercise states to clean resting values.
+    if (!this.isReadyToCount) {
+      this.reps = 0;
+      this.phase = 'ready';
+      this.leftArmPhase = 'down';
+      this.rightArmPhase = 'down';
+      this.holdSeconds = 0;
+      this.lastRepTimestamp = 0;
+
+      const isUpright = torso <= TRACKER_SETTINGS.positioning.straightTorsoMax;
+      const legsStraight = minKnee >= TRACKER_SETTINGS.positioning.straightKneeMin;
+      const armsDown = minElbow >= TRACKER_SETTINGS.positioning.straightElbowMin &&
+        (landmarks[15]?.y > landmarks[11]?.y) &&
+        (landmarks[16]?.y > landmarks[12]?.y);
+
+      const isStraightPosture = isUpright && legsStraight && armsDown && avgVis >= TRACKER_SETTINGS.positioning.minJointVisibility;
+
+      if (isStraightPosture) {
+        if (!this.straightPostureStartTime) {
+          this.straightPostureStartTime = Date.now();
+        } else if (Date.now() - this.straightPostureStartTime >= TRACKER_SETTINGS.positioning.calibrationHoldMs) {
+          // Held steady straight posture -> DIRECT GO SIGNAL (no countdown)
+          this.isReadyToCount = true;
+          this.goSignalActive = true;
+          this.goSignalTimestamp = Date.now();
+          this.feedback = 'GO! Start workout';
+          this.phase = 'standing';
+          this.leftArmPhase = 'down';
+          this.rightArmPhase = 'down';
+          this.reps = 0;
+        } else {
+          this.feedback = 'Hold straight posture...';
+          this.phase = 'calibrating';
+        }
+      } else {
+        this.straightPostureStartTime = 0;
+        this.feedback = 'Stand straight facing camera to start';
+        this.phase = 'positioning';
+      }
+
+      // Early return while waiting or on the instant of the GO signal so reps are strictly 0
+      return {
+        bodyVisible: true,
+        isReadyToCount: this.isReadyToCount,
+        goSignalActive: this.goSignalActive,
+        isAuto,
+        exercise: effectiveExercise,
+        detectedInfo: EXERCISE_INFO[effectiveExercise] || EXERCISE_INFO.auto,
+        confidence: this.detectionConfidence,
+        exerciseStartedFormatted: this.exerciseStartedFormatted,
+        exerciseActiveDurationSecs: 0,
+        detectionIntervalSecs: this.detectionIntervalMs / 1000,
+        reps: 0,
+        phase: this.phase,
+        formScore: 100,
+        formErrors: [],
+        feedback: this.feedback,
+        angles,
+        holdSeconds: 0,
+      };
+    }
+
+    // Manage GO signal active display window (lasts 2.2 seconds after trigger)
+    if (this.goSignalActive) {
+      if (Date.now() - this.goSignalTimestamp > 2200) {
+        this.goSignalActive = false;
+      }
+    }
+
+    // Auto-detection handling
     if (isAuto) {
       const now = Date.now();
-      // Only sample posture when interval (e.g. 2000ms) has elapsed
-      if (now - this.lastDetectionCheckTime >= this.detectionIntervalMs) {
+      const timeSinceLastCheck = now - this.lastDetectionCheckTime;
+
+      // Check auto-classification periodically, or on immediate active motion
+      const immediateCurlTrigger = minElbow <= 95 && minKnee > 135 && this.detectedExercise !== 'bicepcurl';
+      const immediateSquatTrigger = minKnee <= 125 && minElbow > 105 && this.detectedExercise !== 'squat';
+
+      if (timeSinceLastCheck >= this.detectionIntervalMs || immediateCurlTrigger || immediateSquatTrigger) {
         this.lastDetectionCheckTime = now;
-        const result = this.classifyPostureAtInterval(angles, landmarks, {
+        const result = this.classifyPosture(angles, landmarks, {
           kneeVelocity,
           elbowVelocity,
-          hipYDelta,
         });
 
-        // If posture has changed at this interval, switch exercise cleanly
-        if (result.exercise !== this.detectedExercise) {
+        if (result.exercise !== 'auto' && result.exercise !== this.detectedExercise) {
           this.detectedExercise = result.exercise;
           this.exerciseStartTime = now;
           this.exerciseStartedFormatted = new Date().toLocaleTimeString([], {
@@ -294,9 +508,12 @@ export class BiomechanicsEngine {
             minute: '2-digit',
             second: '2-digit',
           });
-          this.phase = 'ready';
+          this.reps = 0;
+          this.phase = 'standing';
           this.holdSeconds = 0;
           this.lastHoldTick = now;
+          this.leftArmPhase = 'down';
+          this.rightArmPhase = 'down';
         }
         this.detectionConfidence = result.confidence;
       }
@@ -307,8 +524,12 @@ export class BiomechanicsEngine {
       this.detectionConfidence = 100;
     }
 
-    // Evaluate state machine & posture rules for current effective exercise
+    // Evaluate state machine for the current exercise
     switch (effectiveExercise) {
+      case 'bicepcurl':
+      case 'bicep curl':
+        this.evaluateBicepCurl(angles, landmarks);
+        break;
       case 'squat':
         this.evaluateSquat(angles, landmarks);
         break;
@@ -323,19 +544,16 @@ export class BiomechanicsEngine {
       case 'jumping jack':
         this.evaluateJumpingJack(angles, landmarks);
         break;
-      case 'bicepcurl':
-      case 'bicep curl':
-        this.evaluateBicepCurl(angles, landmarks);
-        break;
       default:
-        this.evaluateSquat(angles, landmarks);
+        this.phase = 'standing';
+        this.feedback = 'Perform any exercise (Squats, Bicep Curls, Plank, Push-Ups)';
         break;
     }
 
     const detectedInfo =
       EXERCISE_INFO[effectiveExercise] ||
       EXERCISE_INFO[this.detectedExercise] ||
-      EXERCISE_INFO.squat;
+      EXERCISE_INFO.auto;
 
     const exerciseActiveDurationSecs = Math.max(
       0,
@@ -344,6 +562,8 @@ export class BiomechanicsEngine {
 
     return {
       bodyVisible: true,
+      isReadyToCount: this.isReadyToCount,
+      goSignalActive: this.goSignalActive,
       isAuto,
       exercise: effectiveExercise,
       detectedInfo,
@@ -362,47 +582,51 @@ export class BiomechanicsEngine {
   }
 
   evaluateSquat(angles, landmarks) {
-    const { knee, torso } = angles;
+    const { knee, torso, leftKnee, rightKnee, minKnee = knee } = angles;
     const errors = [];
     let score = 100;
     let cue = 'Maintain steady tempo';
+    const cfg = TRACKER_SETTINGS.squat;
+
+    // Strict Position Guard: Prevent counting bending over as a squat
+    if (torso > cfg.maxTorsoLean) {
+      errors.push('excessive_lean');
+      score -= 25;
+      cue = 'Keep your chest up; do not bend forward';
+    }
 
     // Form check: Knees caving (Valgus)
-    const kneeDist = Math.abs(landmarks[25].x - landmarks[26].x);
-    const ankleDist = Math.abs(landmarks[27].x - landmarks[28].x);
+    const kneeDist = Math.abs((landmarks[25]?.x || 0) - (landmarks[26]?.x || 0));
+    const ankleDist = Math.abs((landmarks[27]?.x || 0) - (landmarks[28]?.x || 0));
     if (ankleDist > 0.05 && kneeDist / ankleDist < 0.72) {
       errors.push('knees_caving');
       score -= 25;
       cue = 'Push your knees outward over toes';
     }
 
-    // Form check: Excessive forward lean
-    if (torso > 45) {
-      errors.push('excessive_lean');
-      score -= 20;
-      cue = 'Keep your chest up and proud';
-    }
+    // Strict Bilateral Guard: BOTH knees must bend (prevents counting 1-leg stepping as squat)
+    const bothKneesBending = leftKnee <= cfg.minKneeBothMax && rightKnee <= cfg.minKneeBothMax;
 
-    // State machine: standing -> down -> bottom (< 98) -> up -> standing
+    // State machine: standing (>= 150) -> down (<= 125) -> bottom (<= 104) -> standing (>= 150)
     if (this.phase === 'ready' || this.phase === 'standing' || this.phase === 'up') {
-      if (knee <= 125) {
+      if (minKnee <= cfg.startDescentAngle && torso <= cfg.maxTorsoLean) {
         this.phase = 'down';
         cue = 'Sink hips lower...';
       }
     } else if (this.phase === 'down') {
-      if (knee <= 98) {
+      if (minKnee <= cfg.depthKneeAngle && bothKneesBending && torso <= cfg.maxTorsoLean) {
         this.phase = 'bottom';
-        cue = 'Great depth! Now drive up through heels';
-      } else if (knee > 140) {
+        cue = 'Great depth! Drive up through heels';
+      } else if (minKnee > 140) {
         errors.push('shallow_depth');
         cue = 'Squat lower: reach 90 degrees';
         this.phase = 'standing';
       }
     } else if (this.phase === 'bottom') {
-      if (knee >= 155) {
+      if (minKnee >= cfg.standingKneeAngle) {
         this.reps += 1;
         this.phase = 'standing';
-        cue = 'Rep complete! Excellent form';
+        cue = 'Rep complete! Excellent squat';
       }
     }
 
@@ -416,12 +640,13 @@ export class BiomechanicsEngine {
     const errors = [];
     let score = 100;
     let cue = 'Maintain straight plank alignment';
+    const cfg = TRACKER_SETTINGS.pushup;
 
-    if (hip < 150) {
+    if (hip < cfg.minHipPlankAngle) {
       errors.push('hips_piking');
       score -= 25;
       cue = 'Lower your hips into a straight line';
-    } else if (hip > 200) {
+    } else if (hip > cfg.maxHipPlankAngle) {
       errors.push('hips_sagging');
       score -= 25;
       cue = 'Tighten abs, prevent hips from sagging';
@@ -433,12 +658,12 @@ export class BiomechanicsEngine {
         cue = 'Lower chest to floor...';
       }
     } else if (this.phase === 'down') {
-      if (elbow <= 90) {
+      if (elbow <= cfg.bottomElbowAngle) {
         this.phase = 'bottom';
         cue = 'Full depth! Press the floor away';
       }
     } else if (this.phase === 'bottom') {
-      if (elbow >= 155) {
+      if (elbow >= cfg.topElbowAngle) {
         this.reps += 1;
         this.phase = 'top';
         cue = 'Strong lockout! Rep counted';
@@ -455,17 +680,18 @@ export class BiomechanicsEngine {
     const errors = [];
     let score = 100;
     let cue = 'Holding solid plank';
+    const cfg = TRACKER_SETTINGS.plank;
 
     const now = Date.now();
     const dt = (now - this.lastHoldTick) / 1000;
     this.lastHoldTick = now;
 
-    if (hip < 155) {
+    if (hip < cfg.minHipAngle) {
       errors.push('hips_piking');
       score -= 30;
       cue = 'Hips too high! Lower them to shoulder level';
       this.phase = 'paused';
-    } else if (hip > 195) {
+    } else if (hip > cfg.maxHipAngle) {
       errors.push('hips_sagging');
       score -= 30;
       cue = 'Hips sagging! Engage glutes and core';
@@ -483,17 +709,37 @@ export class BiomechanicsEngine {
   }
 
   evaluateJumpingJack(_angles, landmarks) {
-    const armsUp = landmarks[15].y < landmarks[11].y && landmarks[16].y < landmarks[12].y;
-    const feetDist = Math.abs(landmarks[27].x - landmarks[28].x);
-    const hipDist = Math.abs(landmarks[23].x - landmarks[24].x);
-    const feetWide = feetDist > (hipDist * 1.4) || feetDist > 0.32;
+    if (!landmarks || landmarks.length < 33) return;
+
+    const cfg = TRACKER_SETTINGS.jumpingjack;
+    const leftWrist = landmarks[15];
+    const rightWrist = landmarks[16];
+    const leftShoulder = landmarks[11];
+    const rightShoulder = landmarks[12];
+    const leftAnkle = landmarks[27];
+    const rightAnkle = landmarks[28];
+    const leftHip = landmarks[23];
+    const rightHip = landmarks[24];
+
+    if (!leftWrist || !rightWrist || !leftShoulder || !rightShoulder) return;
+
+    // Strict amplitude: arms must rise overhead, feet must jump wide
+    const armsUp = (leftWrist.y < leftShoulder.y - cfg.overheadWristMargin) &&
+                   (rightWrist.y < rightShoulder.y - cfg.overheadWristMargin);
+    const armsDown = (leftWrist.y > leftShoulder.y + 0.10) &&
+                     (rightWrist.y > rightShoulder.y + 0.10);
+
+    const feetDist = Math.abs((leftAnkle?.x || 0) - (rightAnkle?.x || 0));
+    const hipDist = Math.max(0.08, Math.abs((leftHip?.x || 0) - (rightHip?.x || 0)));
+    const feetWide = feetDist > (hipDist * cfg.feetWideRatio) || feetDist > 0.24;
+    const feetTogether = feetDist <= (hipDist * cfg.feetTogetherRatio) || feetDist < 0.20;
 
     if (this.phase === 'ready' || this.phase === 'closed' || this.phase === 'standing') {
       if (armsUp && feetWide) {
         this.phase = 'open';
       }
     } else if (this.phase === 'open') {
-      if (!armsUp && !feetWide) {
+      if (armsDown && feetTogether) {
         this.reps += 1;
         this.phase = 'closed';
       }
@@ -501,36 +747,120 @@ export class BiomechanicsEngine {
 
     this.formScore = 100;
     this.formErrors = [];
-    this.feedback = 'Keep light on your toes and maintain tempo!';
+    this.feedback = this.phase === 'open' ? 'Bring arms down and feet together!' : 'Jump arms overhead and feet wide!';
   }
 
-  evaluateBicepCurl(angles, _landmarks) {
-    const { elbow, torso } = angles;
+  /**
+   * Advanced Bicep Curl Tracker:
+   * Supports two-arm (bilateral), single-arm (unilateral), and alternating curls.
+   */
+  evaluateBicepCurl(angles, landmarks) {
+    const { leftElbow, rightElbow, torso } = angles;
+    const minElbow = Math.min(leftElbow, rightElbow);
     const errors = [];
     let score = 100;
     let cue = 'Curl smoothly, isolate biceps';
+    const cfg = TRACKER_SETTINGS.bicepcurl;
 
-    if (torso > 18) {
-      errors.push('torso_swing');
-      score -= 30;
-      cue = 'Stop swinging back; isolate arms';
+    if (landmarks && landmarks.length >= 33) {
+      const leftWrist = landmarks[15];
+      const rightWrist = landmarks[16];
+      const leftShoulder = landmarks[11];
+      const rightShoulder = landmarks[12];
+      const leftElbowJoint = landmarks[13];
+      const rightElbowJoint = landmarks[14];
+
+      // Strict Position Guard: Wrists or elbows overhead is NOT a curl!
+      const handsOverhead =
+        (leftWrist && leftShoulder && leftWrist.y < leftShoulder.y + 0.04) ||
+        (rightWrist && rightShoulder && rightWrist.y < rightShoulder.y + 0.04);
+
+      const elbowsRaised =
+        (leftElbowJoint && leftShoulder && leftElbowJoint.y < leftShoulder.y) ||
+        (rightElbowJoint && rightShoulder && rightElbowJoint.y < rightShoulder.y);
+
+      // Elbow ribcage alignment check: prevent swinging elbows wildly
+      const leftElbowSwing = leftElbowJoint && leftShoulder ? Math.abs(leftElbowJoint.x - leftShoulder.x) : 0;
+      const rightElbowSwing = rightElbowJoint && rightShoulder ? Math.abs(rightElbowJoint.x - rightShoulder.x) : 0;
+      const elbowsFlaring = leftElbowSwing > cfg.maxElbowRibOffset || rightElbowSwing > cfg.maxElbowRibOffset;
+
+      if (handsOverhead || elbowsRaised) {
+        this.leftArmPhase = 'down';
+        this.rightArmPhase = 'down';
+        this.phase = 'down';
+        this.feedback = 'Pin elbows to ribcage below shoulders';
+        return;
+      }
+
+      if (elbowsFlaring) {
+        errors.push('elbows_flaring');
+        score -= 20;
+        cue = 'Keep elbows pinned to your sides';
+      }
     }
 
-    if (this.phase === 'ready' || this.phase === 'down' || this.phase === 'standing') {
-      if (elbow <= 75) {
-        this.phase = 'curled';
-        cue = 'Full squeeze at top!';
+    // Form check: Torso swing / momentum
+    if (torso > cfg.maxTorsoSwing) {
+      errors.push('torso_swing');
+      score -= 25;
+      cue = 'Keep torso still; eliminate body swing';
+    }
+
+    if (this.leftArmPhase === undefined) {
+      this.leftArmPhase = 'down';
+      this.rightArmPhase = 'down';
+      this.lastRepTimestamp = 0;
+    }
+
+    const now = Date.now();
+    let repCounted = false;
+
+    // Track Left Arm
+    if (this.leftArmPhase === 'down' || this.leftArmPhase === 'ready') {
+      if (leftElbow <= cfg.curlPeakFlexion) {
+        this.leftArmPhase = 'curled';
       }
-    } else if (this.phase === 'curled') {
-      if (elbow >= 145) {
-        this.reps += 1;
-        this.phase = 'down';
-        cue = 'Full extension. Rep counted!';
+    } else if (this.leftArmPhase === 'curled') {
+      if (leftElbow >= cfg.armExtensionReturn) {
+        this.leftArmPhase = 'down';
+        if (now - this.lastRepTimestamp > cfg.debounceMs) {
+          this.reps += 1;
+          this.lastRepTimestamp = now;
+          repCounted = true;
+        }
       }
+    }
+
+    // Track Right Arm
+    if (this.rightArmPhase === 'down' || this.rightArmPhase === 'ready') {
+      if (rightElbow <= cfg.curlPeakFlexion) {
+        this.rightArmPhase = 'curled';
+      }
+    } else if (this.rightArmPhase === 'curled') {
+      if (rightElbow >= cfg.armExtensionReturn) {
+        this.rightArmPhase = 'down';
+        if (now - this.lastRepTimestamp > cfg.debounceMs) {
+          this.reps += 1;
+          this.lastRepTimestamp = now;
+          repCounted = true;
+        }
+      }
+    }
+
+    // UI phase display
+    if (minElbow <= cfg.curlPeakFlexion) {
+      this.phase = 'curled';
+      cue = 'Full squeeze at top!';
+    } else if (minElbow >= cfg.armExtensionReturn) {
+      this.phase = 'down';
+      cue = repCounted ? 'Rep complete! Excellent curl' : 'Lower with control';
+    } else {
+      this.phase = (this.leftArmPhase === 'curled' || this.rightArmPhase === 'curled') ? 'curled' : 'moving';
+      cue = 'Control the movement';
     }
 
     this.formScore = Math.max(20, score);
     this.formErrors = errors;
-    this.feedback = cue;
+    this.feedback = errors.length > 0 ? cue : cue || 'Curl with smooth tempo';
   }
 }

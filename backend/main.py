@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
-from database import init_db
+from database import init_db, close_pool
 from pose_detector import pose_detector
 from exercise_classifier import exercise_classifier
 from websocket_handler import handle_workout_websocket
@@ -12,6 +12,8 @@ from routes.sessions import router as sessions_router
 from routes.exercises import router as exercises_router
 from routes.dataset import router as dataset_router
 from routes.model import router as model_router
+from routes.calories import router as calories_router
+from routes.history import router as history_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,6 +32,7 @@ async def lifespan(app: FastAPI):
     logger.info("BurnIt backend ready. Listening for frontend requests.")
     yield
     logger.info("BurnIt backend shutting down.")
+    await close_pool()
 
 app = FastAPI(
     title="BurnIt Workout Tracker API",
@@ -38,10 +41,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS configuration allowing BurnIt frontend
+# CORS configuration allowing BurnIt frontend (localhost + all local network IPs)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -53,6 +57,8 @@ app.include_router(sessions_router)
 app.include_router(exercises_router)
 app.include_router(dataset_router)
 app.include_router(model_router)
+app.include_router(calories_router)
+app.include_router(history_router)
 
 # WebSocket endpoint for real-time frame streaming and pose telemetry
 @app.websocket("/ws/workout/{session_id}")
