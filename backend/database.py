@@ -17,6 +17,7 @@ warnings.filterwarnings("ignore", message=".*Table '.*' already exists.*")
 logger = logging.getLogger("burnit.db")
 
 _pool: Optional[aiomysql.Pool] = None
+_db_initialized: bool = False
 
 def is_mysql_port_open(host: str = "127.0.0.1", port: int = 3306, timeout: float = 0.8) -> bool:
     """Check if the MySQL TCP port is actively listening."""
@@ -135,31 +136,44 @@ async def close_pool():
 async def get_db():
     """Async context manager yielding an aiomysql DictCursor for executing queries with auto-reconnect."""
     from fastapi import HTTPException, status
-    global _pool
+    global _pool, _db_initialized
+
+    if not _db_initialized:
+        await init_db()
+
     pool = await get_pool()
     if pool is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Database service is offline. Please ensure MySQL in XAMPP is started.",
         )
+
+    conn = None
     try:
-        async with pool.acquire() as conn:
-            async with conn.cursor(aiomysql.DictCursor) as cur:
-                yield cur
-    except (pymysql.err.OperationalError, aiomysql.OperationalError, pymysql.err.InterfaceError) as oe:
-        logger.warning(f"Database connection dropped ({oe}), resetting pool and retrying...")
-        await close_pool()
-        new_pool = await get_pool()
-        if new_pool is None:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Database service is offline. Please ensure MySQL in XAMPP is started.",
-            )
-        async with new_pool.acquire() as conn:
-            async with conn.cursor(aiomysql.DictCursor) as cur:
-                yield cur
+        try:
+            conn = await pool.acquire()
+        except (pymysql.err.OperationalError, aiomysql.OperationalError, pymysql.err.InterfaceError) as oe:
+            logger.warning("Database connection acquire failed (%s), resetting pool and retrying...", oe)
+            await close_pool()
+            pool = await get_pool()
+            if pool is None:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Database service is offline. Please ensure MySQL in XAMPP is started.",
+                )
+            conn = await pool.acquire()
+
+        async with conn.cursor(aiomysql.DictCursor) as cur:
+            yield cur
+    finally:
+        if conn is not None and pool is not None and not getattr(pool, "_closed", False):
+            try:
+                pool.release(conn)
+            except Exception:
+                pass
 
 async def init_db():
+    global _db_initialized
     if not ensure_database_exists():
         return
 
@@ -252,6 +266,20 @@ async def init_db():
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """)
 
+                    # 6. Ensure default admin user exists
+                    await cur.execute("SELECT id FROM users WHERE username = %s", (settings.ADMIN_USERNAME,))
+                    admin_row = await cur.fetchone()
+                    if not admin_row:
+                        from auth import hash_password
+                        admin_id = "admin_01"
+                        pwd_hash = hash_password(settings.ADMIN_PASSWORD)
+                        await cur.execute("""
+                            INSERT INTO users (id, username, password_hash, is_admin, name, is_profile_completed)
+                            VALUES (%s, %s, %s, 1, 'Administrator', 1)
+                        """, (admin_id, settings.ADMIN_USERNAME, pwd_hash))
+                        logger.info("Default admin user initialized in database.")
+
+        _db_initialized = True
         logger.info("MySQL tables initialized successfully in phpMyAdmin database: %s", settings.DB_NAME)
     except Exception as e:
         logger.warning("Database table check encountered an issue: %s", e)

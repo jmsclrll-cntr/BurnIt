@@ -13,8 +13,10 @@ class ActiveSessionState:
         self.session_id = session_id
         self.user_id = user_id
         self.exercise = exercise
+        self.is_auto_detect = exercise.lower() in ["auto", "auto_detect", "auto-detect"]
+        self.detected_exercise = "squat"
         self.start_time = time.time()
-        self.counter = create_counter(exercise)
+        self.counter = create_counter("squat" if self.is_auto_detect else exercise)
         self.smoother = AngleSmoother(window_size=5)
         self.form_scores: List[int] = []
         self.error_counts: Dict[str, int] = {}
@@ -24,7 +26,9 @@ class ActiveSessionState:
 
     def change_exercise(self, new_exercise: str):
         self.exercise = new_exercise
-        self.counter = create_counter(new_exercise)
+        self.is_auto_detect = new_exercise.lower() in ["auto", "auto_detect", "auto-detect"]
+        self.detected_exercise = "squat"
+        self.counter = create_counter("squat" if self.is_auto_detect else new_exercise)
         self.smoother.reset()
 
 class SessionManager:

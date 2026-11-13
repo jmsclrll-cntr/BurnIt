@@ -75,6 +75,7 @@ class DatasetRecordStart(BaseModel):
     error_type: Optional[str] = "none"
     subject_id: str = "sub_01"
     camera_view: str = "front"
+    session_id: Optional[str] = None
 
 class DatasetRecordStop(BaseModel):
     session_id: str

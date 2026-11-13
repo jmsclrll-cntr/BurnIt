@@ -29,7 +29,7 @@ export default function Footer() {
               <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>HIIT & Sprint Burn</Link></li>
               <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Fat Shred Protocol</Link></li>
               <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Distance & Marathon</Link></li>
-              <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>1-on-1 Pro Coaching</Link></li>
+              <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Personalized Training Tracks</Link></li>
             </ul>
           </div>
 
@@ -47,13 +47,13 @@ export default function Footer() {
 
           <div>
             <div className={`font-semibold mb-3 text-sm ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
-              Coaching
+              Resources
             </div>
             <ul className="space-y-2">
-              <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Steve Rock Bio</Link></li>
+              <li><Link to="/#guide" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>System Guide</Link></li>
               <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Biometric Tracking</Link></li>
-              <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Athlete Reviews</Link></li>
-              <li><Link to="/#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Schedule Consultation</Link></li>
+              <li><Link to="/#workouts" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Movement Library</Link></li>
+              <li><Link to="/tracker" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Start Workout</Link></li>
             </ul>
           </div>
 

@@ -13,13 +13,17 @@ router = APIRouter(prefix="/api/dataset", tags=["dataset"])
 
 @router.post("/start")
 async def start_dataset_recording(body: DatasetRecordStart, _=Depends(require_admin)):
-    rec_id = str(uuid.uuid4())
-    dataset_recorder.start_recording(rec_id, body.dict())
-    return {"status": "recording_started", "recording_id": rec_id, "config": body.dict()}
+    rec_id = body.session_id or str(uuid.uuid4())
+    config = body.model_dump() if hasattr(body, "model_dump") else body.dict()
+    dataset_recorder.start_recording(rec_id, config)
+    return {"status": "recording_started", "recording_id": rec_id, "config": config}
 
 @router.post("/stop")
 async def stop_dataset_recording(body: DatasetRecordStop, _=Depends(require_admin)):
     result = await dataset_recorder.stop_recording(body.session_id)
+    if not result and dataset_recorder.active_recordings:
+        active_key = next(iter(dataset_recorder.active_recordings.keys()))
+        result = await dataset_recorder.stop_recording(active_key)
     if not result:
         raise HTTPException(status_code=404, detail="Active recording session not found")
     return {"status": "recording_stopped", "details": result}

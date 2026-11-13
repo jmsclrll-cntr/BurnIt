@@ -20,14 +20,28 @@ export default function Navbar() {
 
   const navItems = [
     { label: 'Home', path: '/#home' },
-    { label: 'Tracker', path: '/tracker' },
     { label: 'Programs', path: '/#programs' },
     { label: 'Workouts', path: '/#workouts' },
-    { label: 'Coaching', path: '/#coaching' },
     { label: 'About', path: '/#about' },
   ]
 
   const isHome = location.pathname === '/'
+
+  const handleNavClick = (e, path) => {
+    if (isHome && path.startsWith('/#')) {
+      e.preventDefault()
+      const targetId = path.replace('/#', '')
+      if (targetId === 'home') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      } else {
+        const el = document.getElementById(targetId)
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+      window.history.pushState(null, '', `#${targetId}`)
+    }
+  }
 
   return (
     <header
@@ -53,67 +67,22 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Center Desktop Navigation - Thicker Font, Direct Section Navigation, No Dropdowns */}
+        {/* Center Desktop Navigation - Direct Section Navigation, No Dropdowns */}
         <nav className="hidden lg:flex items-center gap-1 sm:gap-2">
-          {navItems.map((item) => {
-            const isTracker = item.path === '/tracker'
-            const isCurrent = location.pathname === item.path
-
-            if (item.path.startsWith('/#')) {
-              return (
-                <a
-                  key={item.label}
-                  href={isHome ? item.path.replace('/', '') : item.path}
-                  className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1 ${
-                    darkMode
-                      ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
-                      : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <span>{item.label}</span>
-                </a>
-              )
-            }
-
-            if (item.path === '/tracker' && !isAuthenticated) {
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => openLogin('/tracker')}
-                  className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1.5 ${
-                    darkMode
-                      ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
-                      : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <span>{item.label}</span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse ml-0.5" />
-                </button>
-              )
-            }
-
-            return (
-              <Link
-                key={item.label}
-                to={item.path}
-                className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1.5 ${
-                  isCurrent
-                    ? darkMode
-                      ? 'text-orange-400 bg-orange-500/10'
-                      : 'text-orange-600 bg-orange-50 font-bold'
-                    : darkMode
-                      ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
-                      : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
-                }`}
-              >
-                <span>{item.label}</span>
-                {isTracker && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse ml-0.5" />
-                )}
-              </Link>
-            )
-          })}
+          {navItems.map((item) => (
+            <a
+              key={item.label}
+              href={isHome ? item.path.replace('/', '') : item.path}
+              onClick={(e) => handleNavClick(e, item.path)}
+              className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1 ${
+                darkMode
+                  ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
+                  : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
+              }`}
+            >
+              <span>{item.label}</span>
+            </a>
+          ))}
         </nav>
 
         {/* Right Desktop Controls - Fullscreen & Profile Icon Only (Big Icons) */}
@@ -187,34 +156,21 @@ export default function Navbar() {
             darkMode ? 'bg-[#13131a] border-neutral-800' : 'bg-white border-neutral-200'
           }`}
         >
-          {navItems.map((item) => {
-            if (item.path.startsWith('/#')) {
-              return (
-                <a
-                  key={item.label}
-                  href={isHome ? item.path.replace('/', '') : item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block text-base font-bold py-1.5 ${
-                    darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
-                  }`}
-                >
-                  {item.label}
-                </a>
-              )
-            }
-            return (
-              <Link
-                key={item.label}
-                to={item.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block text-base font-bold py-1.5 ${
-                  darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
-                }`}
-              >
-                {item.label}
-              </Link>
-            )
-          })}
+          {navItems.map((item) => (
+            <a
+              key={item.label}
+              href={isHome ? item.path.replace('/', '') : item.path}
+              onClick={(e) => {
+                setMobileMenuOpen(false)
+                handleNavClick(e, item.path)
+              }}
+              className={`block text-base font-bold py-1.5 ${
+                darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
           {isAuthenticated ? (
             <div className="pt-3 border-t border-neutral-800/40 space-y-3">
               <div className="flex items-center justify-between">

@@ -51,15 +51,25 @@ class FormChecker:
         hip = angles.get("hip", 180.0)
         plank_line = angles.get("plank_line", 180.0)
 
-        # 1. Hips Sagging
-        if plank_line < 152.0:
-            errors.append("hips_sagging")
-            score -= 35
-            feedback = "Squeeze your glutes to stop your hips from sagging."
-        elif plank_line > 200.0:
-            errors.append("hips_piking")
-            score -= 25
-            feedback = "Lower your hips into a straight plank line."
+        # 1. Hips Sagging / Piking
+        if plank_line < 155.0:
+            if len(landmarks) >= 29:
+                sh_y = (landmarks[11]["y"] + landmarks[12]["y"]) / 2.0
+                hip_y = (landmarks[23]["y"] + landmarks[24]["y"]) / 2.0
+                ank_y = (landmarks[27]["y"] + landmarks[28]["y"]) / 2.0
+                expected_y = (sh_y + ank_y) / 2.0
+                if hip_y > expected_y:
+                    errors.append("hips_sagging")
+                    score -= 35
+                    feedback = "Squeeze your glutes to stop your hips from sagging."
+                else:
+                    errors.append("hips_piking")
+                    score -= 25
+                    feedback = "Lower your hips into a straight plank line."
+            else:
+                errors.append("hips_sagging")
+                score -= 35
+                feedback = "Keep your body in a straight plank line."
 
         # 2. Shallow Depth
         if phase == "down" and elbow > 105.0:
@@ -86,14 +96,24 @@ class FormChecker:
 
         plank_line = angles.get("plank_line", 180.0)
 
-        if plank_line < 155.0:
-            errors.append("hips_sagging")
-            score -= 40
-            feedback = "Lift your hips up; keep your core tight."
-        elif plank_line > 195.0:
-            errors.append("hips_piking")
-            score -= 30
-            feedback = "Lower your hips to form a flat line from shoulders to ankles."
+        if plank_line < 158.0:
+            if len(landmarks) >= 29:
+                sh_y = (landmarks[11]["y"] + landmarks[12]["y"]) / 2.0
+                hip_y = (landmarks[23]["y"] + landmarks[24]["y"]) / 2.0
+                ank_y = (landmarks[27]["y"] + landmarks[28]["y"]) / 2.0
+                expected_y = (sh_y + ank_y) / 2.0
+                if hip_y > expected_y:
+                    errors.append("hips_sagging")
+                    score -= 40
+                    feedback = "Lift your hips up; keep your core tight."
+                else:
+                    errors.append("hips_piking")
+                    score -= 30
+                    feedback = "Lower your hips to form a flat line from shoulders to ankles."
+            else:
+                errors.append("hips_sagging")
+                score -= 40
+                feedback = "Keep your body aligned in a flat plank line."
 
         return max(score, 20), errors, feedback
 

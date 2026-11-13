@@ -105,8 +105,13 @@ class BicepCurlCounter(BaseExerciseCounter):
     """
     def __init__(self):
         super().__init__()
+        self.phase = "down"
         self.curled_threshold = 50.0
         self.extended_threshold = 150.0
+
+    def reset(self):
+        super().reset()
+        self.phase = "down"
 
     def update(self, angles: Dict[str, float], landmarks: List[Dict[str, float]]) -> Dict[str, Any]:
         elbow = angles.get("elbow", 180.0)
@@ -141,8 +146,13 @@ class JumpingJackCounter(BaseExerciseCounter):
     """
     def __init__(self):
         super().__init__()
+        self.phase = "down"
         self.up_threshold = 140.0
         self.down_threshold = 35.0
+
+    def reset(self):
+        super().reset()
+        self.phase = "down"
 
     def update(self, angles: Dict[str, float], landmarks: List[Dict[str, float]]) -> Dict[str, Any]:
         shoulder = angles.get("shoulder", 0.0)

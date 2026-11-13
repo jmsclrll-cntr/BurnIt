@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Flame,
   ArrowRight,
@@ -25,19 +25,66 @@ import UserMenu from '../components/auth/UserMenu'
 const CURRENT_YEAR = new Date().getFullYear()
 
 export default function Homepage() {
+  const navigate = useNavigate()
   const { darkMode, toggleDarkMode, isFullscreen, enterFullScreen } = useTheme()
   const { isAuthenticated, user, openLogin, logout } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
-  const [activeDropdown, setActiveDropdown] = useState(null)
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+
+  const handleTrackNow = () => {
+    if (isAuthenticated) {
+      navigate('/tracker')
+    } else {
+      openLogin('/tracker')
+    }
+  }
+
+  const navSections = [
+    { label: 'Home', target: 'home' },
+    { label: 'Programs', target: 'programs' },
+    { label: 'Workouts', target: 'workouts' },
+    { label: 'About', target: 'about' },
+  ]
+
+  const scrollToSection = (targetId) => {
+    if (targetId === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      const el = document.getElementById(targetId) || (targetId === 'coaching' ? document.getElementById('guide') : null)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setMounted(true)
     }, 60)
     return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash) {
+        const id = window.location.hash.replace('#', '')
+        if (id === 'home') {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        } else {
+          const el = document.getElementById(id) || (id === 'coaching' ? document.getElementById('guide') : null)
+          if (el) {
+            setTimeout(() => {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }, 100)
+          }
+        }
+      }
+    }
+    handleHash()
+    window.addEventListener('hashchange', handleHash)
+    return () => window.removeEventListener('hashchange', handleHash)
   }, [])
 
   useEffect(() => {
@@ -49,45 +96,7 @@ export default function Homepage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const navDropdowns = {
-    Programs: [
-      {
-        category: 'Training Tracks',
-        links: [
-          { name: 'HIIT & Sprint Burn', desc: 'Cardiovascular capacity & speed intervals' },
-          { name: 'Fat Shred Protocol', desc: 'High-metabolism compound routines' },
-          { name: 'Distance & Marathon', desc: 'Aerobic stamina & pacing benchmarks' },
-        ],
-      },
-      {
-        category: 'Intensity Levels',
-        links: [
-          { name: 'Beginner Foundations', desc: 'Biomechanics, posture, and pacing' },
-          { name: 'Pro Athlete Track', desc: 'Peak performance and sprint prep' },
-        ],
-      },
-    ],
-    Coaching: [
-      {
-        category: 'Mentorship',
-        links: [
-          { name: '1-on-1 Elite Coaching', desc: 'Custom plans with Steve Rock' },
-          { name: 'Biometric Form Analysis', desc: 'Live video reviews and stride adjustments' },
-          { name: 'Nutrition Architecture', desc: 'Targeted caloric and macro guidance' },
-        ],
-      },
-    ],
-    Workouts: [
-      {
-        category: 'Daily Routines',
-        links: [
-          { name: '15 Min Express Warmup', desc: 'Dynamic mobility & heart-rate primer' },
-          { name: '45 Min Power Burn', desc: 'Interval sprint & muscular endurance' },
-          { name: 'Recovery & Mobility', desc: 'Foam rolling, yoga & nervous recovery' },
-        ],
-      },
-    ],
-  }
+
 
   const detectableExercises = [
     {
@@ -153,7 +162,6 @@ export default function Homepage() {
               : 'bg-white/90 backdrop-blur-md border-b border-neutral-200/80 shadow-sm'
             : 'bg-transparent border-b border-transparent'
         }`}
-        onMouseLeave={() => setActiveDropdown(null)}
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo on the left */}
@@ -184,62 +192,25 @@ export default function Homepage() {
 
           {/* Center Links (Direct Section Navigation, Thicker Font, No Dropdowns) */}
           <nav className="hidden lg:flex items-center gap-1 sm:gap-2">
-            {[
-              { label: 'Home', target: 'home' },
-              { label: 'Tracker', path: '/tracker' },
-              { label: 'Programs', target: 'programs' },
-              { label: 'Workouts', target: 'workouts' },
-              { label: 'Coaching', target: 'coaching' },
-              { label: 'About', target: 'about' },
-            ].map((item) => {
-              const isTracker = item.path === '/tracker';
-
-              if (isTracker) {
-                return (
-                  <Link
-                    key={item.label}
-                    to="/tracker"
-                    className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1.5 ${
-                      !scrolled
-                        ? 'text-neutral-100 hover:text-white hover:bg-white/10'
-                        : darkMode
-                          ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
-                          : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
-                    }`}
-                  >
-                    <span>Tracker</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse ml-0.5" />
-                  </Link>
-                );
-              }
-
-              return (
-                <a
-                  key={item.label}
-                  href={`#${item.target}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (item.target === 'home') {
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                      const el = document.getElementById(item.target);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }
-                  }}
-                  className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1 ${
-                    !scrolled
-                      ? 'text-neutral-100 hover:text-white hover:bg-white/10'
-                      : darkMode
-                        ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
-                        : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <span>{item.label}</span>
-                </a>
-              );
-            })}
+            {navSections.map((item) => (
+              <a
+                key={item.label}
+                href={`#${item.target}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection(item.target);
+                }}
+                className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1 ${
+                  !scrolled
+                    ? 'text-neutral-100 hover:text-white hover:bg-white/10'
+                    : darkMode
+                      ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
+                      : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
+                }`}
+              >
+                <span>{item.label}</span>
+              </a>
+            ))}
           </nav>
 
           {/* Right Side: Fullscreen & Profile Icon Only (Big Icons) */}
@@ -321,52 +292,22 @@ export default function Homepage() {
               darkMode ? 'bg-[#13131a] border-neutral-800' : 'bg-white border-neutral-200'
             }`}
           >
-            {[
-              { label: 'Home', target: 'home' },
-              { label: 'Tracker', path: '/tracker' },
-              { label: 'Workouts', target: 'programs' },
-              { label: 'Guide', target: 'workouts' },
-              { label: 'Coaching', target: 'coaching' },
-              { label: 'About', target: 'about' },
-            ].map((item) => {
-              if (item.path) {
-                return (
-                  <Link
-                    key={item.label}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block text-base font-bold py-1.5 ${
-                      darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              }
-              return (
-                <a
-                  key={item.label}
-                  href={`#${item.target}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setMobileMenuOpen(false);
-                    if (item.target === 'home') {
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                      const el = document.getElementById(item.target);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }
-                  }}
-                  className={`block text-base font-bold py-1.5 ${
-                    darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
-                  }`}
-                >
-                  {item.label}
-                </a>
-              );
-            })}
+            {navSections.map((item) => (
+              <a
+                key={item.label}
+                href={`#${item.target}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileMenuOpen(false);
+                  scrollToSection(item.target);
+                }}
+                className={`block text-base font-bold py-1.5 ${
+                  darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
+                }`}
+              >
+                {item.label}
+              </a>
+            ))}
             {isAuthenticated ? (
               <div className="pt-3 border-t border-neutral-800/40 space-y-3">
                 <div className="flex items-center justify-between">
@@ -470,38 +411,22 @@ export default function Homepage() {
             Real-time AI pose tracking, precision joint analysis, and smart repetition counting directly in your browser. Perfect your workout form and ignite your athletic potential.
           </p>
 
-          {/* Action Buttons */}
+          {/* Action Button */}
           <div
-            className={`mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 hero-fade-init transition-all duration-700 ease-out delay-300 ${
+            className={`mt-8 sm:mt-10 flex items-center justify-center hero-fade-init transition-all duration-700 ease-out delay-300 ${
               mounted
                 ? 'opacity-100 translate-y-0 blur-0'
                 : 'opacity-0 translate-y-7 blur-[3px]'
             }`}
           >
-            {isAuthenticated ? (
-              <Link
-                to="/tracker"
-                className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base font-semibold shadow-lg shadow-orange-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
-              >
-                <span>GET STARTED</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => openLogin('/tracker')}
-                className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base font-semibold shadow-lg shadow-orange-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
-              >
-                <span>GET STARTED</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-              </button>
-            )}
-            <a
-              href="#programs"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-full text-base font-semibold border border-white/20 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white backdrop-blur-md shadow-sm hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
+            <button
+              type="button"
+              onClick={handleTrackNow}
+              className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base sm:text-lg font-bold shadow-xl shadow-orange-600/40 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 cursor-pointer"
             >
-              <span>COACHING</span>
-            </a>
+              <span>Track now</span>
+              <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
+            </button>
           </div>
         </div>
       </section>
@@ -511,7 +436,7 @@ export default function Homepage() {
       {/* ========================================================= */}
       <section
         id="programs"
-        className={`py-24 sm:py-28 transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12]' : 'bg-[#FFFFFF]'
+        className={`py-24 sm:py-28 scroll-mt-20 transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12]' : 'bg-[#FFFFFF]'
           }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -534,7 +459,7 @@ export default function Homepage() {
           </div>
 
           {/* Interactive Feature Tabs */}
-          <div id="workouts" className="mt-12 flex justify-center flex-wrap gap-2 sm:gap-3 scroll-reveal">
+          <div id="workouts" className="mt-12 scroll-mt-24 flex justify-center flex-wrap gap-2 sm:gap-3 scroll-reveal">
             {detectableExercises.map((ex, idx) => {
               const Icon = ex.icon
               const isActive = activeTab === idx
@@ -632,8 +557,8 @@ export default function Homepage() {
       {/* HOW TO USE THIS SYSTEM (LIVE WORKFLOW GUIDE)              */}
       {/* ========================================================= */}
       <section
-        id="coaching"
-        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
+        id="guide"
+        className={`py-24 sm:py-28 scroll-mt-20 border-t transition-colors duration-300 ${darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
           }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
@@ -687,7 +612,7 @@ export default function Homepage() {
                   className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
                     }`}
                 >
-                  Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">GET STARTED</strong> in the hero section or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar. Simply log in or create your free account to unlock real-time tracking, personalized rep counters, and caloric expenditure analysis.
+                  Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">Track now</strong> in the hero section. Simply log in or create your free account to unlock real-time tracking, personalized rep counters, and caloric expenditure analysis.
                 </p>
               </div>
               <div
@@ -864,8 +789,8 @@ export default function Homepage() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               type="button"
-              onClick={() => alert('Welcome to Burn It! Registration starting...')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all"
+              onClick={handleTrackNow}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all cursor-pointer"
             >
               <Flame className="w-4 h-4 fill-white" />
               <span>Join Burn It Now</span>
@@ -873,6 +798,10 @@ export default function Homepage() {
 
             <a
               href="#programs"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('programs');
+              }}
               className={`w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-semibold border shadow-sm transition-all ${darkMode
                 ? 'bg-neutral-800/80 hover:bg-neutral-700 text-neutral-100 border-neutral-700'
                 : 'bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-800 border-neutral-300'
@@ -883,7 +812,7 @@ export default function Homepage() {
           </div>
 
           <div className={`mt-6 text-xs ${darkMode ? 'text-neutral-500' : 'text-[#5F6368]'}`}>
-            Instant access to daily workout guides and coaching schedules.
+            Instant access to daily workout guides and real-time biometric tracking.
           </div>
         </div>
       </section>
@@ -893,7 +822,7 @@ export default function Homepage() {
       {/* ========================================================= */}
       <section
         id="about"
-        className={`py-20 sm:py-28 border-t text-center transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
+        className={`py-20 sm:py-28 scroll-mt-20 border-t text-center transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
           }`}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -928,10 +857,10 @@ export default function Homepage() {
                 Programs
               </div>
               <ul className="space-y-2">
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>HIIT & Sprint Burn</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Fat Shred Protocol</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Distance & Marathon</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>1-on-1 Pro Coaching</a></li>
+                <li><a href="#programs" onClick={(e) => { e.preventDefault(); scrollToSection('programs'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>HIIT & Sprint Burn</a></li>
+                <li><a href="#programs" onClick={(e) => { e.preventDefault(); scrollToSection('programs'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Fat Shred Protocol</a></li>
+                <li><a href="#programs" onClick={(e) => { e.preventDefault(); scrollToSection('programs'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Distance & Marathon</a></li>
+                <li><a href="#programs" onClick={(e) => { e.preventDefault(); scrollToSection('programs'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Pro Athlete Track</a></li>
               </ul>
             </div>
 
@@ -940,22 +869,22 @@ export default function Homepage() {
                 Workouts
               </div>
               <ul className="space-y-2">
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>15 Min Warmup</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>45 Min Sprint Blast</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Mobility & Stride Drill</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Nutrition Guide</a></li>
+                <li><a href="#workouts" onClick={(e) => { e.preventDefault(); scrollToSection('workouts'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Squats</a></li>
+                <li><a href="#workouts" onClick={(e) => { e.preventDefault(); scrollToSection('workouts'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Push-ups</a></li>
+                <li><a href="#workouts" onClick={(e) => { e.preventDefault(); scrollToSection('workouts'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Plank</a></li>
+                <li><a href="#workouts" onClick={(e) => { e.preventDefault(); scrollToSection('workouts'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Jumping Jacks</a></li>
               </ul>
             </div>
 
             <div>
               <div className={`font-semibold mb-3 text-sm ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
-                Coaching
+                Resources
               </div>
               <ul className="space-y-2">
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Steve Rock Bio</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Biometric Tracking</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Athlete Reviews</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Schedule Consultation</a></li>
+                <li><a href="#guide" onClick={(e) => { e.preventDefault(); scrollToSection('guide'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>System Guide</a></li>
+                <li><a href="#programs" onClick={(e) => { e.preventDefault(); scrollToSection('programs'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Biometric Tracking</a></li>
+                <li><a href="#workouts" onClick={(e) => { e.preventDefault(); scrollToSection('workouts'); }} className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Movement Library</a></li>
+                <li><button type="button" onClick={handleTrackNow} className={`text-left cursor-pointer ${darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}`}>Start Workout</button></li>
               </ul>
             </div>
 

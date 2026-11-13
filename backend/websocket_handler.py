@@ -9,6 +9,7 @@ from angle_utils import extract_joint_angles
 from landmark_normalizer import normalize_landmarks, flatten_landmarks_for_ml
 from form_checker import FormChecker
 from session_manager import session_manager
+from exercise_counters import create_counter
 from exercise_classifier import exercise_classifier
 from dataset_recorder import dataset_recorder
 
@@ -125,15 +126,18 @@ async def handle_workout_websocket(websocket: WebSocket, session_id: str):
 
                 # Auto-Detect Exercise classification if requested
                 active_exercise = session.exercise
-                if active_exercise.lower() in ["auto", "auto_detect", "auto-detect"]:
+                if getattr(session, "is_auto_detect", False) or active_exercise.lower() in ["auto", "auto_detect", "auto-detect"]:
                     feature_vec = flatten_landmarks_for_ml(norm_landmarks, smoothed_angles)
                     session.feature_history.append(feature_vec)
                     if len(session.feature_history) > 30:
                         session.feature_history.pop(0)
                     detected_exercise = exercise_classifier.classify(session.feature_history, smoothed_angles, landmarks)
-                    if detected_exercise != session.counter.__class__.__name__:
-                        active_exercise = detected_exercise
-                        session.change_exercise(detected_exercise)
+                    target_counter_cls = create_counter(detected_exercise).__class__
+                    if not isinstance(session.counter, target_counter_cls):
+                        session.counter = create_counter(detected_exercise)
+                        session.smoother.reset()
+                    session.detected_exercise = detected_exercise
+                    active_exercise = detected_exercise
 
                 # Update exercise state machine & rep counter
                 counter_result = session.counter.update(smoothed_angles, landmarks)

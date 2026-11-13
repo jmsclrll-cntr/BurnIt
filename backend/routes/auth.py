@@ -37,19 +37,26 @@ async def login(credentials: UserLogin):
 
     # Check default admin shortcut credentials
     if clean_username == settings.ADMIN_USERNAME and credentials.password == settings.ADMIN_PASSWORD:
+        async with get_db() as cur:
+            await cur.execute("SELECT * FROM users WHERE username = %s", (clean_username,))
+            admin_user = await cur.fetchone()
+            if not admin_user:
+                admin_id = "admin_01"
+                pwd_hash = hash_password(settings.ADMIN_PASSWORD)
+                await cur.execute("""
+                    INSERT INTO users (id, username, password_hash, is_admin, name, is_profile_completed)
+                    VALUES (%s, %s, %s, 1, 'Administrator', 1)
+                """, (admin_id, clean_username, pwd_hash))
+                await cur.execute("SELECT * FROM users WHERE id = %s", (admin_id,))
+                admin_user = await cur.fetchone()
+
         token = create_access_token({"sub": settings.ADMIN_USERNAME, "is_admin": True})
-        admin_profile = UserProfile(
-            id="admin_01",
-            username=settings.ADMIN_USERNAME,
-            name="Administrator",
-            is_profile_completed=True,
-            is_admin=True,
-        )
+        profile = user_row_to_profile(admin_user)
         return TokenResponse(
             access_token=token,
             username=settings.ADMIN_USERNAME,
             is_admin=True,
-            user=admin_profile,
+            user=profile,
         )
 
     async with get_db() as cur:
@@ -110,18 +117,20 @@ async def register(user: UserCreate):
 @router.get("/me", response_model=UserProfile)
 async def get_current_user_profile(auth_user: dict = Depends(require_authenticated_user)):
     username = auth_user["username"]
-    if username == settings.ADMIN_USERNAME:
-        return UserProfile(
-            id="admin_01",
-            username=settings.ADMIN_USERNAME,
-            name="Administrator",
-            is_profile_completed=True,
-            is_admin=True,
-        )
 
     async with get_db() as cur:
         await cur.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = await cur.fetchone()
+        if not user and username == settings.ADMIN_USERNAME:
+            admin_id = "admin_01"
+            pwd_hash = hash_password(settings.ADMIN_PASSWORD)
+            await cur.execute("""
+                INSERT INTO users (id, username, password_hash, is_admin, name, is_profile_completed)
+                VALUES (%s, %s, %s, 1, 'Administrator', 1)
+            """, (admin_id, username, pwd_hash))
+            await cur.execute("SELECT * FROM users WHERE id = %s", (admin_id,))
+            user = await cur.fetchone()
+
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         return user_row_to_profile(user)
@@ -151,7 +160,15 @@ async def update_profile(body: UserProfileUpdate, auth_user: dict = Depends(requ
     async with get_db() as cur:
         await cur.execute("SELECT name FROM users WHERE username = %s", (username,))
         existing_user = await cur.fetchone()
-        if not existing_user:
+        if not existing_user and username == settings.ADMIN_USERNAME:
+            admin_id = "admin_01"
+            pwd_hash = hash_password(settings.ADMIN_PASSWORD)
+            await cur.execute("""
+                INSERT INTO users (id, username, password_hash, is_admin, name, is_profile_completed)
+                VALUES (%s, %s, %s, 1, 'Administrator', 1)
+            """, (admin_id, username, pwd_hash))
+            existing_user = {"name": "Administrator"}
+        elif not existing_user:
             raise HTTPException(status_code=404, detail="User record not found")
 
         current_name = existing_user.get("name") or username
