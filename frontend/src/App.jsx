@@ -4,6 +4,10 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import ScrollRevealManager from './components/ScrollRevealManager';
 import Homepage from './pages/homepage';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import Cookies from './pages/Cookies';
+import Contact from './pages/Contact';
 import { RealtimeTracker } from './pages/tracker/RealtimeTracker';
 import AdminRecorder from './pages/tracker/AdminRecorder';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -25,7 +29,10 @@ export default function App() {
           <FloatingThemeToggle />
           <FloatingGuideToggle />
           <Routes>
-            <Route path="/" element={<Homepage />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/cookies" element={<Cookies />} />
+            <Route path="/contact" element={<Contact />} />
             <Route
               path="/tracker"
               element={
@@ -35,6 +42,7 @@ export default function App() {
               }
             />
             {/* Redirect old intermediate routes directly to realtime camera tracker */}
+            <Route path="/" element={<Homepage />} />
             <Route path="/tracker/session" element={<Navigate to="/tracker" replace />} />
             <Route path="/tracker/select" element={<Navigate to="/tracker" replace />} />
             <Route path="/admin/recorder" element={<AdminRecorder />} />

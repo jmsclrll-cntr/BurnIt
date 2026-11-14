@@ -41,16 +41,16 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. Dataset Metadata Table (Pose Recording & Model Training Data)
-CREATE TABLE IF NOT EXISTS `dataset_metadata` (
-    `id` VARCHAR(64) NOT NULL PRIMARY KEY,
-    `exercise` VARCHAR(64) NOT NULL,
-    `phase` VARCHAR(64) DEFAULT NULL,
-    `form_label` VARCHAR(64) DEFAULT NULL,
-    `error_type` VARCHAR(64) DEFAULT NULL,
-    `subject_id` VARCHAR(64) DEFAULT NULL,
-    `camera_view` VARCHAR(64) DEFAULT NULL,
-    `frame_count` INT DEFAULT 0,
-    `csv_path` VARCHAR(255) DEFAULT NULL,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- CREATE TABLE IF NOT EXISTS `dataset_metadata` (
+--     `id` VARCHAR(64) NOT NULL PRIMARY KEY,
+--     `exercise` VARCHAR(64) NOT NULL,
+--     `phase` VARCHAR(64) DEFAULT NULL,
+--     `form_label` VARCHAR(64) DEFAULT NULL,
+--     `error_type` VARCHAR(64) DEFAULT NULL,
+--     `subject_id` VARCHAR(64) DEFAULT NULL,
+--     `camera_view` VARCHAR(64) DEFAULT NULL,
+--     `frame_count` INT DEFAULT 0,
+--     `csv_path` VARCHAR(255) DEFAULT NULL,
+--     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
