@@ -659,29 +659,16 @@ export const RealtimeTracker = () => {
     <PageWrapper hideFooter={true}>
       <div className="w-full min-h-[calc(100vh-64px)] bg-[#eceef1] dark:bg-[#0b0b0d] py-6 sm:py-8 px-4 sm:px-8 text-[#16161a] dark:text-[#f4f4f5] transition-colors">
         <div className="max-w-7xl mx-auto font-sans">
-          {/* Header: title "Workout tracker" with Home button & muted "Started at hh:mm" */}
+          {/* Header: title "Workout tracker" */}
           <div className="mb-7 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <Link
-                to="/"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs sm:text-sm bg-[#e2e4e9] dark:bg-[#1a1a1f] hover:bg-[#d8dadf] dark:hover:bg-[#25252e] text-[#16161a] dark:text-[#f4f4f5] transition-all shadow-sm hover:scale-105 active:scale-95"
-                title="Back to Home"
-              >
-                <ArrowLeft className="w-4 h-4 text-orange-600" />
-                <span>Home</span>
-              </Link>
-              <div>
-                <h1 className="text-3xl sm:text-4xl md:text-[42px] font-black tracking-tight text-[#16161a] dark:text-[#f4f4f5] leading-tight">
-                  Workout tracker
-                </h1>
-                <p className="text-sm sm:text-base mt-1.5 font-medium text-[#6b6b76] dark:text-[#8b8b94]">
-                  Started at {sessionStartTimeFormatted || '04:37 PM'}
-                </p>
-              </div>
+            <div>
+              <h1 className="text-3xl sm:text-4xl md:text-[42px] font-black tracking-tight text-[#16161a] dark:text-[#f4f4f5] leading-tight">
+                Workout <span className="text-[#ea580c] dark:text-orange-500">tracker</span>
+              </h1>
             </div>
 
             {/* Exercise pills on the right: selected is filled orange, others outlined/gray */}
-            <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto overflow-y-hidden py-1.5 no-scrollbar">
               {EXERCISES.map((ex) => {
                 const isSelected = activeExercise === ex.id;
                 return (
@@ -689,7 +676,7 @@ export const RealtimeTracker = () => {
                     key={ex.id}
                     onClick={() => setActiveExercise(ex.id)}
                     className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${isSelected
-                      ? 'bg-[#ea580c] text-white shadow-md shadow-orange-600/30 scale-105'
+                      ? 'bg-[#ea580c] text-white shadow-md shadow-orange-600/30 font-bold'
                       : 'bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#4b5563] dark:text-[#8b8b94] hover:text-[#16161a] dark:hover:text-[#f4f4f5] hover:bg-[#d8dadf] dark:hover:bg-[#25252e]'
                       }`}
                   >
@@ -927,6 +914,7 @@ export const RealtimeTracker = () => {
                 exerciseGroups={exerciseGroups}
                 activeSet={activeSet}
                 currentExercise={currentExercise}
+                activeExercise={activeExercise}
                 now={trackerNow}
                 onEndSet={endActiveSet}
               />

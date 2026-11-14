@@ -25,13 +25,25 @@ function formatMMSS(totalSeconds) {
 export default function SetTrackerStepper({
   exerciseGroups = {},
   activeSet = null,
-  currentExercise = 'squat',
+  currentExercise = null,
+  activeExercise = 'auto',
   now = 0,
   onEndSet,
 }) {
-  // Determine which exercise groups to display
+  // Determine effective primary exercise to track:
+  // 1. If user explicitly selected an exercise (!== 'auto'), track that form!
+  // 2. If auto-detect has detected a form (currentExercise !== 'auto'), track that form!
+  // 3. If finished sets exist, show all finished exercise groups.
+  // 4. If nothing tracked yet and in auto-detect, display the first form tracking slot.
+  const activeExKey = activeExercise !== 'auto'
+    ? activeExercise
+    : (currentExercise && currentExercise !== 'auto' ? currentExercise : 'auto');
+
+  const finishedKeys = Object.keys(exerciseGroups).filter((k) => k && k !== 'auto');
+
+  // Combine finished exercises + current active form
   const allExerciseKeys = Array.from(
-    new Set([...Object.keys(exerciseGroups), currentExercise].filter((k) => k && k !== 'auto'))
+    new Set([...finishedKeys, activeExKey])
   );
 
   return (
@@ -46,7 +58,7 @@ export default function SetTrackerStepper({
         allExerciseKeys.map((exKey) => {
           const info = EXERCISE_INFO[exKey] || { name: exKey.toUpperCase() };
           const finishedSets = exerciseGroups[exKey] || [];
-          const isCurrentExercise = currentExercise === exKey;
+          const isCurrentExercise = (currentExercise === exKey) || (activeExercise === exKey);
           const currentActive = isCurrentExercise ? activeSet : null;
           const isPlank = exKey === 'plank';
 
@@ -66,11 +78,17 @@ export default function SetTrackerStepper({
 
           // If no sets yet for this exercise, show a ready placeholder row
           if (rows.length === 0) {
+            const isAuto = exKey === 'auto';
             return (
               <div key={exKey} className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
-                    {info.name}
+                  <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-2">
+                    <span>{info.name}</span>
+                    {isAuto && (
+                      <span className="text-[10px] normal-case font-semibold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">
+                        First form
+                      </span>
+                    )}
                   </h4>
                   <span className="text-[11px] font-mono font-bold text-neutral-800 dark:text-neutral-400">0 sets</span>
                 </div>
@@ -79,7 +97,7 @@ export default function SetTrackerStepper({
                     1
                   </div>
                   <span className="text-xs text-neutral-800 dark:text-neutral-400 italic font-medium">
-                    Ready for 1st rep...
+                    {isAuto ? 'Ready for 1st rep · First tracked form will record here' : 'Ready for 1st rep...'}
                   </span>
                 </div>
               </div>

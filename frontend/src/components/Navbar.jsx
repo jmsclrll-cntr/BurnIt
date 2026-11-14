@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   Flame,
   Home,
+  ArrowLeft,
   Menu,
   X,
   Maximize,
@@ -38,7 +39,7 @@ export default function Navbar() {
         }`}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand Logo on the left */}
+        {/* Brand Logo on the left (links to home) */}
         <Link to="/" className="flex items-center gap-2.5 group">
           <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
             <Flame className="w-4 h-4 text-white fill-white" />
@@ -52,23 +53,8 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Center Desktop Navigation / Home Button */}
-        {isTrackerPage ? (
-          <div className="flex items-center gap-2">
-            <Link
-              to="/"
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold tracking-tight transition-all shadow-sm ${
-                darkMode
-                  ? 'bg-neutral-800/90 hover:bg-neutral-700 text-white border border-neutral-700 hover:scale-105 active:scale-95'
-                  : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-900 border border-neutral-300 hover:scale-105 active:scale-95'
-              }`}
-              title="Go to Home"
-            >
-              <Home className="w-4 h-4 text-orange-500" />
-              <span>Home</span>
-            </Link>
-          </div>
-        ) : (
+        {/* Center Desktop Navigation (only on non-tracker pages) */}
+        {!isTrackerPage ? (
           <nav className="hidden lg:flex items-center gap-1 sm:gap-2">
             {navItems.map((item) => {
               return (
@@ -85,10 +71,27 @@ export default function Navbar() {
               )
             })}
           </nav>
+        ) : (
+          <div className="hidden lg:block" />
         )}
 
-        {/* Right Desktop Controls - Fullscreen & Profile Icon Only (Big Icons) */}
+        {/* Right Desktop Controls - Home (Tracker only), Fullscreen & Profile */}
         <div className="hidden sm:flex items-center gap-3">
+          {/* Home Icon Button - Only displayed on Tracker page */}
+          {isTrackerPage && (
+            <Link
+              to="/"
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${darkMode
+                ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
+                : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/80 text-neutral-700 shadow-neutral-900/10'
+                }`}
+              title="Home"
+              aria-label="Home"
+            >
+              <Home className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
+            </Link>
+          )}
+
           {/* Fullscreen Toggle placed right next to Profile Icon */}
           <button
             type="button"
@@ -122,6 +125,16 @@ export default function Navbar() {
 
         {/* Mobile Right Controls */}
         <div className="flex sm:hidden items-center gap-1.5">
+          {isTrackerPage && (
+            <Link
+              to="/"
+              className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-neutral-600'}`}
+              title="Home"
+              aria-label="Home"
+            >
+              <Home className="w-5 h-5 text-orange-500" />
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => enterFullScreen()}
@@ -159,7 +172,7 @@ export default function Navbar() {
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-2.5 text-base font-bold py-2 text-white hover:text-orange-400"
             >
-              <Home className="w-5 h-5 text-orange-500" />
+              <ArrowLeft className="w-5 h-5 text-orange-500" />
               <span>Back to Home</span>
             </Link>
           ) : (

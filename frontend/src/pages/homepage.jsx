@@ -99,7 +99,7 @@ export default function Homepage() {
       video: '/videos/squat.mp4',
       fallback: '/gifs/squats.gif',
       desc: 'Real-time knee and hip angle tracking, squat depth verification, and knee alignment feedback.',
-      pos: 'top',
+      metric: 'Knee Flexion & Depth',
       focus: 'center 40%',
     },
     {
@@ -107,7 +107,7 @@ export default function Homepage() {
       video: '/videos/pushup.mp4',
       fallback: '/gifs/pushups.gif',
       desc: 'Real-time elbow extension measurement, chest-to-floor depth verification, and full-body plank alignment.',
-      pos: 'top',
+      metric: 'Elbow Flexion & Depth',
       focus: 'center 50%',
     },
     {
@@ -115,7 +115,7 @@ export default function Homepage() {
       video: '/videos/plank.mp4',
       fallback: '/gifs/plank.gif',
       desc: 'Real-time shoulder, hip, and ankle linear posture tracking with automatic hold-time calculation.',
-      pos: 'bottom',
+      metric: 'Spine Alignment & Hold Time',
       focus: 'center 60%',
     },
     {
@@ -123,7 +123,7 @@ export default function Homepage() {
       video: '/videos/jumping.mp4',
       fallback: '/gifs/jumpingjacks.gif',
       desc: 'Real-time overhead arm abduction and leg spread cadence tracking for synchronized rep validation.',
-      pos: 'top',
+      metric: 'Arm Abduction & Cadence',
       focus: 'center 40%',
     },
     {
@@ -131,7 +131,7 @@ export default function Homepage() {
       video: '/videos/curl.mp4',
       fallback: '/gifs/bicepcurls.gif',
       desc: 'Real-time bilateral elbow flexion tracking with full range-of-motion validation and curl form checks.',
-      pos: 'bottom',
+      metric: 'Elbow Flexion Range',
       focus: 'center 45%',
     },
   ]
@@ -506,42 +506,28 @@ export default function Homepage() {
       </section>
 
       {/* ========================================================= */}
-      {/* EXERCISES THE SYSTEM CAN DETECT (DATA-DRIVEN DEMO SECTION) */}
+      {/* EXERCISES THE SYSTEM CAN DETECT                           */}
       {/* ========================================================= */}
       <section
         id="programs"
-        className="w-full transition-colors duration-300"
-        style={{
-          backgroundColor: '#0e0f14',
-          fontFamily: "'Montserrat', sans-serif",
-        }}
+        className={`py-20 sm:py-28 transition-colors duration-300 ${
+          darkMode ? 'bg-[#0e0e12]' : 'bg-[#FFFFFF]'
+        }`}
       >
-        <div
-          className="w-full mx-auto"
-          style={{
-            maxWidth: '900px',
-            padding: '40px 20px',
-            boxSizing: 'border-box',
-          }}
-        >
-          {/* Heading & Subtitle */}
-          <div className="text-center">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Heading & Subtitle aligned with overall UI design */}
+          <div className="text-center max-w-3xl mx-auto">
             <h2
-              className="text-[28px] sm:text-[40px] text-white leading-tight tracking-[-0.02em]"
-              style={{
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontWeight: 300,
-              }}
+              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight ${
+                darkMode ? 'text-white' : 'text-[#202124]'
+              }`}
             >
-              Exercises the System <span style={{ fontWeight: 500 }}>Can Detect</span>
+              Exercises the System <span className="font-extrabold text-emerald-500 dark:text-emerald-400">Can Detect</span>
             </h2>
             <p
-              className="mt-3 text-[13px] sm:text-[14px] mx-auto text-center leading-[1.5]"
-              style={{
-                color: '#9aa1b2',
-                maxWidth: '480px',
-                fontFamily: "'Montserrat', sans-serif",
-              }}
+              className={`mt-3 text-sm sm:text-base md:text-lg leading-relaxed ${
+                darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
+              }`}
             >
               Real-time 33-point pose estimation, joint angle measurement, and automated rep counting for supported workouts.
             </p>
@@ -552,8 +538,9 @@ export default function Homepage() {
             id="workouts"
             role="tablist"
             aria-label="Exercises"
-            className="mt-9 flex items-center justify-center gap-7 border-b border-[#2a2f3d] overflow-x-auto no-scrollbar"
-            style={{ borderColor: '#2a2f3d' }}
+            className={`mt-8 sm:mt-10 flex items-center justify-center gap-6 sm:gap-9 border-b overflow-x-auto no-scrollbar ${
+              darkMode ? 'border-neutral-800' : 'border-neutral-200'
+            }`}
           >
             {exercises.map((item, index) => {
               const isSelected = index === activeTab
@@ -568,17 +555,16 @@ export default function Homepage() {
                   tabIndex={isSelected ? 0 : -1}
                   onClick={() => switchTab(index)}
                   onKeyDown={(e) => handleTabKeyDown(e, index)}
-                  className={`relative pb-3.5 pt-2.5 px-1 text-[13.5px] sm:text-[15px] font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-[#f97316] focus-visible:outline-offset-4 focus-visible:rounded ${
+                  className={`relative pb-3.5 pt-2 px-1 text-sm sm:text-base font-semibold transition-colors duration-200 cursor-pointer whitespace-nowrap bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-orange-500 focus-visible:outline-offset-4 focus-visible:rounded ${
                     isSelected
-                      ? 'text-white font-semibold'
-                      : 'text-[#9aa1b2] hover:text-white'
+                      ? darkMode ? 'text-white font-bold' : 'text-neutral-900 font-bold'
+                      : darkMode ? 'text-neutral-400 hover:text-white' : 'text-[#5F6368] hover:text-[#202124]'
                   }`}
-                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
                   <span>{item.name}</span>
                   {isSelected && (
                     <span
-                      className="absolute left-0 right-0 -bottom-[1px] h-[2px] bg-[#f97316] rounded-t-sm"
+                      className="absolute left-0 right-0 -bottom-[1px] h-[2px] bg-orange-500 rounded-t-sm"
                       aria-hidden="true"
                     />
                   )}
@@ -587,54 +573,51 @@ export default function Homepage() {
             })}
           </div>
 
-          {/* 16:9 Video Frame */}
+          {/* Showcase Card with Exercise Text OUTSIDE the Video Frame */}
           <div
             id="exercise-panel"
             role="tabpanel"
             aria-labelledby={`tab-${activeTab}`}
             aria-live="polite"
-            className="mt-8 relative w-full aspect-video rounded-[14px] overflow-hidden bg-black shadow-2xl"
+            className="mt-8 max-w-4xl mx-auto"
           >
-            <video
-              key={exercises[displayedIndex].video}
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster={exercises[displayedIndex].fallback}
-              style={{
-                objectPosition: exercises[displayedIndex].focus || 'center center',
-              }}
-              className="w-full h-full object-cover block bg-black"
-            >
-              <source src={exercises[displayedIndex].video} type="video/mp4" />
-            </video>
-
-            {/* Overlay Text Column on Video (27% width, min 150px, 16px inset, top/bottom) */}
+            {/* Exercise Info placed cleanly OUTSIDE the video frame */}
             <div
-              className={`absolute left-3 sm:left-4 z-10 w-[46%] sm:w-[27%] min-w-[150px] pointer-events-none transition-opacity duration-200 ease-in-out ${
-                exercises[displayedIndex].pos === 'bottom'
-                  ? 'bottom-3 sm:bottom-4 top-auto'
-                  : 'top-3 sm:top-4 bottom-auto'
-              }`}
-              style={{
-                opacity: overlayOpacity,
-                fontFamily: "'Montserrat', sans-serif",
-              }}
-              aria-atomic="true"
+              className="mb-4 px-1 transition-opacity duration-200 ease-in-out text-left"
+              style={{ opacity: overlayOpacity }}
             >
-              <h3
-                className="text-[18px] sm:text-[22px] font-semibold text-[#ea580c] leading-tight mb-1 tracking-tight"
-                style={{ color: '#ea580c', fontWeight: 600 }}
-              >
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-orange-500 tracking-tight">
                 {exercises[displayedIndex].name}
               </h3>
               <p
-                className="text-[11.5px] sm:text-[13px] font-medium text-[#ea580c] leading-[1.5]"
-                style={{ color: '#ea580c', fontWeight: 500 }}
+                className={`mt-1 text-sm sm:text-base font-medium leading-relaxed max-w-2xl ${
+                  darkMode ? 'text-neutral-300' : 'text-neutral-600'
+                }`}
               >
                 {exercises[displayedIndex].desc}
               </p>
+            </div>
+
+            {/* 16:9 Video Frame: clean, edge-to-edge, zero text inside */}
+            <div
+              className={`relative w-full aspect-video rounded-2xl overflow-hidden border shadow-2xl ${
+                darkMode ? 'bg-black border-neutral-800' : 'bg-neutral-950 border-neutral-200'
+              }`}
+            >
+              <video
+                key={exercises[displayedIndex].video}
+                autoPlay
+                muted
+                loop
+                playsInline
+                poster={exercises[displayedIndex].fallback}
+                style={{
+                  objectPosition: exercises[displayedIndex].focus || 'center center',
+                }}
+                className="w-full h-full object-cover block bg-black"
+              >
+                <source src={exercises[displayedIndex].video} type="video/mp4" />
+              </video>
             </div>
           </div>
         </div>
