@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { BookOpen, X, CheckCircle2, Flame, Camera, Activity, Award } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 
 export default function FloatingGuideToggle() {
   const { darkMode } = useTheme();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
   // Close on Escape key
@@ -16,6 +18,11 @@ export default function FloatingGuideToggle() {
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
+
+  // Only display the floating guide book in tracker, not on the home page
+  if (location.pathname !== '/tracker') {
+    return null;
+  }
 
   const steps = [
     {

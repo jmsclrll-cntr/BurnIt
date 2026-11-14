@@ -9,6 +9,7 @@ import {
   Award,
   Menu,
   X,
+  ChevronLeft,
   ChevronRight,
   ChevronDown,
   Sun,
@@ -28,7 +29,10 @@ export default function Homepage() {
   const { darkMode, toggleDarkMode, isFullscreen, enterFullScreen } = useTheme()
   const { isAuthenticated, user, openLogin, logout } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState(0)
+  const [activeTab, setActiveTab] = useState(1) // Start on the second tab (Push-Up)
+  const [displayedIndex, setDisplayedIndex] = useState(1)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [overlayOpacity, setOverlayOpacity] = useState(1)
   const [activeDropdown, setActiveDropdown] = useState(null)
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -89,53 +93,93 @@ export default function Homepage() {
     ],
   }
 
-  const detectableExercises = [
+  const exercises = [
     {
-      id: 'squat',
-      title: 'Squat',
-      tag: 'Lower Body',
-      icon: Activity,
-      desc: 'Real-time knee and hip angle tracking, depth verification, and knee alignment feedback.',
-      metric: 'Knee Flexion & Depth',
-      image: '/gifs/squats.gif',
+      name: 'Squat',
+      video: '/videos/squat.mp4',
+      fallback: '/gifs/squats.gif',
+      desc: 'Real-time knee and hip angle tracking, squat depth verification, and knee alignment feedback.',
+      pos: 'top',
+      focus: 'center 40%',
     },
     {
-      id: 'pushup',
-      title: 'Push-Up',
-      tag: 'Upper Body',
-      icon: Flame,
-      desc: 'Real-time elbow extension tracking, chest depth verification, and full-body plank alignment.',
-      metric: 'Elbow Flexion & Depth',
-      image: '/gifs/pushups.gif',
+      name: 'Push-Up',
+      video: '/videos/pushup.mp4',
+      fallback: '/gifs/pushups.gif',
+      desc: 'Real-time elbow extension measurement, chest-to-floor depth verification, and full-body plank alignment.',
+      pos: 'top',
+      focus: 'center 50%',
     },
     {
-      id: 'plank',
-      title: 'Plank',
-      tag: 'Core Stability',
-      icon: Timer,
-      desc: 'Real-time shoulder-hip-ankle line detection with an automated posture hold timer.',
-      metric: 'Spine Alignment & Hold Time',
-      image: '/gifs/plank.gif',
+      name: 'Plank',
+      video: '/videos/plank.mp4',
+      fallback: '/gifs/plank.gif',
+      desc: 'Real-time shoulder, hip, and ankle linear posture tracking with automatic hold-time calculation.',
+      pos: 'bottom',
+      focus: 'center 60%',
     },
     {
-      id: 'jumpingjack',
-      title: 'Jumping Jack',
-      tag: 'Cardio Blast',
-      icon: Zap,
-      desc: 'Real-time overhead arm reach and leg spread cadence tracking with automated rep synchronization.',
-      metric: 'Arm Abduction & Cadence',
-      image: '/gifs/jumpingjacks.gif',
+      name: 'Jumping Jack',
+      video: '/videos/jumping.mp4',
+      fallback: '/gifs/jumpingjacks.gif',
+      desc: 'Real-time overhead arm abduction and leg spread cadence tracking for synchronized rep validation.',
+      pos: 'top',
+      focus: 'center 40%',
     },
     {
-      id: 'bicepcurl',
-      title: 'Bicep Curl',
-      tag: 'Arm Isolation',
-      icon: Award,
-      desc: 'Real-time elbow angle measurement with full range of motion validation and form verification.',
-      metric: 'Elbow Flexion Range',
-      image: '/gifs/bicepcurls.gif',
+      name: 'Bicep Curl',
+      video: '/videos/curl.mp4',
+      fallback: '/gifs/bicepcurls.gif',
+      desc: 'Real-time bilateral elbow flexion tracking with full range-of-motion validation and curl form checks.',
+      pos: 'bottom',
+      focus: 'center 45%',
     },
   ]
+
+  const switchTab = (newIndex) => {
+    if (isTransitioning || newIndex === activeTab) return
+    setIsTransitioning(true)
+    setOverlayOpacity(0)
+
+    const reducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const duration = reducedMotion ? 0 : 200
+
+    setTimeout(() => {
+      setActiveTab(newIndex)
+      setDisplayedIndex(newIndex)
+      setTimeout(() => {
+        setOverlayOpacity(1)
+        setTimeout(() => {
+          setIsTransitioning(false)
+        }, duration)
+      }, 30)
+    }, duration)
+  }
+
+  const handleTabKeyDown = (e, index) => {
+    const count = exercises.length
+    let target = null
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault()
+      target = (index + 1) % count
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      target = (index - 1 + count) % count
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      target = 0
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      target = count - 1
+    }
+    if (target !== null) {
+      const el = document.getElementById(`exercise-tab-${target}`)
+      if (el) el.focus()
+      switchTab(target)
+    }
+  }
 
   return (
     <div
@@ -182,64 +226,33 @@ export default function Homepage() {
             </div>
           </a>
 
-          {/* Center Links (Direct Section Navigation, Thicker Font, No Dropdowns) */}
-          <nav className="hidden lg:flex items-center gap-1 sm:gap-2">
+          {/* Center Links (Visible, High Contrast, Updated Items: Home, Workout, Guide, About) */}
+          <nav className="hidden lg:flex items-center gap-1.5 sm:gap-2.5 bg-black/50 backdrop-blur-md px-5 py-2 rounded-full border border-white/20 shadow-xl">
             {[
               { label: 'Home', target: 'home' },
-              { label: 'Tracker', path: '/tracker' },
-              { label: 'Programs', target: 'programs' },
-              { label: 'Workouts', target: 'workouts' },
-              { label: 'Coaching', target: 'coaching' },
+              { label: 'Workout', target: 'programs' },
+              { label: 'Guide', target: 'coaching' },
               { label: 'About', target: 'about' },
-            ].map((item) => {
-              const isTracker = item.path === '/tracker';
-
-              if (isTracker) {
-                return (
-                  <Link
-                    key={item.label}
-                    to="/tracker"
-                    className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1.5 ${
-                      !scrolled
-                        ? 'text-neutral-100 hover:text-white hover:bg-white/10'
-                        : darkMode
-                          ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
-                          : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
-                    }`}
-                  >
-                    <span>Tracker</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse ml-0.5" />
-                  </Link>
-                );
-              }
-
-              return (
-                <a
-                  key={item.label}
-                  href={`#${item.target}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (item.target === 'home') {
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                      const el = document.getElementById(item.target);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
+            ].map((item) => (
+              <a
+                key={item.label}
+                href={`#${item.target}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (item.target === 'home') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    const el = document.getElementById(item.target);
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
-                  }}
-                  className={`px-3.5 py-2 rounded-full text-sm font-semibold tracking-tight transition-colors flex items-center gap-1 ${
-                    !scrolled
-                      ? 'text-neutral-100 hover:text-white hover:bg-white/10'
-                      : darkMode
-                        ? 'text-neutral-300 hover:text-white hover:bg-neutral-800/60'
-                        : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <span>{item.label}</span>
-                </a>
-              );
-            })}
+                  }
+                }}
+                className="px-4 py-1.5 rounded-full text-[15px] font-extrabold tracking-tight text-white hover:text-orange-400 hover:bg-white/15 transition-all duration-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
+              >
+                <span>{item.label}</span>
+              </a>
+            ))}
           </nav>
 
           {/* Right Side: Fullscreen & Profile Icon Only (Big Icons) */}
@@ -323,50 +336,42 @@ export default function Homepage() {
           >
             {[
               { label: 'Home', target: 'home' },
-              { label: 'Tracker', path: '/tracker' },
-              { label: 'Workouts', target: 'programs' },
-              { label: 'Guide', target: 'workouts' },
-              { label: 'Coaching', target: 'coaching' },
+              { label: 'Workout', target: 'programs' },
+              { label: 'Guide', target: 'coaching' },
               { label: 'About', target: 'about' },
-            ].map((item) => {
-              if (item.path) {
-                return (
-                  <Link
-                    key={item.label}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block text-base font-bold py-1.5 ${
-                      darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              }
-              return (
-                <a
-                  key={item.label}
-                  href={`#${item.target}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setMobileMenuOpen(false);
-                    if (item.target === 'home') {
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                      const el = document.getElementById(item.target);
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
+            ].map((item) => (
+              <a
+                key={item.label}
+                href={`#${item.target}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileMenuOpen(false);
+                  if (item.target === 'home') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    const el = document.getElementById(item.target);
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
-                  }}
-                  className={`block text-base font-bold py-1.5 ${
-                    darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
-                  }`}
-                >
-                  {item.label}
-                </a>
-              );
-            })}
+                  }
+                }}
+                className={`block text-base font-bold py-1.5 ${
+                  darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
+                }`}
+              >
+                {item.label}
+              </a>
+            ))}
+            <div className="pt-2">
+              <Link
+                to="/tracker"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-orange-600 text-white text-sm font-bold shadow-md shadow-orange-600/30"
+              >
+                <span>Workout Tracker</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
             {isAuthenticated ? (
               <div className="pt-3 border-t border-neutral-800/40 space-y-3">
                 <div className="flex items-center justify-between">
@@ -481,148 +486,155 @@ export default function Homepage() {
             {isAuthenticated ? (
               <Link
                 to="/tracker"
-                className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base font-semibold shadow-lg shadow-orange-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
+                className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base sm:text-lg font-black tracking-wide shadow-xl shadow-orange-600/35 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
               >
-                <span>GET STARTED</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                <span>WORKOUT TRACKER</span>
+                <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
             ) : (
               <button
                 type="button"
                 onClick={() => openLogin('/tracker')}
-                className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base font-semibold shadow-lg shadow-orange-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
+                className="group btn-glow-pulse inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-base sm:text-lg font-black tracking-wide shadow-xl shadow-orange-600/35 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 cursor-pointer"
               >
-                <span>GET STARTED</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                <span>WORKOUT TRACKER</span>
+                <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
               </button>
             )}
-            <a
-              href="#programs"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-full text-base font-semibold border border-white/20 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white backdrop-blur-md shadow-sm hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
-            >
-              <span>COACHING</span>
-            </a>
           </div>
         </div>
       </section>
 
       {/* ========================================================= */}
-      {/* FEATURE CARDS / TABS SECTION                           */}
+      {/* EXERCISES THE SYSTEM CAN DETECT (DATA-DRIVEN DEMO SECTION) */}
       {/* ========================================================= */}
       <section
         id="programs"
-        className={`py-24 sm:py-28 transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12]' : 'bg-[#FFFFFF]'
-          }`}
+        className="w-full transition-colors duration-300"
+        style={{
+          backgroundColor: '#0e0f14',
+          fontFamily: "'Montserrat', sans-serif",
+        }}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
-              Supported Movements
-            </span>
+        <div
+          className="w-full mx-auto"
+          style={{
+            maxWidth: '900px',
+            padding: '40px 20px',
+            boxSizing: 'border-box',
+          }}
+        >
+          {/* Heading & Subtitle */}
+          <div className="text-center">
             <h2
-              className={`text-3xl sm:text-4xl font-bold tracking-tight mt-1 ${darkMode ? 'text-white' : 'text-[#202124]'
-                }`}
+              className="text-[28px] sm:text-[40px] text-white leading-tight tracking-[-0.02em]"
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontWeight: 300,
+              }}
             >
-              Exercises the System Can Detect
+              Exercises the System <span style={{ fontWeight: 500 }}>Can Detect</span>
             </h2>
             <p
-              className={`mt-3 text-base ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-                }`}
+              className="mt-3 text-[13px] sm:text-[14px] mx-auto text-center leading-[1.5]"
+              style={{
+                color: '#9aa1b2',
+                maxWidth: '480px',
+                fontFamily: "'Montserrat', sans-serif",
+              }}
             >
               Real-time 33-point pose estimation, joint angle measurement, and automated rep counting for supported workouts.
             </p>
           </div>
 
-          {/* Interactive Feature Tabs */}
-          <div id="workouts" className="mt-12 flex justify-center flex-wrap gap-2 sm:gap-3 scroll-reveal">
-            {detectableExercises.map((ex, idx) => {
-              const Icon = ex.icon
-              const isActive = activeTab === idx
+          {/* Underline-Style Tabs Navigation */}
+          <div
+            id="workouts"
+            role="tablist"
+            aria-label="Exercises"
+            className="mt-9 flex items-center justify-center gap-7 border-b border-[#2a2f3d] overflow-x-auto no-scrollbar"
+            style={{ borderColor: '#2a2f3d' }}
+          >
+            {exercises.map((item, index) => {
+              const isSelected = index === activeTab
               return (
                 <button
+                  key={item.name}
                   type="button"
-                  key={ex.id}
-                  onClick={() => setActiveTab(idx)}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-full text-sm font-medium transition-all ${isActive
-                    ? 'bg-orange-600 text-white shadow-sm'
-                    : darkMode
-                      ? 'bg-neutral-800/80 text-neutral-300 hover:bg-neutral-700'
-                      : 'bg-[#F1F3F4] text-[#3C4043] hover:bg-neutral-200'
-                    }`}
+                  id={`tab-${index}`}
+                  role="tab"
+                  aria-selected={isSelected}
+                  aria-controls="exercise-panel"
+                  tabIndex={isSelected ? 0 : -1}
+                  onClick={() => switchTab(index)}
+                  onKeyDown={(e) => handleTabKeyDown(e, index)}
+                  className={`relative pb-3.5 pt-2.5 px-1 text-[13.5px] sm:text-[15px] font-medium transition-colors duration-200 cursor-pointer whitespace-nowrap bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-[#f97316] focus-visible:outline-offset-4 focus-visible:rounded ${
+                    isSelected
+                      ? 'text-white font-semibold'
+                      : 'text-[#9aa1b2] hover:text-white'
+                  }`}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{ex.title}</span>
+                  <span>{item.name}</span>
+                  {isSelected && (
+                    <span
+                      className="absolute left-0 right-0 -bottom-[1px] h-[2px] bg-[#f97316] rounded-t-sm"
+                      aria-hidden="true"
+                    />
+                  )}
                 </button>
               )
             })}
           </div>
 
-          {/* Active Tab Showcase Card */}
+          {/* 16:9 Video Frame */}
           <div
-            key={activeTab}
-            className={`mt-10 max-w-4xl mx-auto border rounded-2xl p-6 sm:p-10 shadow-sm transition-all duration-300 animate-in fade-in-50 zoom-in-[0.99] ${darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#F8F9FA] border-neutral-200/80'
-              }`}
+            id="exercise-panel"
+            role="tabpanel"
+            aria-labelledby={`tab-${activeTab}`}
+            aria-live="polite"
+            className="mt-8 relative w-full aspect-video rounded-[14px] overflow-hidden bg-black shadow-2xl"
           >
-            <div
-              className={`flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b gap-4 ${darkMode ? 'border-neutral-800' : 'border-neutral-200'
-                }`}
+            <video
+              key={exercises[displayedIndex].video}
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={exercises[displayedIndex].fallback}
+              style={{
+                objectPosition: exercises[displayedIndex].focus || 'center center',
+              }}
+              className="w-full h-full object-cover block bg-black"
             >
-              <div>
-                <span
-                  className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold mb-2 ${darkMode
-                    ? 'bg-orange-500/20 text-orange-400'
-                    : 'bg-orange-100 text-orange-600'
-                    }`}
-                >
-                  {detectableExercises[activeTab].tag}
-                </span>
-                <h3
-                  className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-[#202124]'
-                    }`}
-                >
-                  {detectableExercises[activeTab].title}
-                </h3>
-                <p
-                  className={`text-sm mt-1 max-w-xl ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-                    }`}
-                >
-                  {detectableExercises[activeTab].desc}
-                </p>
-              </div>
-              <div className="text-left sm:text-right">
-                <div
-                  className={`text-xs uppercase tracking-wider font-semibold ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                    }`}
-                >
-                  Tracking Metric
-                </div>
-                <div
-                  className={`text-base font-bold ${darkMode ? 'text-white' : 'text-neutral-900'
-                    }`}
-                >
-                  {detectableExercises[activeTab].metric}
-                </div>
-              </div>
-            </div>
+              <source src={exercises[displayedIndex].video} type="video/mp4" />
+            </video>
 
+            {/* Overlay Text Column on Video (27% width, min 150px, 16px inset, top/bottom) */}
             <div
-              className={`mt-6 rounded-xl overflow-hidden aspect-[16/9] sm:aspect-[21/9] border relative flex items-center justify-center ${darkMode ? 'border-neutral-800 bg-neutral-950/60' : 'border-neutral-200 bg-neutral-100'
-                }`}
+              className={`absolute left-3 sm:left-4 z-10 w-[46%] sm:w-[27%] min-w-[150px] pointer-events-none transition-opacity duration-200 ease-in-out ${
+                exercises[displayedIndex].pos === 'bottom'
+                  ? 'bottom-3 sm:bottom-4 top-auto'
+                  : 'top-3 sm:top-4 bottom-auto'
+              }`}
+              style={{
+                opacity: overlayOpacity,
+                fontFamily: "'Montserrat', sans-serif",
+              }}
+              aria-atomic="true"
             >
-              <img
-                src={detectableExercises[activeTab].image}
-                alt={detectableExercises[activeTab].title}
-                className="w-full h-full object-contain"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
-                <Link
-                  to="/tracker"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold uppercase tracking-wider shadow-md transition-all"
-                >
-                  <span>Track {detectableExercises[activeTab].title}</span>
-                  <ChevronRight className="w-4 h-4 text-white" />
-                </Link>
-              </div>
+              <h3
+                className="text-[18px] sm:text-[22px] font-semibold text-[#ea580c] leading-tight mb-1 tracking-tight"
+                style={{ color: '#ea580c', fontWeight: 600 }}
+              >
+                {exercises[displayedIndex].name}
+              </h3>
+              <p
+                className="text-[11.5px] sm:text-[13px] font-medium text-[#ea580c] leading-[1.5]"
+                style={{ color: '#ea580c', fontWeight: 500 }}
+              >
+                {exercises[displayedIndex].desc}
+              </p>
             </div>
           </div>
         </div>

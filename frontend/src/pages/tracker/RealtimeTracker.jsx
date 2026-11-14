@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Flame, Watch, Camera, CameraOff, X, ChevronDown } from 'lucide-react';
+import { Heart, Flame, Watch, Camera, CameraOff, X, ChevronDown, ArrowLeft, Home } from 'lucide-react';
 import PageWrapper from '../../components/PageWrapper';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../context/AuthContext';
@@ -659,15 +659,25 @@ export const RealtimeTracker = () => {
     <PageWrapper hideFooter={true}>
       <div className="w-full min-h-[calc(100vh-64px)] bg-[#eceef1] dark:bg-[#0b0b0d] py-6 sm:py-8 px-4 sm:px-8 text-[#16161a] dark:text-[#f4f4f5] transition-colors">
         <div className="max-w-7xl mx-auto font-sans">
-          {/* Header: title "Workout tracker" with muted "Started at hh:mm" under it (Enlarged) */}
+          {/* Header: title "Workout tracker" with Home button & muted "Started at hh:mm" */}
           <div className="mb-7 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl sm:text-4xl md:text-[42px] font-black tracking-tight text-[#16161a] dark:text-[#f4f4f5] leading-tight">
-                Workout tracker
-              </h1>
-              <p className="text-sm sm:text-base mt-1.5 font-medium text-[#6b6b76] dark:text-[#8b8b94]">
-                Started at {sessionStartTimeFormatted || '04:37 PM'}
-              </p>
+            <div className="flex items-center gap-3.5">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs sm:text-sm bg-[#e2e4e9] dark:bg-[#1a1a1f] hover:bg-[#d8dadf] dark:hover:bg-[#25252e] text-[#16161a] dark:text-[#f4f4f5] transition-all shadow-sm hover:scale-105 active:scale-95"
+                title="Back to Home"
+              >
+                <ArrowLeft className="w-4 h-4 text-orange-600" />
+                <span>Home</span>
+              </Link>
+              <div>
+                <h1 className="text-3xl sm:text-4xl md:text-[42px] font-black tracking-tight text-[#16161a] dark:text-[#f4f4f5] leading-tight">
+                  Workout tracker
+                </h1>
+                <p className="text-sm sm:text-base mt-1.5 font-medium text-[#6b6b76] dark:text-[#8b8b94]">
+                  Started at {sessionStartTimeFormatted || '04:37 PM'}
+                </p>
+              </div>
             </div>
 
             {/* Exercise pills on the right: selected is filled orange, others outlined/gray */}
@@ -678,11 +688,10 @@ export const RealtimeTracker = () => {
                   <button
                     key={ex.id}
                     onClick={() => setActiveExercise(ex.id)}
-                    className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#ea580c] text-white shadow-md shadow-orange-600/30 scale-105'
-                        : 'bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#4b5563] dark:text-[#8b8b94] hover:text-[#16161a] dark:hover:text-[#f4f4f5] hover:bg-[#d8dadf] dark:hover:bg-[#25252e]'
-                    }`}
+                    className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${isSelected
+                      ? 'bg-[#ea580c] text-white shadow-md shadow-orange-600/30 scale-105'
+                      : 'bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#4b5563] dark:text-[#8b8b94] hover:text-[#16161a] dark:hover:text-[#f4f4f5] hover:bg-[#d8dadf] dark:hover:bg-[#25252e]'
+                      }`}
                   >
                     {ex.name}
                   </button>
@@ -726,17 +735,15 @@ export const RealtimeTracker = () => {
                   autoPlay
                   playsInline
                   muted
-                  className={`w-full h-full object-cover transition-transform duration-200 ${
-                    videoSource === 'demo' ? '' : '-scale-x-100'
-                  } ${!isCameraActive ? 'hidden' : 'block'}`}
+                  className={`w-full h-full object-cover transition-transform duration-200 ${videoSource === 'demo' ? '' : '-scale-x-100'
+                    } ${!isCameraActive ? 'hidden' : 'block'}`}
                 />
 
                 {/* MediaPipe Visible Joints & Skeleton Canvas Overlay */}
                 <canvas
                   ref={canvasRef}
-                  className={`absolute inset-0 w-full h-full pointer-events-none ${
-                    !isCameraActive ? 'hidden' : 'block'
-                  }`}
+                  className={`absolute inset-0 w-full h-full pointer-events-none ${!isCameraActive ? 'hidden' : 'block'
+                    }`}
                 />
 
                 {/* Minimal Top Badges on Video (Only while camera active) */}
@@ -757,32 +764,29 @@ export const RealtimeTracker = () => {
                         const next = videoSource === 'camera' ? 'demo' : 'camera';
                         startCamera(next);
                       }}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
-                        videoSource === 'demo'
-                          ? 'bg-[#ea580c] border-[#ea580c] text-white'
-                          : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
-                      }`}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${videoSource === 'demo'
+                        ? 'bg-[#ea580c] border-[#ea580c] text-white'
+                        : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
+                        }`}
                       title="Switch between live camera and demo video"
                     >
                       {videoSource === 'demo' ? 'Demo active' : 'Demo user'}
                     </button>
                     <button
                       onClick={() => setShowJoints(!showJoints)}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
-                        showJoints
-                          ? 'bg-[#ea580c]/90 border-[#ea580c] text-white'
-                          : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
-                      }`}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${showJoints
+                        ? 'bg-[#ea580c]/90 border-[#ea580c] text-white'
+                        : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
+                        }`}
                     >
                       Joints: {showJoints ? 'on' : 'off'}
                     </button>
                     <button
                       onClick={() => setShowAngles(!showAngles)}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${
-                        showAngles
-                          ? 'bg-[#ea580c]/90 border-[#ea580c] text-white'
-                          : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
-                      }`}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${showAngles
+                        ? 'bg-[#ea580c]/90 border-[#ea580c] text-white'
+                        : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
+                        }`}
                     >
                       Angles
                     </button>
@@ -840,9 +844,8 @@ export const RealtimeTracker = () => {
                     >
                       <span>Details</span>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 text-[#6b6b76] dark:text-[#8b8b94] transition-transform duration-200 ${
-                          detailsOpen ? 'rotate-0' : '-rotate-90'
-                        }`}
+                        className={`w-3.5 h-3.5 text-[#6b6b76] dark:text-[#8b8b94] transition-transform duration-200 ${detailsOpen ? 'rotate-0' : '-rotate-90'
+                          }`}
                       />
                     </button>
 
