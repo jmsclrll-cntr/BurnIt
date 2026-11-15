@@ -189,6 +189,15 @@ async def init_db():
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """)
 
+                    # Ensure default administrator exists in database
+                    from auth import hash_password
+                    admin_pwd_hash = hash_password(settings.ADMIN_PASSWORD)
+                    await cur.execute("""
+                        INSERT INTO users (id, username, password_hash, is_admin, name, is_profile_completed)
+                        VALUES ('admin_01', %s, %s, 1, 'Administrator', 1)
+                        ON DUPLICATE KEY UPDATE is_admin = 1, password_hash = %s;
+                    """, (settings.ADMIN_USERNAME, admin_pwd_hash, admin_pwd_hash))
+
                     # 2. Workout Sessions Table
                     await cur.execute("""
                         CREATE TABLE IF NOT EXISTS sessions (

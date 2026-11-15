@@ -7,8 +7,28 @@ from pydantic import BaseModel, Field
 
 from database import get_db
 from auth import require_authenticated_user
+from config import settings
 
 router = APIRouter(prefix="/api/history", tags=["history"])
+
+async def resolve_user_id(cur, username: str, auth_user: dict) -> str:
+    await cur.execute("SELECT id FROM users WHERE username = %s", (username,))
+    user_row = await cur.fetchone()
+    if user_row:
+        return str(user_row["id"])
+
+    # If user is admin or admin token, ensure admin record exists
+    if username == settings.ADMIN_USERNAME or auth_user.get("is_admin"):
+        from auth import hash_password
+        admin_pwd = hash_password(settings.ADMIN_PASSWORD)
+        await cur.execute("""
+            INSERT INTO users (id, username, password_hash, is_admin, name, is_profile_completed)
+            VALUES ('admin_01', %s, %s, 1, 'Administrator', 1)
+            ON DUPLICATE KEY UPDATE is_admin = 1
+        """, (settings.ADMIN_USERNAME, admin_pwd))
+        return "admin_01"
+
+    raise HTTPException(status_code=404, detail="User not found")
 
 ALLOWED_EXERCISES = {
     "Auto-detect",
@@ -87,11 +107,7 @@ async def get_workout_history(auth_user: dict = Depends(require_authenticated_us
     today = date.today()
 
     async with get_db() as cur:
-        await cur.execute("SELECT id FROM users WHERE username = %s", (username,))
-        user_row = await cur.fetchone()
-        if not user_row:
-            raise HTTPException(status_code=404, detail="User not found")
-        user_id = str(user_row["id"])
+        user_id = await resolve_user_id(cur, username, auth_user)
 
         # Fetch workouts from workout_history_items
         await cur.execute(
@@ -249,11 +265,7 @@ async def get_day_details(target_date: str, auth_user: dict = Depends(require_au
         raise HTTPException(status_code=400, detail="Invalid date format. Expected YYYY-MM-DD.")
 
     async with get_db() as cur:
-        await cur.execute("SELECT id FROM users WHERE username = %s", (username,))
-        user_row = await cur.fetchone()
-        if not user_row:
-            raise HTTPException(status_code=404, detail="User not found")
-        user_id = str(user_row["id"])
+        user_id = await resolve_user_id(cur, username, auth_user)
 
         # 1. Fetch from workout_history_items for that date
         await cur.execute(
@@ -364,11 +376,7 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
     avg_score = float(payload.avg_form_score if payload.avg_form_score is not None else 100.0)
 
     async with get_db() as cur:
-        await cur.execute("SELECT id FROM users WHERE username = %s", (username,))
-        user_row = await cur.fetchone()
-        if not user_row:
-            raise HTTPException(status_code=404, detail="User not found")
-        user_id = str(user_row["id"])
+        user_id = await resolve_user_id(cur, username, auth_user)
 
         # Check if updating an existing workout item belonging to this user
         if payload.id:

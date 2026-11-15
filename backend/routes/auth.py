@@ -152,7 +152,16 @@ async def update_profile(body: UserProfileUpdate, auth_user: dict = Depends(requ
         await cur.execute("SELECT name FROM users WHERE username = %s", (username,))
         existing_user = await cur.fetchone()
         if not existing_user:
-            raise HTTPException(status_code=404, detail="User record not found")
+            if username == settings.ADMIN_USERNAME or auth_user.get("is_admin"):
+                admin_pwd_hash = hash_password(settings.ADMIN_PASSWORD)
+                await cur.execute("""
+                    INSERT INTO users (id, username, password_hash, is_admin, name, is_profile_completed)
+                    VALUES ('admin_01', %s, %s, 1, 'Administrator', 1)
+                    ON DUPLICATE KEY UPDATE is_admin = 1;
+                """, (settings.ADMIN_USERNAME, admin_pwd_hash))
+                existing_user = {"name": "Administrator"}
+            else:
+                raise HTTPException(status_code=404, detail="User record not found")
 
         current_name = existing_user.get("name") or username
         clean_name = body.name.strip() if (body.name and body.name.strip()) else current_name

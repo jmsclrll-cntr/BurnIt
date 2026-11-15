@@ -21,6 +21,9 @@ import {
 import { useTheme } from '../hooks/useTheme'
 import { useAuth } from '../context/AuthContext'
 import UserMenu from '../components/auth/UserMenu'
+import AboutBurnIt from '../components/AboutBurnIt'
+import ExerciseDetectorSection from '../components/ExerciseDetectorSection'
+import Footer from '../components/Footer'
 
 
 const CURRENT_YEAR = new Date().getFullYear()
@@ -29,10 +32,6 @@ export default function Homepage() {
   const { darkMode, toggleDarkMode, isFullscreen, enterFullScreen } = useTheme()
   const { isAuthenticated, user, openLogin, logout } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState(1) // Start on the second tab (Push-Up)
-  const [displayedIndex, setDisplayedIndex] = useState(1)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const [overlayOpacity, setOverlayOpacity] = useState(1)
   const [activeDropdown, setActiveDropdown] = useState(null)
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -93,110 +92,21 @@ export default function Homepage() {
     ],
   }
 
-  const exercises = [
-    {
-      name: 'Squat',
-      video: '/videos/squat.mp4',
-      fallback: '/gifs/squats.gif',
-      desc: 'Real-time knee and hip angle tracking, squat depth verification, and knee alignment feedback.',
-      metric: 'Knee Flexion & Depth',
-      focus: 'center 40%',
-    },
-    {
-      name: 'Push-Up',
-      video: '/videos/pushup.mp4',
-      fallback: '/gifs/pushups.gif',
-      desc: 'Real-time elbow extension measurement, chest-to-floor depth verification, and full-body plank alignment.',
-      metric: 'Elbow Flexion & Depth',
-      focus: 'center 50%',
-    },
-    {
-      name: 'Plank',
-      video: '/videos/plank.mp4',
-      fallback: '/gifs/plank.gif',
-      desc: 'Real-time shoulder, hip, and ankle linear posture tracking with automatic hold-time calculation.',
-      metric: 'Spine Alignment & Hold Time',
-      focus: 'center 60%',
-    },
-    {
-      name: 'Jumping Jack',
-      video: '/videos/jumping.mp4',
-      fallback: '/gifs/jumpingjacks.gif',
-      desc: 'Real-time overhead arm abduction and leg spread cadence tracking for synchronized rep validation.',
-      metric: 'Arm Abduction & Cadence',
-      focus: 'center 40%',
-    },
-    {
-      name: 'Bicep Curl',
-      video: '/videos/curl.mp4',
-      fallback: '/gifs/bicepcurls.gif',
-      desc: 'Real-time bilateral elbow flexion tracking with full range-of-motion validation and curl form checks.',
-      metric: 'Elbow Flexion Range',
-      focus: 'center 45%',
-    },
-  ]
-
-  const switchTab = (newIndex) => {
-    if (isTransitioning || newIndex === activeTab) return
-    setIsTransitioning(true)
-    setOverlayOpacity(0)
-
-    const reducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const duration = reducedMotion ? 0 : 200
-
-    setTimeout(() => {
-      setActiveTab(newIndex)
-      setDisplayedIndex(newIndex)
-      setTimeout(() => {
-        setOverlayOpacity(1)
-        setTimeout(() => {
-          setIsTransitioning(false)
-        }, duration)
-      }, 30)
-    }, duration)
-  }
-
-  const handleTabKeyDown = (e, index) => {
-    const count = exercises.length
-    let target = null
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-      e.preventDefault()
-      target = (index + 1) % count
-    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-      e.preventDefault()
-      target = (index - 1 + count) % count
-    } else if (e.key === 'Home') {
-      e.preventDefault()
-      target = 0
-    } else if (e.key === 'End') {
-      e.preventDefault()
-      target = count - 1
-    }
-    if (target !== null) {
-      const el = document.getElementById(`exercise-tab-${target}`)
-      if (el) el.focus()
-      switchTab(target)
-    }
-  }
-
   return (
     <div
-      className={`min-h-screen font-sans antialiased transition-colors duration-300 selection:bg-orange-500/20 selection:text-orange-500 ${darkMode ? 'bg-[#0e0e12] text-neutral-100' : 'bg-[#FFFFFF] text-[#202124]'
+      className={`min-h-screen font-sans antialiased transition-colors duration-300 selection:bg-orange-500/20 selection:text-orange-500 ${darkMode ? 'bg-[#0e0e13] text-[#f5f3ef]' : 'bg-[#f6f4f1] text-[#17171c]'
         }`}
     >
       {/* ========================================================= */}
       {/* TRANSPARENT OVER HERO / FIXED TOP NAV                     */}
       {/* ========================================================= */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
             ? darkMode
-              ? 'bg-[#13131a]/90 backdrop-blur-md border-b border-neutral-800 shadow-sm'
-              : 'bg-white/90 backdrop-blur-md border-b border-neutral-200/80 shadow-sm'
+                ? 'bg-[#0e0e13]/90 backdrop-blur-md border-b border-[#2a2a34] shadow-sm'
+                : 'bg-[#f6f4f1]/90 backdrop-blur-md border-b border-[#dcd8d2] shadow-sm'
             : 'bg-transparent border-b border-transparent'
-        }`}
+          }`}
         onMouseLeave={() => setActiveDropdown(null)}
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -213,96 +123,93 @@ export default function Homepage() {
               <Flame className="w-4 h-4 text-white fill-white" />
             </div>
             <div
-              className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${
-                !scrolled
+              className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${!scrolled
                   ? 'text-white'
                   : darkMode
                     ? 'text-white'
-                    : 'text-[#202124]'
+                    : 'text-[#17171c]'
               }`}
             >
-              <span>BURN</span>
-              <span className="text-orange-600">IT</span>
-            </div>
+            <span>BURN</span>
+            <span className="text-orange-600">IT</span>
+        </div>
+      </a>
+
+      {/* Center Links (Visible, High Contrast, Updated Items: Home, Workout, Guide, About) */}
+      <nav className="hidden lg:flex items-center gap-1.5 sm:gap-2.5 bg-black/50 backdrop-blur-md px-5 py-2 rounded-full border border-white/20 shadow-xl">
+        {[
+          { label: 'Home', target: 'home' },
+          { label: 'Workout', target: 'programs' },
+          { label: 'Guide', target: 'coaching' },
+          { label: 'About', target: 'about' },
+        ].map((item) => (
+          <a
+            key={item.label}
+            href={`#${item.target}`}
+            onClick={(e) => {
+              e.preventDefault();
+              if (item.target === 'home') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              } else {
+                const el = document.getElementById(item.target);
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }
+            }}
+            className="px-4 py-1.5 rounded-full text-[15px] font-extrabold tracking-tight text-white hover:text-orange-400 hover:bg-white/15 transition-all duration-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
+          >
+            <span>{item.label}</span>
           </a>
+        ))}
+      </nav>
 
-          {/* Center Links (Visible, High Contrast, Updated Items: Home, Workout, Guide, About) */}
-          <nav className="hidden lg:flex items-center gap-1.5 sm:gap-2.5 bg-black/50 backdrop-blur-md px-5 py-2 rounded-full border border-white/20 shadow-xl">
-            {[
-              { label: 'Home', target: 'home' },
-              { label: 'Workout', target: 'programs' },
-              { label: 'Guide', target: 'coaching' },
-              { label: 'About', target: 'about' },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={`#${item.target}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (item.target === 'home') {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  } else {
-                    const el = document.getElementById(item.target);
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }
-                }}
-                className="px-4 py-1.5 rounded-full text-[15px] font-extrabold tracking-tight text-white hover:text-orange-400 hover:bg-white/15 transition-all duration-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
-              >
-                <span>{item.label}</span>
-              </a>
-            ))}
-          </nav>
-
-          {/* Right Side: Fullscreen & Profile Icon Only (Big Icons) */}
-          <div className="hidden sm:flex items-center gap-3">
-            {/* Fullscreen Toggle placed right next to Profile Icon */}
-            <button
-              type="button"
-              onClick={() => enterFullScreen()}
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${
-                !scrolled
-                  ? 'border-white/25 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md'
-                  : darkMode
-                    ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
-                    : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/80 text-neutral-700 shadow-neutral-900/10'
+      {/* Right Side: Fullscreen & Profile Icon Only (Big Icons) */}
+      <div className="hidden sm:flex items-center gap-3">
+        {/* Fullscreen Toggle placed right next to Profile Icon */}
+        <button
+          type="button"
+          onClick={() => enterFullScreen()}
+          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${!scrolled
+              ? 'border-white/25 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md'
+              : darkMode
+                ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
+                    : 'border-[#dcd8d2] bg-white hover:bg-[#eae6e1] text-[#17171c] shadow-sm'
               }`}
-              title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
-              aria-label={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
+        title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
+        aria-label={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
             >
-              {isFullscreen ? <Minimize className="w-5 h-5 sm:w-6 sm:h-6" /> : <Maximize className="w-5 h-5 sm:w-6 sm:h-6" />}
-            </button>
+        {isFullscreen ? <Minimize className="w-5 h-5 sm:w-6 sm:h-6" /> : <Maximize className="w-5 h-5 sm:w-6 sm:h-6" />}
+      </button>
 
-            {/* Profile Icon (Profile only, no name) */}
-            {isAuthenticated ? (
-              <UserMenu isTransparentNav={!scrolled} />
-            ) : (
-              <button
-                type="button"
-                onClick={() => openLogin('/tracker')}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                  !scrolled
-                    ? 'text-white hover:bg-white/10 border border-white/20'
-                    : darkMode
-                    ? 'text-white hover:bg-neutral-800 border border-neutral-700'
-                    : 'text-neutral-900 hover:bg-neutral-100 border border-neutral-300'
+      {/* Profile Icon (Profile only, no name) */}
+      {isAuthenticated ? (
+        <UserMenu isTransparentNav={!scrolled} />
+      ) : (
+        <button
+          type="button"
+          onClick={() => openLogin('/tracker')}
+          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${!scrolled
+              ? 'text-white hover:bg-white/10 border border-white/20'
+              : darkMode
+                ? 'text-white hover:bg-neutral-800 border border-neutral-700'
+                    : 'text-[#17171c] hover:bg-white border border-[#dcd8d2]'
                 }`}
               >
-                Log In
-              </button>
-            )}
-          </div>
+      Log In
+    </button>
+  )
+}
+          </div >
 
-          {/* Mobile Right Controls */}
-          <div className="flex sm:hidden items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => enterFullScreen()}
-              className={`p-2 rounded-full transition-colors ${
-                !scrolled
-                  ? 'text-neutral-200 hover:text-white'
-                  : darkMode ? 'text-neutral-300' : 'text-neutral-600'
+  {/* Mobile Right Controls */ }
+  < div className = "flex sm:hidden items-center gap-1.5" >
+    <button
+      type="button"
+      onClick={() => enterFullScreen()}
+      className={`p-2 rounded-full transition-colors ${!scrolled
+          ? 'text-neutral-200 hover:text-white'
+                  : darkMode ? 'text-neutral-300' : 'text-[#17171c]'
               }`}
               title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
               aria-label="Toggle full screen"
@@ -315,11 +222,11 @@ export default function Homepage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p-2 rounded-lg ${
-                !scrolled
-                  ? 'text-white hover:bg-white/10'
-                  : darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-neutral-600 hover:bg-neutral-100'
-              }`}
+              className={`p - 2 rounded - lg ${
+  !scrolled
+    ? 'text-white hover:bg-white/10'
+                  : darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-[#17171c] hover:bg-[#eae6e1]'
+} `}
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -330,9 +237,9 @@ export default function Homepage() {
         {/* Mobile dropdown */}
         {mobileMenuOpen && (
           <div
-            className={`lg:hidden border-b px-6 py-6 space-y-3 ${
-              darkMode ? 'bg-[#13131a] border-neutral-800' : 'bg-white border-neutral-200'
-            }`}
+            className={`lg:hidden border - b px - 6 py - 6 space - y - 3 ${
+  darkMode ? 'bg-[#16161d] border-[#2a2a34]' : 'bg-[#f6f4f1] border-[#dcd8d2]'
+} `}
           >
             {[
               { label: 'Home', target: 'home' },
@@ -342,7 +249,7 @@ export default function Homepage() {
             ].map((item) => (
               <a
                 key={item.label}
-                href={`#${item.target}`}
+                href={`#${ item.target } `}
                 onClick={(e) => {
                   e.preventDefault();
                   setMobileMenuOpen(false);
@@ -355,9 +262,9 @@ export default function Homepage() {
                     }
                   }
                 }}
-                className={`block text-base font-bold py-1.5 ${
-                  darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
-                }`}
+                className={`block text - base font - bold py - 1.5 ${
+  darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
+} `}
               >
                 {item.label}
               </a>
@@ -423,27 +330,27 @@ export default function Homepage() {
           <img
             src="/background/home_background.png"
             alt="Hero Background"
-            className={`w-full h-full object-cover object-center select-none transition-transform duration-1000 ease-out will-change-transform ${
-              mounted ? 'scale-100' : 'scale-105'
-            }`}
+            className={`w - full h - full object - cover object - center select - none transition - transform duration - 1000 ease - out will - change - transform ${
+  mounted ? 'scale-100' : 'scale-105'
+} `}
           />
           {/* Subtle balanced scrim for crystal-clear image visibility and sharp text contrast */}
           <div
-            className={`absolute inset-0 transition-colors duration-300 ${
-              darkMode
-                ? 'bg-gradient-to-b from-black/55 via-black/35 to-black/50'
-                : 'bg-gradient-to-b from-black/50 via-black/30 to-black/45'
-            }`}
+            className={`absolute inset - 0 transition - colors duration - 300 ${
+  darkMode
+    ? 'bg-gradient-to-b from-black/55 via-black/35 to-black/50'
+    : 'bg-gradient-to-b from-black/50 via-black/30 to-black/45'
+} `}
           />
         </div>
 
         <noscript>
           <style>{`
-            .hero-fade-init {
-              opacity: 1 !important;
-              transform: none !important;
-            }
-          `}</style>
+  .hero - fade - init {
+  opacity: 1!important;
+  transform: none!important;
+}
+`}</style>
         </noscript>
 
         <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center justify-center w-full">
@@ -454,11 +361,11 @@ export default function Homepage() {
               lineHeight: 1.05,
               fontWeight: 800,
             }}
-            className={`text-center font-extrabold tracking-tight hero-fade-init transition-all duration-700 ease-out ${
-              mounted
-                ? 'opacity-100 translate-y-0 blur-0'
-                : 'opacity-0 translate-y-7 blur-[3px]'
-            } text-white drop-shadow-md`}
+            className={`text - center font - extrabold tracking - tight hero - fade - init transition - all duration - 700 ease - out ${
+  mounted
+    ? 'opacity-100 translate-y-0 blur-0'
+    : 'opacity-0 translate-y-7 blur-[3px]'
+} text - white drop - shadow - md`}
           >
             <span className="block whitespace-nowrap">Healthy Body —</span>
             <span className="block whitespace-nowrap">Healthy Life!</span>
@@ -466,22 +373,22 @@ export default function Homepage() {
 
           {/* Related Subtitle Text */}
           <p
-            className={`mt-6 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-normal hero-fade-init transition-all duration-700 ease-out delay-150 ${
-              mounted
-                ? 'opacity-100 translate-y-0 blur-0'
-                : 'opacity-0 translate-y-7 blur-[3px]'
-            } text-neutral-200 drop-shadow`}
+            className={`mt - 6 text - base sm: text - lg md: text - xl max - w - 2xl mx - auto leading - relaxed font - normal hero - fade - init transition - all duration - 700 ease - out delay - 150 ${
+  mounted
+    ? 'opacity-100 translate-y-0 blur-0'
+    : 'opacity-0 translate-y-7 blur-[3px]'
+} text - neutral - 200 drop - shadow`}
           >
             Real-time AI pose tracking, precision joint analysis, and smart repetition counting directly in your browser. Perfect your workout form and ignite your athletic potential.
           </p>
 
           {/* Action Buttons */}
           <div
-            className={`mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 hero-fade-init transition-all duration-700 ease-out delay-300 ${
-              mounted
-                ? 'opacity-100 translate-y-0 blur-0'
-                : 'opacity-0 translate-y-7 blur-[3px]'
-            }`}
+            className={`mt - 8 sm: mt - 10 flex flex - col sm: flex - row items - center justify - center gap - 4 hero - fade - init transition - all duration - 700 ease - out delay - 300 ${
+  mounted
+    ? 'opacity-100 translate-y-0 blur-0'
+    : 'opacity-0 translate-y-7 blur-[3px]'
+} `}
           >
             {isAuthenticated ? (
               <Link
@@ -508,128 +415,16 @@ export default function Homepage() {
       {/* ========================================================= */}
       {/* EXERCISES THE SYSTEM CAN DETECT                           */}
       {/* ========================================================= */}
-      <section
-        id="programs"
-        className={`py-20 sm:py-28 transition-colors duration-300 ${
-          darkMode ? 'bg-[#0e0e12]' : 'bg-[#FFFFFF]'
-        }`}
-      >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Heading & Subtitle aligned with overall UI design */}
-          <div className="text-center max-w-3xl mx-auto">
-            <h2
-              className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight ${
-                darkMode ? 'text-white' : 'text-[#202124]'
-              }`}
-            >
-              Exercises the System <span className="font-extrabold text-emerald-500 dark:text-emerald-400">Can Detect</span>
-            </h2>
-            <p
-              className={`mt-3 text-sm sm:text-base md:text-lg leading-relaxed ${
-                darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-              }`}
-            >
-              Real-time 33-point pose estimation, joint angle measurement, and automated rep counting for supported workouts.
-            </p>
-          </div>
-
-          {/* Underline-Style Tabs Navigation */}
-          <div
-            id="workouts"
-            role="tablist"
-            aria-label="Exercises"
-            className={`mt-8 sm:mt-10 flex items-center justify-center gap-6 sm:gap-9 border-b overflow-x-auto no-scrollbar ${
-              darkMode ? 'border-neutral-800' : 'border-neutral-200'
-            }`}
-          >
-            {exercises.map((item, index) => {
-              const isSelected = index === activeTab
-              return (
-                <button
-                  key={item.name}
-                  type="button"
-                  id={`tab-${index}`}
-                  role="tab"
-                  aria-selected={isSelected}
-                  aria-controls="exercise-panel"
-                  tabIndex={isSelected ? 0 : -1}
-                  onClick={() => switchTab(index)}
-                  onKeyDown={(e) => handleTabKeyDown(e, index)}
-                  className={`relative pb-3.5 pt-2 px-1 text-sm sm:text-base font-semibold transition-colors duration-200 cursor-pointer whitespace-nowrap bg-transparent border-0 outline-none focus-visible:outline-2 focus-visible:outline-orange-500 focus-visible:outline-offset-4 focus-visible:rounded ${
-                    isSelected
-                      ? darkMode ? 'text-white font-bold' : 'text-neutral-900 font-bold'
-                      : darkMode ? 'text-neutral-400 hover:text-white' : 'text-[#5F6368] hover:text-[#202124]'
-                  }`}
-                >
-                  <span>{item.name}</span>
-                  {isSelected && (
-                    <span
-                      className="absolute left-0 right-0 -bottom-[1px] h-[2px] bg-orange-500 rounded-t-sm"
-                      aria-hidden="true"
-                    />
-                  )}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Showcase Card with Exercise Text OUTSIDE the Video Frame */}
-          <div
-            id="exercise-panel"
-            role="tabpanel"
-            aria-labelledby={`tab-${activeTab}`}
-            aria-live="polite"
-            className="mt-8 max-w-4xl mx-auto"
-          >
-            {/* Exercise Info placed cleanly OUTSIDE the video frame */}
-            <div
-              className="mb-4 px-1 transition-opacity duration-200 ease-in-out text-left"
-              style={{ opacity: overlayOpacity }}
-            >
-              <h3 className="text-2xl sm:text-3xl font-extrabold text-orange-500 tracking-tight">
-                {exercises[displayedIndex].name}
-              </h3>
-              <p
-                className={`mt-1 text-sm sm:text-base font-medium leading-relaxed max-w-2xl ${
-                  darkMode ? 'text-neutral-300' : 'text-neutral-600'
-                }`}
-              >
-                {exercises[displayedIndex].desc}
-              </p>
-            </div>
-
-            {/* 16:9 Video Frame: clean, edge-to-edge, zero text inside */}
-            <div
-              className={`relative w-full aspect-video rounded-2xl overflow-hidden border shadow-2xl ${
-                darkMode ? 'bg-black border-neutral-800' : 'bg-neutral-950 border-neutral-200'
-              }`}
-            >
-              <video
-                key={exercises[displayedIndex].video}
-                autoPlay
-                muted
-                loop
-                playsInline
-                poster={exercises[displayedIndex].fallback}
-                style={{
-                  objectPosition: exercises[displayedIndex].focus || 'center center',
-                }}
-                className="w-full h-full object-cover block bg-black"
-              >
-                <source src={exercises[displayedIndex].video} type="video/mp4" />
-              </video>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ExerciseDetectorSection />
 
       {/* ========================================================= */}
       {/* HOW TO USE THIS SYSTEM (LIVE WORKFLOW GUIDE)              */}
       {/* ========================================================= */}
       <section
         id="coaching"
-        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
-          }`}
+        className={`py - 24 sm: py - 28 border - t transition - colors duration - 300 ${
+  darkMode ? 'bg-[#0e0e13] border-[#2a2a34]' : 'bg-[#f6f4f1] border-[#dcd8d2]'
+} `}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
           {/* Section Header with Relative Context */}
@@ -638,25 +433,27 @@ export default function Homepage() {
               Interactive Biometric Guide
             </span>
             <h2
-              className={`text-3xl sm:text-4xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
-                }`}
+              className={`text - 3xl sm: text - 4xl font - bold leading - tight ${
+  darkMode ? 'text-white' : 'text-[#17171c]'
+} `}
             >
               How to Use This System
             </h2>
             <p
-              className={`text-base sm:text-lg leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#5F6368]'
-                }`}
+              className={`text - base sm: text - lg leading - relaxed ${
+  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
+} `}
             >
               Turn any web browser into your personal AI coach in seconds. Follow these five simple steps to calibrate your camera, track joint angles in real time, and receive instant form corrections without wearing extra sensors or purchasing special equipment.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2 pt-2 scroll-reveal">
-              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-300">
+              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-white/5 border border-[#dcd8d2] dark:border-white/10 text-[#5d5d68] dark:text-neutral-300">
                 Zero Wearables Needed
               </span>
-              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-300">
+              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-white/5 border border-[#dcd8d2] dark:border-white/10 text-[#5d5d68] dark:text-neutral-300">
                 Real-Time 30+ FPS Kinematics
               </span>
-              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-300">
+              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-white/5 border border-[#dcd8d2] dark:border-white/10 text-[#5d5d68] dark:text-neutral-300">
                 100% Client-Side Privacy
               </span>
               <span className="px-3.5 py-1 rounded-full text-xs font-semibold bg-orange-600/10 border border-orange-600/20 text-orange-600">
@@ -673,21 +470,24 @@ export default function Homepage() {
                   Step 01
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
-                    }`}
+                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+  darkMode ? 'text-white' : 'text-[#17171c]'
+} `}
                 >
                   Access the Tracker
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                    }`}
+                  className={`text - base leading - relaxed ${
+  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
+} `}
                 >
                   Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">GET STARTED</strong> in the hero section or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar. Simply log in or create your free account to unlock real-time tracking, personalized rep counters, and caloric expenditure analysis.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                  }`}
+                className={`lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
+} `}
               >
                 <img
                   src={darkMode ? '/guide/step-1-access-dark.png' : '/guide/step-1-access-light.png'}
@@ -700,8 +500,9 @@ export default function Homepage() {
             {/* Step 2 (Alternating) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div
-                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                  }`}
+                className={`order - 2 lg: order - 1 lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
+} `}
               >
                 <img
                   src={darkMode ? '/guide/step-2-position-dark.png' : '/guide/step-2-position-light.png'}
@@ -714,14 +515,16 @@ export default function Homepage() {
                   Step 02
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
-                    }`}
+                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+  darkMode ? 'text-white' : 'text-[#17171c]'
+} `}
                 >
                   Align Body in Frame
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                    }`}
+                  className={`text - base leading - relaxed ${
+  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
+} `}
                 >
                   When prompted by your browser, grant camera permissions to activate the biometric engine. Step back approximately 6 to 8 feet so that your shoulders, hips, and knees are unobstructed inside the camera view. The system displays <strong className="text-orange-600 font-semibold">Step Into Camera Frame</strong> with glowing orange alignment indicators that illuminate green as soon as your pose is calibrated.
                 </p>
@@ -735,21 +538,24 @@ export default function Homepage() {
                   Step 03
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
-                    }`}
+                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+  darkMode ? 'text-white' : 'text-[#17171c]'
+} `}
                 >
                   Select Workout Mode
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                    }`}
+                  className={`text - base leading - relaxed ${
+  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
+} `}
                 >
                   Choose your targeted exercise from the workout bar—including <strong className="text-orange-600 font-semibold">Squats</strong>, <strong className="text-orange-600 font-semibold">Push-Ups</strong>, <strong className="text-orange-600 font-semibold">Plank</strong>, <strong className="text-orange-600 font-semibold">Jumping Jacks</strong>, or <strong className="text-orange-600 font-semibold">Bicep Curls</strong>. Alternatively, keep <strong className="text-orange-600 font-semibold">Auto-Detect</strong> active to let our machine learning posture engine automatically sample your biomechanics every 2 seconds and switch exercises as you move.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                  }`}
+                className={`lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
+} `}
               >
                 <img
                   src={darkMode ? '/guide/step-3-select-dark.png' : '/guide/step-3-select-light.png'}
@@ -762,8 +568,9 @@ export default function Homepage() {
             {/* Step 4 (Alternating) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               <div
-                className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                  }`}
+                className={`order - 2 lg: order - 1 lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
+} `}
               >
                 <img
                   src={darkMode ? '/guide/step-4-track-dark.png' : '/guide/step-4-track-light.png'}
@@ -776,14 +583,16 @@ export default function Homepage() {
                   Step 04
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
-                    }`}
+                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+  darkMode ? 'text-white' : 'text-[#17171c]'
+} `}
                 >
                   Perform Movement
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                    }`}
+                  className={`text - base leading - relaxed ${
+  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
+} `}
                 >
                   Perform each repetition with complete range of motion. The MediaPipe kinematic engine tracks 33 3D skeletal landmarks at 30+ FPS, rendering visible joint nodes and angle measurements directly over your body. Watch your verified <strong className="text-orange-600 font-semibold">REPS</strong> count update, follow the live movement phase (<strong className="text-orange-600 font-semibold">UP</strong> / <strong className="text-orange-600 font-semibold">DOWN</strong>), and maintain your <strong className="text-orange-600 font-semibold">FORM PRECISION</strong> score.
                 </p>
@@ -797,21 +606,24 @@ export default function Homepage() {
                   Step 05
                 </div>
                 <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${darkMode ? 'text-white' : 'text-[#202124]'
-                    }`}
+                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+  darkMode ? 'text-white' : 'text-[#17171c]'
+} `}
                 >
                   Finish and Review Summary
                 </h3>
                 <p
-                  className={`text-base leading-relaxed ${darkMode ? 'text-neutral-300' : 'text-[#3c4043]'
-                    }`}
+                  className={`text - base leading - relaxed ${
+  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
+} `}
                 >
                   Once you complete your workout set, tap <strong className="text-red-500 font-semibold">Finish Workout</strong> to conclude tracking. The system instantly generates a <strong className="text-orange-600 font-semibold">Workout Complete</strong> report detailing your total completed repetitions, overall form precision percentage, exact session duration, and estimated calories burned, with options to start a new workout or return to the dashboard.
                 </p>
               </div>
               <div
-                className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${darkMode ? 'border-neutral-800 bg-[#181822]' : 'border-neutral-200 bg-white'
-                  }`}
+                className={`lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
+} `}
               >
                 <img
                   src={darkMode ? '/guide/step-5-summary-dark.png' : '/guide/step-5-summary-light.png'}
@@ -825,168 +637,14 @@ export default function Homepage() {
       </section>
 
       {/* ========================================================= */}
-      {/* FINAL DOWNLOAD / CTA SECTION                              */}
+      {/* ABOUT BURN IT SECTION (DIRECTLY AFTER GUIDE SECTION)      */}
       {/* ========================================================= */}
-      <section
-        id="join"
-        className={`py-24 sm:py-32 border-t text-center transition-colors duration-300 ${darkMode ? 'bg-[#121218] border-neutral-800' : 'bg-[#FAFBFD] border-neutral-200/80'
-          }`}
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className={`w-14 h-14 mx-auto rounded-2xl border flex items-center justify-center shadow-sm mb-6 ${darkMode
-              ? 'bg-orange-500/10 border-orange-500/30 text-orange-400'
-              : 'bg-orange-50 border-orange-200 text-orange-600'
-              }`}
-          >
-            <Flame className="w-7 h-7 fill-orange-600" />
-          </div>
-
-          <h2
-            className={`text-3xl sm:text-5xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-[#202124]'
-              }`}
-          >
-            Start Your Transformation with Burn It
-          </h2>
-
-          <p
-            className={`mt-4 text-base sm:text-lg max-w-xl mx-auto ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'
-              }`}
-          >
-            Join Steve Rock’s elite training community. Build unstoppable stamina, shred excess fat, and conquer every milestone.
-          </p>
-
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              type="button"
-              onClick={() => alert('Welcome to Burn It! Registration starting...')}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all"
-            >
-              <Flame className="w-4 h-4 fill-white" />
-              <span>Join Burn It Now</span>
-            </button>
-
-            <a
-              href="#programs"
-              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full text-sm font-semibold border shadow-sm transition-all ${darkMode
-                ? 'bg-neutral-800/80 hover:bg-neutral-700 text-neutral-100 border-neutral-700'
-                : 'bg-white hover:bg-neutral-50 active:bg-neutral-100 text-neutral-800 border-neutral-300'
-                }`}
-            >
-              <span>Explore All Programs</span>
-            </a>
-          </div>
-
-          <div className={`mt-6 text-xs ${darkMode ? 'text-neutral-500' : 'text-[#5F6368]'}`}>
-            Instant access to daily workout guides and coaching schedules.
-          </div>
-        </div>
-      </section>
+      <AboutBurnIt />
 
       {/* ========================================================= */}
-      {/* CLOSING TAGLINE / ABOUT                                   */}
+      {/* REDESIGNED MINIMAL FOOTER                                 */}
       {/* ========================================================= */}
-      <section
-        id="about"
-        className={`py-20 sm:py-28 border-t text-center transition-colors duration-300 ${darkMode ? 'bg-[#0e0e12] border-neutral-800' : 'bg-[#FFFFFF] border-neutral-200/80'
-          }`}
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2
-            className={`text-5xl sm:text-6xl md:text-7xl font-black tracking-tight ${darkMode ? 'text-white' : 'text-neutral-900'
-              }`}
-          >
-            Ignite your potential<span className="text-orange-600">.</span>
-          </h2>
-          <p className={`mt-4 text-base sm:text-lg ${darkMode ? 'text-neutral-400' : 'text-[#5F6368]'}`}>
-            Push past your limits and burn the rest.
-          </p>
-        </div>
-      </section>
-
-      {/* ========================================================= */}
-      {/* CLEAN MULTI-COLUMN FOOTER                                 */}
-      {/* ========================================================= */}
-      <footer
-        className={`border-t py-16 text-xs transition-colors duration-300 ${darkMode
-          ? 'bg-[#0a0a0d] border-neutral-800 text-neutral-400'
-          : 'bg-[#F8F9FA] border-neutral-200 text-[#5F6368]'
-          }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div
-            className={`grid grid-cols-2 md:grid-cols-4 gap-8 pb-12 border-b ${darkMode ? 'border-neutral-800' : 'border-neutral-200'
-              }`}
-          >
-            <div>
-              <div className={`font-semibold mb-3 text-sm ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
-                Programs
-              </div>
-              <ul className="space-y-2">
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>HIIT & Sprint Burn</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Fat Shred Protocol</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Distance & Marathon</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>1-on-1 Pro Coaching</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <div className={`font-semibold mb-3 text-sm ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
-                Workouts
-              </div>
-              <ul className="space-y-2">
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>15 Min Warmup</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>45 Min Sprint Blast</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Mobility & Stride Drill</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Nutrition Guide</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <div className={`font-semibold mb-3 text-sm ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
-                Coaching
-              </div>
-              <ul className="space-y-2">
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Steve Rock Bio</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Biometric Tracking</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Athlete Reviews</a></li>
-                <li><a href="#programs" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Schedule Consultation</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <div className={`font-semibold mb-3 text-sm ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
-                Company
-              </div>
-              <ul className="space-y-2">
-                <li><a href="#" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>About Burn It</a></li>
-                <li><a href="#" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Community</a></li>
-                <li><a href="#" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Careers</a></li>
-                <li><a href="#" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Contact Support</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded bg-orange-600 flex items-center justify-center">
-                <Flame className="w-3 h-3 text-white fill-white" />
-              </div>
-              <span className={`font-semibold text-sm ${darkMode ? 'text-neutral-200' : 'text-neutral-800'}`}>
-                BURN IT
-              </span>
-              <span>© {CURRENT_YEAR} Burn It Fitness. All rights reserved.</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-6">
-              <a href="#" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Privacy</a>
-              <a href="#" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Terms</a>
-              <a href="#" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Cookies</a>
-              <a href="#" className={darkMode ? 'hover:text-white' : 'hover:text-neutral-900'}>Contact</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

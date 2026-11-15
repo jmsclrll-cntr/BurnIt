@@ -9,9 +9,9 @@ echo  [*] Starting FastAPI Backend on port 8000...
 echo  [*] Starting Vite Frontend on port 5173...
 echo.
 echo  Access Points:
-echo  - Frontend Web App : https://localhost:5173
+echo  - Frontend Web App : http://localhost:5173
 echo  - Backend API Docs : http://localhost:8000/docs
-echo  - Mobile Wi-Fi     : https://192.168.100.230:5173
+echo  - Mobile Wi-Fi     : http://192.168.100.230:5173
 echo ==========================================================
 echo.
 

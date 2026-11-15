@@ -1,5 +1,4 @@
 import React from 'react';
-import { SunMedium, MoonStar } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 
 export default function FloatingThemeToggle() {
@@ -10,19 +9,32 @@ export default function FloatingThemeToggle() {
       <button
         type="button"
         onClick={toggleDarkMode}
-        className={`fixed bottom-6 right-6 z-50 w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md border ${
-          darkMode
-            ? 'bg-[#181824]/90 hover:bg-[#202030] text-amber-400 border-neutral-700/80 shadow-black/60 hover:border-amber-400/50 hover:shadow-amber-500/20'
-            : 'bg-white/90 hover:bg-neutral-50 text-orange-600 border-neutral-200/90 shadow-neutral-900/15 hover:border-orange-500/50 hover:shadow-orange-500/20'
-        }`}
+        style={{
+          position: 'fixed',
+          right: 'calc(16px + env(safe-area-inset-right, 0px))',
+          bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
+          width: '44px',
+          height: '44px',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          cursor: 'pointer',
+          borderWidth: '1px',
+          borderStyle: 'solid',
+          backgroundColor: darkMode ? '#16161d' : '#ffffff',
+          borderColor: darkMode ? '#2a2a34' : '#dcd8d2',
+          color: darkMode ? '#f5f3ef' : '#17171c',
+          fontSize: '1.1rem',
+          lineHeight: 1,
+          transition: 'all 0.2s ease',
+        }}
+        className="focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[#ff6a1a] dark:focus-visible:ring-[#ff6a1a] focus-visible:ring-offset-2 hover:opacity-90 active:scale-95 shadow-md"
         title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         aria-label={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       >
-        {darkMode ? (
-          <SunMedium className="w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300 hover:rotate-45" />
-        ) : (
-          <MoonStar className="w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300 hover:-rotate-12" />
-        )}
+        <span aria-hidden="true" style={{ fontSize: '1.1rem' }}>◐</span>
       </button>
     </aside>
   );

@@ -34,8 +34,8 @@ export default function Navbar() {
   return (
     <header
       className={`sticky top-0 z-50 backdrop-blur-md transition-colors duration-300 border-b ${darkMode
-        ? 'bg-[#13131a]/95 border-neutral-800'
-        : 'bg-[#FFFFFF]/95 border-neutral-200/80'
+        ? 'bg-[#0e0e13]/90 border-[#2a2a34]'
+        : 'bg-[#f6f4f1]/90 border-[#dcd8d2]'
         }`}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -45,7 +45,7 @@ export default function Navbar() {
             <Flame className="w-4 h-4 text-white fill-white" />
           </div>
           <div
-            className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${darkMode ? 'text-white' : 'text-black'
+            className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${darkMode ? 'text-[#f5f3ef]' : 'text-[#17171c]'
               }`}
           >
             <span>BURN</span>
@@ -98,7 +98,7 @@ export default function Navbar() {
             onClick={() => enterFullScreen()}
             className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${darkMode
               ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
-              : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/80 text-neutral-700 shadow-neutral-900/10'
+              : 'border-[#dcd8d2] bg-white hover:bg-[#eae6e1] text-[#17171c] shadow-sm'
               }`}
             title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
             aria-label={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
@@ -115,7 +115,7 @@ export default function Navbar() {
               onClick={() => openLogin('/tracker')}
               className={`px-5 py-2.5 rounded-full text-sm font-bold transition-colors ${darkMode
                 ? 'text-white hover:bg-neutral-800 border border-neutral-700'
-                : 'text-neutral-900 hover:bg-neutral-100 border border-neutral-300'
+                : 'text-[#17171c] hover:bg-white border border-[#dcd8d2]'
                 }`}
             >
               Log In
@@ -128,7 +128,7 @@ export default function Navbar() {
           {isTrackerPage && (
             <Link
               to="/"
-              className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-neutral-600'}`}
+              className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-[#17171c]'}`}
               title="Home"
               aria-label="Home"
             >
@@ -138,7 +138,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => enterFullScreen()}
-            className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-neutral-600'
+            className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-[#17171c]'
               }`}
             title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
             aria-label="Toggle full screen"
@@ -151,7 +151,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`p-2 rounded-lg ${darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-neutral-600 hover:bg-neutral-100'
+            className={`p-2 rounded-lg ${darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-[#17171c] hover:bg-[#eae6e1]'
               }`}
             aria-label="Toggle navigation menu"
           >
@@ -163,7 +163,7 @@ export default function Navbar() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div
-          className={`lg:hidden border-b px-6 py-6 space-y-3 ${darkMode ? 'bg-[#13131a] border-neutral-800' : 'bg-white border-neutral-200'
+          className={`lg:hidden border-b px-6 py-6 space-y-3 ${darkMode ? 'bg-[#16161d] border-[#2a2a34]' : 'bg-[#f6f4f1] border-[#dcd8d2]'
             }`}
         >
           {isTrackerPage ? (

@@ -294,7 +294,7 @@ export default function AdminRecorder() {
           <div className="lg:col-span-5 space-y-6">
             <div
               className={`p-6 rounded-2xl border transition-colors ${
-                darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#F8F9FA] border-neutral-200/80 shadow-sm'
+                darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#f6f4f1] border-[#dcd8d2] shadow-sm'
               }`}
             >
               <h3 className={`text-base font-bold uppercase tracking-wider mb-4 ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
@@ -406,7 +406,7 @@ export default function AdminRecorder() {
             {/* Dataset Statistics & Export */}
             <div
               className={`p-6 rounded-2xl border transition-colors ${
-                darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#F8F9FA] border-neutral-200/80 shadow-sm'
+                darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#f6f4f1] border-[#dcd8d2] shadow-sm'
               }`}
             >
               <div className="flex items-center justify-between mb-4">

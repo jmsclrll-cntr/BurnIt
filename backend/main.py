@@ -14,6 +14,7 @@ from routes.dataset import router as dataset_router
 from routes.model import router as model_router
 from routes.calories import router as calories_router
 from routes.history import router as history_router
+from routes.contact import router as contact_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,6 +30,9 @@ async def lifespan(app: FastAPI):
     _ = pose_detector
     # Attempt to load trained ML model if available
     exercise_classifier.load_model()
+    # Preload calorie model in memory so prediction is instantaneous
+    from routes.calories import load_calorie_model
+    load_calorie_model()
     logger.info("BurnIt backend ready. Listening for frontend requests.")
     yield
     logger.info("BurnIt backend shutting down.")
@@ -59,6 +63,7 @@ app.include_router(dataset_router)
 app.include_router(model_router)
 app.include_router(calories_router)
 app.include_router(history_router)
+app.include_router(contact_router)
 
 # WebSocket endpoint for real-time frame streaming and pose telemetry
 @app.websocket("/ws/workout/{session_id}")

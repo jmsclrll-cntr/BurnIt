@@ -26,6 +26,9 @@ async def handle_workout_websocket(websocket: WebSocket, session_id: str):
         while True:
             # Receive frame: can be binary JPEG or JSON with metadata + base64/binary
             message = await websocket.receive()
+            if message.get("type") == "websocket.disconnect":
+                logger.info("WebSocket disconnected gracefully for session: %s", session_id)
+                break
 
             if "bytes" in message and message["bytes"]:
                 raw_bytes = message["bytes"]
@@ -178,7 +181,7 @@ async def handle_workout_websocket(websocket: WebSocket, session_id: str):
             finally:
                 is_processing = False
 
-    except WebSocketDisconnect:
+    except (WebSocketDisconnect, RuntimeError):
         logger.info("WebSocket disconnected for session: %s", session_id)
     except Exception as e:
         logger.error("WebSocket unexpected termination: %s", e)

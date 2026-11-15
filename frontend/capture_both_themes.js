@@ -36,7 +36,7 @@ async function captureTheme(theme) {
   const page = await browser.newPage();
 
   // 1. Load Homepage in requested theme
-  await page.goto('https://localhost:5173', { waitUntil: 'domcontentloaded' });
+  await page.goto('http://localhost:5173', { waitUntil: 'domcontentloaded' });
   await page.evaluate((t) => {
     localStorage.setItem('burnit_theme', t);
   }, theme);
@@ -52,7 +52,7 @@ async function captureTheme(theme) {
 
   // 2. Load Tracker with real athlete demo video
   console.log(`[${theme}] Loading Tracker with real athlete demo...`);
-  await page.goto('https://localhost:5173/tracker?source=demo', { waitUntil: 'domcontentloaded' });
+  await page.goto('http://localhost:5173/tracker?source=demo', { waitUntil: 'domcontentloaded' });
   await page.evaluate((t) => {
     localStorage.setItem('burnit_theme', t);
   }, theme);

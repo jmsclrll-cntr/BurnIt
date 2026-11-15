@@ -35,7 +35,7 @@ async function capture() {
 
   // STEP 1: Homepage Hero & Nav with Real UI Buttons (GET STARTED & Workout Tracker)
   console.log('Step 1: Homepage...');
-  await page.goto('https://localhost:5173', { waitUntil: 'domcontentloaded' });
+  await page.goto('http://localhost:5173', { waitUntil: 'domcontentloaded' });
   await sleep(1500);
   await page.screenshot({
     path: path.join(OUTPUT_DIR, 'step-1-access.png'),
@@ -44,7 +44,7 @@ async function capture() {
 
   // STEP 2: Navigate to Tracker (Camera & Position Calibrator)
   console.log('Step 2: Tracker...');
-  await page.goto('https://localhost:5173/tracker', { waitUntil: 'domcontentloaded' });
+  await page.goto('http://localhost:5173/tracker', { waitUntil: 'domcontentloaded' });
   await sleep(2500);
   await page.screenshot({
     path: path.join(OUTPUT_DIR, 'step-2-position.png'),

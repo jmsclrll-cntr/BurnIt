@@ -657,7 +657,7 @@ export const RealtimeTracker = () => {
 
   return (
     <PageWrapper hideFooter={true}>
-      <div className="w-full min-h-[calc(100vh-64px)] bg-[#eceef1] dark:bg-[#0b0b0d] py-6 sm:py-8 px-4 sm:px-8 text-[#16161a] dark:text-[#f4f4f5] transition-colors">
+      <div className="w-full min-h-[calc(100vh-64px)] bg-[#f6f4f1] dark:bg-[#0e0e13] py-6 sm:py-8 px-4 sm:px-8 text-[#17171c] dark:text-[#f4f4f5] transition-colors">
         <div className="max-w-7xl mx-auto font-sans">
           {/* Header: title "Workout tracker" */}
           <div className="mb-7 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
