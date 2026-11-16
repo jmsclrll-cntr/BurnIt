@@ -18,10 +18,41 @@ const safeJson = async (res) => {
   }
 };
 
+const isTokenValid = (tokenStr) => {
+  if (!tokenStr || tokenStr === 'null' || tokenStr === 'undefined' || typeof tokenStr !== 'string') return false;
+  try {
+    const parts = tokenStr.split('.');
+    if (parts.length !== 3) return false;
+    // Handle base64url encoding safely in browser
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      return false; // Token is expired
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => {
     try {
-      return localStorage.getItem('burnit_token') || null;
+      const stored = localStorage.getItem('burnit_token');
+      if (stored && isTokenValid(stored)) {
+        return stored;
+      }
+      if (stored) {
+        localStorage.removeItem('burnit_token');
+        localStorage.removeItem('burnit_user');
+      }
+      return null;
     } catch {
       return null;
     }
@@ -30,6 +61,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
       const stored = localStorage.getItem('burnit_user');
+      const storedToken = localStorage.getItem('burnit_token');
+      if (!storedToken || !isTokenValid(storedToken)) return null;
       return stored ? JSON.parse(stored) : null;
     } catch {
       return null;
@@ -61,8 +94,12 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let isMounted = true;
     const fetchMe = async () => {
-      if (!token) {
-        setIsLoading(false);
+      if (!token || !isTokenValid(token)) {
+        if (isMounted) {
+          setToken(null);
+          setUser(null);
+          setIsLoading(false);
+        }
         return;
       }
       try {

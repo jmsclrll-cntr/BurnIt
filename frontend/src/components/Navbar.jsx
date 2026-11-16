@@ -55,16 +55,38 @@ export default function Navbar() {
 
         {/* Center Desktop Navigation (only on non-tracker pages) */}
         {!isTrackerPage ? (
-          <nav className="hidden lg:flex items-center gap-1 sm:gap-2">
+          <nav
+            className={`hidden lg:flex items-center gap-[2px] p-[5px] rounded-full border transition-colors duration-150 ${
+              darkMode
+                ? 'bg-[#211E1B] border-[#35302B] shadow-[0_2px_8px_rgba(0,0,0,0.35)]'
+                : 'bg-[#FFFFFF] border-[#E8E4DE] shadow-[0_2px_8px_rgba(31,27,24,0.06)]'
+            }`}
+            style={{ fontFamily: "'Inter', sans-serif" }}
+            aria-label="Primary navigation"
+          >
             {navItems.map((item) => {
+              const targetHash = item.path.replace('/#', '');
+              const currentHash = location.hash.replace('#', '');
+              const isActive = isHome
+                ? (currentHash === targetHash || (!currentHash && item.label === 'Home'))
+                : (location.pathname === `/${targetHash}`);
               return (
                 <a
                   key={item.label}
                   href={isHome ? item.path.replace('/', '') : item.path}
-                  className={`px-4 py-2 rounded-full text-sm font-bold tracking-tight transition-colors flex items-center gap-1 ${darkMode
-                    ? 'text-neutral-200 hover:text-white hover:bg-neutral-800/60'
-                    : 'text-[#202124] hover:text-orange-600 hover:bg-neutral-100'
-                    }`}
+                  className={`px-3 sm:px-[18px] py-[7px] rounded-full text-[14px] leading-none tracking-normal transition-colors duration-150 ease-in-out select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                    darkMode
+                      ? 'focus-visible:outline-[#FF6A1F]'
+                      : 'focus-visible:outline-[#E8500A]'
+                  } ${
+                    isActive
+                      ? darkMode
+                        ? 'bg-[#3B2314] text-[#FF8A4D] font-semibold'
+                        : 'bg-[#FFEDE3] text-[#E8500A] font-semibold'
+                      : darkMode
+                        ? 'text-[#C9C4BB] font-medium hover:bg-[#2A2622] hover:text-[#F2EFEA]'
+                        : 'text-[#4A463F] font-medium hover:bg-[#F7F5F2] hover:text-[#1F1B18]'
+                  }`}
                 >
                   <span>{item.label}</span>
                 </a>

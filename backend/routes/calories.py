@@ -23,6 +23,7 @@ class CaloriePredictRequest(BaseModel):
     total_reps: int = 40
     total_sets: int = 3
     avg_form_score: float = 90.0
+    weight_lbs: Optional[float] = None
 
 class CaloriePredictResponse(BaseModel):
     predicted_calories: float
@@ -92,6 +93,9 @@ async def predict_calories(req: CaloriePredictRequest):
         'mixed': 6.2
     }
     met = met_dict.get(req.exercise_type.lower(), 5.5)
+    if "curl" in req.exercise_type.lower() and req.weight_lbs and req.weight_lbs > 0:
+        weight_factor = 1.0 + min(0.4, (float(req.weight_lbs) / 100.0) * 0.5)
+        met = round(met * weight_factor, 2)
 
     if model and metadata:
         try:

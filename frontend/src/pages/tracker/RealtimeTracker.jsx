@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Flame, Watch, Camera, CameraOff, X, ChevronDown, ArrowLeft, Home } from 'lucide-react';
+import { Heart, Flame, Watch, Camera, CameraOff, X, ChevronDown, ArrowLeft, Home, Dumbbell } from 'lucide-react';
 import PageWrapper from '../../components/PageWrapper';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../context/AuthContext';
@@ -38,6 +38,35 @@ export const RealtimeTracker = () => {
 
   // State
   const [activeExercise, setActiveExercise] = useState('auto');
+  const [curlWeightLbs, setCurlWeightLbs] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('burnit_curl_weight_lbs') || '15';
+    }
+    return '15';
+  });
+
+  const handleWeightChange = (val) => {
+    if (val === '' || val === null || val === undefined) {
+      setCurlWeightLbs('');
+      return;
+    }
+    const num = Number(val);
+    if (isNaN(num)) return;
+    const cleaned = Math.max(0, Math.min(500, num));
+    setCurlWeightLbs(cleaned);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('burnit_curl_weight_lbs', String(cleaned));
+    }
+  };
+
+  const handleWeightBlur = () => {
+    if (curlWeightLbs === '' || Number(curlWeightLbs) <= 0) {
+      setCurlWeightLbs(15);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('burnit_curl_weight_lbs', '15');
+      }
+    }
+  };
   const [videoSource, setVideoSource] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -485,9 +514,11 @@ export const RealtimeTracker = () => {
       const rawEx = stats?.exercise || activeExercise;
       const normEx = mapToAllowedExercise(rawEx);
       const isPlank = normEx === 'Plank';
+      const isCurl = normEx === 'Bicep curls' || activeExercise === 'bicepcurl';
       const finalReps = isPlank ? 0 : Math.max(0, Math.round(Number(stats?.totalReps ?? telemetry.reps ?? 0)));
       const durationSec = Math.max(1, Math.round(Number(stats?.duration || workoutDuration || 1)));
       const finalKcal = Math.max(0, Math.round(Number(cals || 0)));
+      const finalWeightLbs = isCurl ? (Number(curlWeightLbs) || 0) : undefined;
 
       const bodyData = {
         id: currentSavedItemIdRef.current || undefined,
@@ -495,6 +526,7 @@ export const RealtimeTracker = () => {
         duration_seconds: durationSec,
         reps: finalReps,
         calories_burned: finalKcal,
+        weight_lbs: finalWeightLbs,
         start_time: stats?.sessionStarted || sessionStartTimeFormatted || undefined,
         end_time: stats?.sessionCompleted || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         avg_form_score: Number(stats?.avgFormScore ?? telemetry.formScore ?? 100),
@@ -519,12 +551,13 @@ export const RealtimeTracker = () => {
     } catch (err) {
       console.error('Failed to save workout to history and sessions table:', err);
     }
-  }, [token, activeExercise, workoutDuration, telemetry.reps, telemetry.formScore, telemetry.formErrors, sessionStartTimeFormatted, calorieInputs.avgHeartRate]);
+  }, [token, activeExercise, curlWeightLbs, workoutDuration, telemetry.reps, telemetry.formScore, telemetry.formErrors, sessionStartTimeFormatted, calorieInputs.avgHeartRate]);
 
   const predictCalories = useCallback(async (inputs, sessionStats) => {
     setIsPredictingCal(true);
     const durationMin = Math.max(0.5, (sessionStats?.duration || workoutDuration) / 60);
     const exName = (sessionStats?.exercise || activeExercise || 'squat').toLowerCase().replace(/[^a-z]/g, '');
+    const isCurl = exName.includes('curl') || activeExercise === 'bicepcurl';
 
     const payload = {
       gender: inputs.gender || 'male',
@@ -538,6 +571,7 @@ export const RealtimeTracker = () => {
       total_reps: Number(sessionStats?.totalReps || telemetry.reps || 30),
       total_sets: Number(sessionStats?.totalSets || 3),
       avg_form_score: Number(sessionStats?.avgFormScore || telemetry.formScore || 90),
+      weight_lbs: isCurl ? (Number(curlWeightLbs) || 0) : undefined,
     };
 
     try {
@@ -686,6 +720,68 @@ export const RealtimeTracker = () => {
               })}
             </div>
           </div>
+
+          {/* Bicep Curls Dumbbell Weight Input Bar (shown when Bicep curls mode is selected) */}
+          {activeExercise === 'bicepcurl' && (
+            <div className="mb-6 p-4 sm:p-5 rounded-[22px] bg-white dark:bg-[#131316] border border-[#e2e4e9] dark:border-[#26262c] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-orange-500/10 dark:bg-orange-500/20 text-[#ea580c] dark:text-orange-400 flex items-center justify-center shrink-0 shadow-inner">
+                  <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <div>
+                  <div className="text-sm sm:text-base font-bold text-[#16161a] dark:text-[#f4f4f5] flex items-center gap-2">
+                    <span>Weight lifted (Pounds)</span>
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-orange-500/15 text-[#ea580c] dark:text-orange-400">
+                      Bicep curls
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-0.5 font-normal">
+                    Specify the weight in pounds (lbs) you are lifting for telemetry and history logging.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handleWeightChange(Math.max(0, (Number(curlWeightLbs) || 0) - 5))}
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#e2e4e9] dark:bg-[#1a1a1f] hover:bg-[#d8dadf] dark:hover:bg-[#25252e] text-[#16161a] dark:text-[#f4f4f5] font-bold text-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                  title="Decrease 5 lbs"
+                  aria-label="Decrease 5 lbs"
+                >
+                  -5
+                </button>
+
+                <div className="relative flex items-center">
+                  <input
+                    id="bicep-curl-weight-input"
+                    type="number"
+                    min="0"
+                    max="500"
+                    step="1"
+                    value={curlWeightLbs}
+                    onChange={(e) => handleWeightChange(e.target.value)}
+                    onBlur={handleWeightBlur}
+                    className="w-24 sm:w-28 pl-3 pr-10 py-2 sm:py-2.5 text-center font-bold font-mono text-base sm:text-lg rounded-xl border border-[#e2e4e9] dark:border-[#26262c] bg-neutral-50 dark:bg-[#1a1a1f] text-[#16161a] dark:text-white focus:outline-none focus:border-[#ea580c] focus:ring-2 focus:ring-[#ea580c]/20 transition-all"
+                    placeholder="15"
+                  />
+                  <span className="absolute right-3 text-xs font-bold text-[#6b6b76] dark:text-[#8b8b94] pointer-events-none select-none">
+                    lbs
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleWeightChange((Number(curlWeightLbs) || 0) + 5)}
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#e2e4e9] dark:bg-[#1a1a1f] hover:bg-[#d8dadf] dark:hover:bg-[#25252e] text-[#16161a] dark:text-[#f4f4f5] font-bold text-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                  title="Increase 5 lbs"
+                  aria-label="Increase 5 lbs"
+                >
+                  +5
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Camera Permission Alert (if blocked) */}
           {cameraError && (
@@ -856,6 +952,34 @@ export const RealtimeTracker = () => {
                             {telemetry.formScore}%
                           </span>
                         </div>
+                        {(activeExercise === 'bicepcurl' || currentExercise === 'bicepcurl') && (
+                          <div className="flex items-center justify-between pt-2.5 border-t border-[#e2e4e9] dark:border-[#26262c]">
+                            <label
+                              htmlFor="details-curl-weight-input"
+                              className="text-[#6b6b76] dark:text-[#8b8b94] font-normal text-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                            >
+                              <Dumbbell className="w-3.5 h-3.5 text-[#ea580c] shrink-0" />
+                              Weight lifted
+                            </label>
+                            <div className="relative flex items-center">
+                              <input
+                                id="details-curl-weight-input"
+                                type="number"
+                                min="0"
+                                max="500"
+                                step="1"
+                                value={curlWeightLbs}
+                                onChange={(e) => handleWeightChange(e.target.value)}
+                                onBlur={handleWeightBlur}
+                                className="w-20 pl-2 pr-8 py-0.5 text-right font-bold font-mono text-sm text-[#ea580c] dark:text-orange-400 bg-neutral-100 hover:bg-neutral-200/80 dark:bg-[#26262c]/60 dark:hover:bg-[#26262c] border border-[#e2e4e9] dark:border-[#35353d] rounded-lg focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all cursor-text"
+                                placeholder="15"
+                              />
+                              <span className="absolute right-2 text-xs font-bold text-[#ea580c] dark:text-orange-400 pointer-events-none select-none">
+                                lbs
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -915,6 +1039,7 @@ export const RealtimeTracker = () => {
                 activeSet={activeSet}
                 currentExercise={currentExercise}
                 activeExercise={activeExercise}
+                weightLbs={activeExercise === 'bicepcurl' ? (Number(curlWeightLbs) || 0) : null}
                 now={trackerNow}
                 onEndSet={endActiveSet}
               />
@@ -964,6 +1089,19 @@ export const RealtimeTracker = () => {
                     duration
                   </div>
                 </div>
+
+                {/* Weight Lifted Stat for Bicep Curls */}
+                {(activeExercise === 'bicepcurl' || (summaryData?.exercise || '').toLowerCase().includes('curl')) && (
+                  <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#f4f5f7] dark:bg-[#1a1a1f] border border-[#e2e4e9] dark:border-[#26262c] text-xs">
+                    <span className="text-[#6b6b76] dark:text-[#8b8b94] font-medium flex items-center gap-1.5">
+                      <Dumbbell className="w-4 h-4 text-[#ea580c]" />
+                      Weight lifted:
+                    </span>
+                    <span className="font-bold font-mono text-[#ea580c] dark:text-orange-400 text-sm">
+                      {curlWeightLbs || 0} lbs
+                    </span>
+                  </div>
+                )}
 
                 {/* Average Heart Rate Input Bar */}
                 <div>
@@ -1042,6 +1180,14 @@ export const RealtimeTracker = () => {
                       duration
                     </div>
                   </div>
+
+                  {/* Weight Lifted for Bicep Curls */}
+                  {(activeExercise === 'bicepcurl' || (summaryData?.exercise || '').toLowerCase().includes('curl')) && (
+                    <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-xs font-mono font-bold text-[#ea580c] dark:text-orange-400 border border-orange-500/20">
+                      <Dumbbell className="w-3.5 h-3.5" />
+                      <span>{curlWeightLbs || 0} lbs weight lifted</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Heart Rate Adjuster, Start New Session, Return to Dashboard */}

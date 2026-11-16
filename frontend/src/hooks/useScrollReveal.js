@@ -97,8 +97,8 @@ export function initScrollReveal(container = document) {
         // Check if element is already within the initial viewport
         const rect = el.getBoundingClientRect()
         const inViewport = rect.top < window.innerHeight && rect.bottom > 0
-        if (inViewport && rect.top < window.innerHeight * 0.75) {
-          // Immediately reveal elements already near or above the fold
+        if (inViewport) {
+          // Immediately reveal elements already inside the visible viewport
           el.classList.add('is-revealed')
           return
         }

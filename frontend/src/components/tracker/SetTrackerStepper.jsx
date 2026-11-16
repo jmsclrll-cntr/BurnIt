@@ -27,6 +27,7 @@ export default function SetTrackerStepper({
   activeSet = null,
   currentExercise = null,
   activeExercise = 'auto',
+  weightLbs = null,
   now = 0,
   onEndSet,
 }) {
@@ -84,6 +85,11 @@ export default function SetTrackerStepper({
                 <div className="flex items-center justify-between">
                   <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-2">
                     <span>{info.name}</span>
+                    {exKey === 'bicepcurl' && weightLbs != null && Number(weightLbs) > 0 && (
+                      <span className="text-[10px] normal-case font-bold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">
+                        {weightLbs} lbs
+                      </span>
+                    )}
                     {isAuto && (
                       <span className="text-[10px] normal-case font-semibold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">
                         First form
@@ -110,6 +116,11 @@ export default function SetTrackerStepper({
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-2">
                   <span>{info.name}</span>
+                  {exKey === 'bicepcurl' && weightLbs != null && Number(weightLbs) > 0 && (
+                    <span className="text-[10px] normal-case font-bold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">
+                      {weightLbs} lbs
+                    </span>
+                  )}
                   {isCurrentExercise && (
                     <span className="w-2 h-2 rounded-full bg-orange-600 dark:bg-orange-500 animate-pulse" />
                   )}
@@ -174,7 +185,10 @@ export default function SetTrackerStepper({
                                 : 'text-black dark:text-neutral-100'
                             }`}
                           >
-                            {isPlank ? `${set.reps}s hold` : `${set.reps} reps`} · {formatMMSS(set.duration)}
+                            {isPlank
+                              ? `${set.reps}s hold`
+                              : `${set.reps} reps${exKey === 'bicepcurl' && weightLbs ? ` @ ${weightLbs} lbs` : ''}`
+                            } · {formatMMSS(set.duration)}
                           </span>
 
                           {/* Live Indicator next to active set summary */}

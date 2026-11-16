@@ -35,6 +35,7 @@ export default function Homepage() {
   const [activeDropdown, setActiveDropdown] = useState(null)
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [activeSection, setActiveSection] = useState('home')
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -46,6 +47,19 @@ export default function Homepage() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
+
+      // Section scroll spy to highlight active nav link
+      const sections = ['about', 'coaching', 'programs', 'home']
+      for (const id of sections) {
+        const el = document.getElementById(id)
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          if (rect.top <= 140) {
+            setActiveSection(id)
+            break
+          }
+        }
+      }
     }
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -93,12 +107,11 @@ export default function Homepage() {
   }
 
   return (
-    <div
-      className={`min-h-screen font-sans antialiased transition-colors duration-300 selection:bg-orange-500/20 selection:text-orange-500 ${darkMode ? 'bg-[#0e0e13] text-[#f5f3ef]' : 'bg-[#f6f4f1] text-[#17171c]'
+    <div className={`min-h-screen font-sans antialiased transition-colors duration-300 selection:bg-orange-500/20 selection:text-orange-500 ${darkMode ? 'bg-[#0e0e13] text-[#f5f3ef]' : 'bg-[#f6f4f1] text-[#17171c]'
         }`}
     >
       {/* ========================================================= */}
-      {/* TRANSPARENT OVER HERO / FIXED TOP NAV                     */}
+      {/* TRANSPARENT OVER HERO / FIXED TOP NAV */}
       {/* ========================================================= */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
@@ -115,15 +128,14 @@ export default function Homepage() {
             href="#home"
             onClick={(e) => {
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.scrollTo({ top:0, behavior: 'smooth' });
             }}
             className="flex items-center gap-2.5 group"
           >
             <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
               <Flame className="w-4 h-4 text-white fill-white" />
             </div>
-            <div
-              className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${!scrolled
+            <div className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${!scrolled
                   ? 'text-white'
                   : darkMode
                     ? 'text-white'
@@ -135,36 +147,60 @@ export default function Homepage() {
         </div>
       </a>
 
-      {/* Center Links (Visible, High Contrast, Updated Items: Home, Workout, Guide, About) */}
-      <nav className="hidden lg:flex items-center gap-1.5 sm:gap-2.5 bg-black/50 backdrop-blur-md px-5 py-2 rounded-full border border-white/20 shadow-xl">
+      {/* Center Links (Light Floating Pill Nav) */}
+      <nav
+        className={`hidden lg:flex items-center gap-[2px] p-[5px] rounded-full border transition-colors duration-150 ${
+          darkMode
+            ? 'bg-[#211E1B] border-[#35302B] shadow-[0_2px_8px_rgba(0,0,0,0.35)]'
+            : 'bg-[#FFFFFF] border-[#E8E4DE] shadow-[0_2px_8px_rgba(31,27,24,0.06)]'
+        }`}
+        style={{ fontFamily: "'Inter', sans-serif" }}
+        aria-label="Primary navigation"
+      >
         {[
           { label: 'Home', target: 'home' },
           { label: 'Workout', target: 'programs' },
           { label: 'Guide', target: 'coaching' },
           { label: 'About', target: 'about' },
-        ].map((item) => (
-          <a
-            key={item.label}
-            href={`#${item.target}`}
-            onClick={(e) => {
-              e.preventDefault();
-              if (item.target === 'home') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              } else {
-                const el = document.getElementById(item.target);
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        ].map((item) => {
+          const isActive = activeSection === item.target;
+          return (
+            <a
+              key={item.label}
+              href={`#${item.target}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveSection(item.target);
+                if (item.target === 'home') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                  const el = document.getElementById(item.target);
+                  if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
                 }
-              }
-            }}
-            className="px-4 py-1.5 rounded-full text-[15px] font-extrabold tracking-tight text-white hover:text-orange-400 hover:bg-white/15 transition-all duration-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]"
-          >
-            <span>{item.label}</span>
-          </a>
-        ))}
+              }}
+              className={`px-3 sm:px-[18px] py-[7px] rounded-full text-[14px] leading-none tracking-normal transition-colors duration-150 ease-in-out select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                darkMode
+                  ? 'focus-visible:outline-[#FF6A1F]'
+                  : 'focus-visible:outline-[#E8500A]'
+              } ${
+                isActive
+                  ? darkMode
+                    ? 'bg-[#3B2314] text-[#FF8A4D] font-semibold'
+                    : 'bg-[#FFEDE3] text-[#E8500A] font-semibold'
+                  : darkMode
+                    ? 'text-[#C9C4BB] font-medium hover:bg-[#2A2622] hover:text-[#F2EFEA]'
+                    : 'text-[#4A463F] font-medium hover:bg-[#F7F5F2] hover:text-[#1F1B18]'
+              }`}
+            >
+              <span>{item.label}</span>
+            </a>
+          );
+        })}
       </nav>
 
-      {/* Right Side: Fullscreen & Profile Icon Only (Big Icons) */}
+      {/* Right Side:Fullscreen & Profile Icon Only (Big Icons) */}
       <div className="hidden sm:flex items-center gap-3">
         {/* Fullscreen Toggle placed right next to Profile Icon */}
         <button
@@ -200,10 +236,10 @@ export default function Homepage() {
     </button>
   )
 }
-          </div >
+          </div>
 
-  {/* Mobile Right Controls */ }
-  < div className = "flex sm:hidden items-center gap-1.5" >
+  {/* Mobile Right Controls */}
+  <div className="flex sm:hidden items-center gap-1.5" >
     <button
       type="button"
       onClick={() => enterFullScreen()}
@@ -222,7 +258,7 @@ export default function Homepage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`p - 2 rounded - lg ${
+              className={`p-2 rounded-lg ${
   !scrolled
     ? 'text-white hover:bg-white/10'
                   : darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-[#17171c] hover:bg-[#eae6e1]'
@@ -236,8 +272,7 @@ export default function Homepage() {
 
         {/* Mobile dropdown */}
         {mobileMenuOpen && (
-          <div
-            className={`lg:hidden border - b px - 6 py - 6 space - y - 3 ${
+          <div className={`lg:hidden border-b px-6 py-6 space-y-3 ${
   darkMode ? 'bg-[#16161d] border-[#2a2a34]' : 'bg-[#f6f4f1] border-[#dcd8d2]'
 } `}
           >
@@ -249,12 +284,12 @@ export default function Homepage() {
             ].map((item) => (
               <a
                 key={item.label}
-                href={`#${ item.target } `}
+                href={`#${item.target}`}
                 onClick={(e) => {
                   e.preventDefault();
                   setMobileMenuOpen(false);
                   if (item.target === 'home') {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.scrollTo({ top:0, behavior: 'smooth' });
                   } else {
                     const el = document.getElementById(item.target);
                     if (el) {
@@ -262,7 +297,7 @@ export default function Homepage() {
                     }
                   }
                 }}
-                className={`block text - base font - bold py - 1.5 ${
+                className={`block text-base font-bold py-1.5 ${
   darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
 } `}
               >
@@ -318,7 +353,7 @@ export default function Homepage() {
       </header>
 
       {/* ========================================================= */}
-      {/* HERO SECTION (EXACTLY 100VH FULLSCREEN)                   */}
+      {/* HERO SECTION (EXACTLY 100VH FULLSCREEN) */}
       {/* ========================================================= */}
       <section
         id="home"
@@ -330,13 +365,12 @@ export default function Homepage() {
           <img
             src="/background/home_background.png"
             alt="Hero Background"
-            className={`w - full h - full object - cover object - center select - none transition - transform duration - 1000 ease - out will - change - transform ${
+            className={`w-full h-full object-cover object-center select-none transition-transform duration-1000 ease-out will-change-transform ${
   mounted ? 'scale-100' : 'scale-105'
 } `}
           />
           {/* Subtle balanced scrim for crystal-clear image visibility and sharp text contrast */}
-          <div
-            className={`absolute inset - 0 transition - colors duration - 300 ${
+          <div className={`absolute inset-0 transition-colors duration-300 ${
   darkMode
     ? 'bg-gradient-to-b from-black/55 via-black/35 to-black/50'
     : 'bg-gradient-to-b from-black/50 via-black/30 to-black/45'
@@ -346,9 +380,9 @@ export default function Homepage() {
 
         <noscript>
           <style>{`
-  .hero - fade - init {
-  opacity: 1!important;
-  transform: none!important;
+  .hero-fade-init {
+  opacity:1!important;
+  transform:none!important;
 }
 `}</style>
         </noscript>
@@ -358,14 +392,14 @@ export default function Homepage() {
           <h1
             style={{
               fontSize: 'clamp(40px, 7vw, 76px)',
-              lineHeight: 1.05,
-              fontWeight: 800,
+              lineHeight:1.05,
+              fontWeight:800,
             }}
-            className={`text - center font - extrabold tracking - tight hero - fade - init transition - all duration - 700 ease - out ${
+            className={`text-center font-extrabold tracking-tight hero-fade-init transition-all duration-700 ease-out ${
   mounted
     ? 'opacity-100 translate-y-0 blur-0'
     : 'opacity-0 translate-y-7 blur-[3px]'
-} text - white drop - shadow - md`}
+} text-white drop-shadow-md`}
           >
             <span className="block whitespace-nowrap">Healthy Body —</span>
             <span className="block whitespace-nowrap">Healthy Life!</span>
@@ -373,18 +407,17 @@ export default function Homepage() {
 
           {/* Related Subtitle Text */}
           <p
-            className={`mt - 6 text - base sm: text - lg md: text - xl max - w - 2xl mx - auto leading - relaxed font - normal hero - fade - init transition - all duration - 700 ease - out delay - 150 ${
+            className={`mt-6 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-normal hero-fade-init transition-all duration-700 ease-out delay-150 ${
   mounted
     ? 'opacity-100 translate-y-0 blur-0'
     : 'opacity-0 translate-y-7 blur-[3px]'
-} text - neutral - 200 drop - shadow`}
+} text-neutral-200 drop-shadow`}
           >
             Real-time AI pose tracking, precision joint analysis, and smart repetition counting directly in your browser. Perfect your workout form and ignite your athletic potential.
           </p>
 
           {/* Action Buttons */}
-          <div
-            className={`mt - 8 sm: mt - 10 flex flex - col sm: flex - row items - center justify - center gap - 4 hero - fade - init transition - all duration - 700 ease - out delay - 300 ${
+          <div className={`mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 hero-fade-init transition-all duration-700 ease-out delay-300 ${
   mounted
     ? 'opacity-100 translate-y-0 blur-0'
     : 'opacity-0 translate-y-7 blur-[3px]'
@@ -413,16 +446,16 @@ export default function Homepage() {
       </section>
 
       {/* ========================================================= */}
-      {/* EXERCISES THE SYSTEM CAN DETECT                           */}
+      {/* EXERCISES THE SYSTEM CAN DETECT */}
       {/* ========================================================= */}
       <ExerciseDetectorSection />
 
       {/* ========================================================= */}
-      {/* HOW TO USE THIS SYSTEM (LIVE WORKFLOW GUIDE)              */}
+      {/* HOW TO USE THIS SYSTEM (LIVE WORKFLOW GUIDE) */}
       {/* ========================================================= */}
       <section
         id="coaching"
-        className={`py - 24 sm: py - 28 border - t transition - colors duration - 300 ${
+        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${
   darkMode ? 'bg-[#0e0e13] border-[#2a2a34]' : 'bg-[#f6f4f1] border-[#dcd8d2]'
 } `}
       >
@@ -433,14 +466,14 @@ export default function Homepage() {
               Interactive Biometric Guide
             </span>
             <h2
-              className={`text - 3xl sm: text - 4xl font - bold leading - tight ${
+              className={`text-3xl sm:text-4xl font-bold leading-tight ${
   darkMode ? 'text-white' : 'text-[#17171c]'
 } `}
             >
               How to Use This System
             </h2>
             <p
-              className={`text - base sm: text - lg leading - relaxed ${
+              className={`text-base sm:text-lg leading-relaxed ${
   darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
 } `}
             >
@@ -470,28 +503,27 @@ export default function Homepage() {
                   Step 01
                 </div>
                 <h3
-                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
   darkMode ? 'text-white' : 'text-[#17171c]'
 } `}
                 >
                   Access the Tracker
                 </h3>
                 <p
-                  className={`text - base leading - relaxed ${
+                  className={`text-base leading-relaxed ${
   darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
 } `}
                 >
                   Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">GET STARTED</strong> in the hero section or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar. Simply log in or create your free account to unlock real-time tracking, personalized rep counters, and caloric expenditure analysis.
                 </p>
               </div>
-              <div
-                className={`lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+              <div className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
   darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
 } `}
               >
                 <img
                   src={darkMode ? '/guide/step-1-access-dark.png' : '/guide/step-1-access-light.png'}
-                  alt="Step 1: Access Workout Tracker"
+                  alt="Step 1:Access Workout Tracker"
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -499,14 +531,13 @@ export default function Homepage() {
 
             {/* Step 2 (Alternating) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div
-                className={`order - 2 lg: order - 1 lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+              <div className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
   darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
 } `}
               >
                 <img
                   src={darkMode ? '/guide/step-2-position-dark.png' : '/guide/step-2-position-light.png'}
-                  alt="Step 2: Position into camera frame"
+                  alt="Step 2:Position into camera frame"
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -515,14 +546,14 @@ export default function Homepage() {
                   Step 02
                 </div>
                 <h3
-                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
   darkMode ? 'text-white' : 'text-[#17171c]'
 } `}
                 >
                   Align Body in Frame
                 </h3>
                 <p
-                  className={`text - base leading - relaxed ${
+                  className={`text-base leading-relaxed ${
   darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
 } `}
                 >
@@ -538,28 +569,27 @@ export default function Homepage() {
                   Step 03
                 </div>
                 <h3
-                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
   darkMode ? 'text-white' : 'text-[#17171c]'
 } `}
                 >
                   Select Workout Mode
                 </h3>
                 <p
-                  className={`text - base leading - relaxed ${
+                  className={`text-base leading-relaxed ${
   darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
 } `}
                 >
                   Choose your targeted exercise from the workout bar—including <strong className="text-orange-600 font-semibold">Squats</strong>, <strong className="text-orange-600 font-semibold">Push-Ups</strong>, <strong className="text-orange-600 font-semibold">Plank</strong>, <strong className="text-orange-600 font-semibold">Jumping Jacks</strong>, or <strong className="text-orange-600 font-semibold">Bicep Curls</strong>. Alternatively, keep <strong className="text-orange-600 font-semibold">Auto-Detect</strong> active to let our machine learning posture engine automatically sample your biomechanics every 2 seconds and switch exercises as you move.
                 </p>
               </div>
-              <div
-                className={`lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+              <div className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
   darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
 } `}
               >
                 <img
                   src={darkMode ? '/guide/step-3-select-dark.png' : '/guide/step-3-select-light.png'}
-                  alt="Step 3: Select workout mode"
+                  alt="Step 3:Select workout mode"
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -567,14 +597,13 @@ export default function Homepage() {
 
             {/* Step 4 (Alternating) */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div
-                className={`order - 2 lg: order - 1 lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+              <div className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
   darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
 } `}
               >
                 <img
                   src={darkMode ? '/guide/step-4-track-dark.png' : '/guide/step-4-track-light.png'}
-                  alt="Step 4: Real-time pose tracking"
+                  alt="Step 4:Real-time pose tracking"
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -583,14 +612,14 @@ export default function Homepage() {
                   Step 04
                 </div>
                 <h3
-                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
   darkMode ? 'text-white' : 'text-[#17171c]'
 } `}
                 >
                   Perform Movement
                 </h3>
                 <p
-                  className={`text - base leading - relaxed ${
+                  className={`text-base leading-relaxed ${
   darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
 } `}
                 >
@@ -606,28 +635,27 @@ export default function Homepage() {
                   Step 05
                 </div>
                 <h3
-                  className={`text - 2xl sm: text - 3xl font - bold leading - tight ${
+                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
   darkMode ? 'text-white' : 'text-[#17171c]'
 } `}
                 >
                   Finish and Review Summary
                 </h3>
                 <p
-                  className={`text - base leading - relaxed ${
+                  className={`text-base leading-relaxed ${
   darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
 } `}
                 >
                   Once you complete your workout set, tap <strong className="text-red-500 font-semibold">Finish Workout</strong> to conclude tracking. The system instantly generates a <strong className="text-orange-600 font-semibold">Workout Complete</strong> report detailing your total completed repetitions, overall form precision percentage, exact session duration, and estimated calories burned, with options to start a new workout or return to the dashboard.
                 </p>
               </div>
-              <div
-                className={`lg: col - span - 7 rounded - 2xl overflow - hidden border shadow - lg transition - all duration - 300 ${
+              <div className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
   darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
 } `}
               >
                 <img
                   src={darkMode ? '/guide/step-5-summary-dark.png' : '/guide/step-5-summary-light.png'}
-                  alt="Step 5: Finish workout and review summary"
+                  alt="Step 5:Finish workout and review summary"
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -637,12 +665,12 @@ export default function Homepage() {
       </section>
 
       {/* ========================================================= */}
-      {/* ABOUT BURN IT SECTION (DIRECTLY AFTER GUIDE SECTION)      */}
+      {/* ABOUT BURN IT SECTION (DIRECTLY AFTER GUIDE SECTION) */}
       {/* ========================================================= */}
       <AboutBurnIt />
 
       {/* ========================================================= */}
-      {/* REDESIGNED MINIMAL FOOTER                                 */}
+      {/* REDESIGNED MINIMAL FOOTER */}
       {/* ========================================================= */}
       <Footer />
     </div>

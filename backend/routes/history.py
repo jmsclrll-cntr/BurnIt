@@ -78,6 +78,7 @@ class WorkoutHistoryItemCreate(BaseModel):
     duration_seconds: int
     reps: int = 0
     calories_burned: float = 0.0
+    weight_lbs: Optional[float] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None
     avg_form_score: Optional[float] = None
@@ -120,6 +121,7 @@ async def get_workout_history(auth_user: dict = Depends(require_authenticated_us
                 whi.duration_seconds,
                 whi.reps,
                 whi.calories_burned,
+                whi.weight_lbs,
                 wh.date AS workout_date,
                 whi.created_at
             FROM workout_history_items whi
@@ -142,6 +144,7 @@ async def get_workout_history(auth_user: dict = Depends(require_authenticated_us
                 duration_seconds,
                 total_reps AS reps,
                 calories AS calories_burned,
+                weight_lbs,
                 DATE(created_at) AS workout_date,
                 created_at
             FROM sessions
@@ -159,6 +162,7 @@ async def get_workout_history(auth_user: dict = Depends(require_authenticated_us
         w_date = row["workout_date"]
         d_str = w_date.isoformat() if hasattr(w_date, "isoformat") else str(w_date)
         dur = int(row["duration_seconds"] or 0)
+        w_lbs = float(row["weight_lbs"]) if row.get("weight_lbs") is not None else None
         all_workouts[row_id] = {
             "id": row_id,
             "exercise_name": normalize_exercise_name(row["exercise_name"]),
@@ -167,6 +171,7 @@ async def get_workout_history(auth_user: dict = Depends(require_authenticated_us
             "duration_formatted": format_duration(dur),
             "reps": int(row["reps"] or 0),
             "calories_burned": round(float(row["calories_burned"] or 0)),
+            "weight_lbs": w_lbs,
             "date": d_str,
             "created_at": str(row["created_at"]),
         }
@@ -178,6 +183,7 @@ async def get_workout_history(auth_user: dict = Depends(require_authenticated_us
             d_str = w_date.isoformat() if hasattr(w_date, "isoformat") else str(w_date)
             dur_val = int(round(float(row["duration_seconds"] or 0)))
             cal_val = round(float(row["calories_burned"] or 0))
+            w_lbs = float(row["weight_lbs"]) if row.get("weight_lbs") is not None else None
             all_workouts[row_id] = {
                 "id": row_id,
                 "exercise_name": normalize_exercise_name(row["exercise_name"]),
@@ -186,6 +192,7 @@ async def get_workout_history(auth_user: dict = Depends(require_authenticated_us
                 "duration_formatted": format_duration(dur_val),
                 "reps": int(row["reps"] or 0),
                 "calories_burned": cal_val,
+                "weight_lbs": w_lbs,
                 "date": d_str,
                 "created_at": str(row["created_at"]),
             }
@@ -270,7 +277,7 @@ async def get_day_details(target_date: str, auth_user: dict = Depends(require_au
         # 1. Fetch from workout_history_items for that date
         await cur.execute(
             """
-            SELECT whi.id, whi.exercise_name, whi.start_time, whi.duration_seconds, whi.reps, whi.calories_burned, whi.created_at
+            SELECT whi.id, whi.exercise_name, whi.start_time, whi.duration_seconds, whi.reps, whi.calories_burned, whi.weight_lbs, whi.created_at
             FROM workout_history_items whi
             JOIN workout_history wh ON whi.history_id = wh.id
             WHERE wh.user_id = %s AND wh.date = %s
@@ -283,7 +290,7 @@ async def get_day_details(target_date: str, auth_user: dict = Depends(require_au
         # 2. Fetch from sessions for that date
         await cur.execute(
             """
-            SELECT id, exercise AS exercise_name, start_time, duration_seconds, total_reps AS reps, calories AS calories_burned, created_at
+            SELECT id, exercise AS exercise_name, start_time, duration_seconds, total_reps AS reps, calories AS calories_burned, weight_lbs, created_at
             FROM sessions
             WHERE (user_id = %s OR user_id = %s) AND DATE(created_at) = %s
             ORDER BY created_at ASC
@@ -297,6 +304,7 @@ async def get_day_details(target_date: str, auth_user: dict = Depends(require_au
     for row in whi_items:
         r_id = str(row["id"])
         dur = int(row["duration_seconds"] or 0)
+        w_lbs = float(row["weight_lbs"]) if row.get("weight_lbs") is not None else None
         day_items_map[r_id] = {
             "id": r_id,
             "exercise_name": row["exercise_name"],
@@ -305,12 +313,14 @@ async def get_day_details(target_date: str, auth_user: dict = Depends(require_au
             "duration_formatted": format_duration(dur),
             "reps": int(row["reps"] or 0),
             "calories_burned": round(float(row["calories_burned"] or 0)),
+            "weight_lbs": w_lbs,
         }
 
     for row in sess_items:
         r_id = str(row["id"])
         if r_id not in day_items_map:
             dur = int(round(float(row["duration_seconds"] or 0)))
+            w_lbs = float(row["weight_lbs"]) if row.get("weight_lbs") is not None else None
             day_items_map[r_id] = {
                 "id": r_id,
                 "exercise_name": normalize_exercise_name(row["exercise_name"]),
@@ -319,6 +329,7 @@ async def get_day_details(target_date: str, auth_user: dict = Depends(require_au
                 "duration_formatted": format_duration(dur),
                 "reps": int(row["reps"] or 0),
                 "calories_burned": round(float(row["calories_burned"] or 0)),
+                "weight_lbs": w_lbs,
             }
 
     items = list(day_items_map.values())
@@ -374,6 +385,7 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
     end_time_str = payload.end_time or datetime.now().strftime("%I:%M %p").lstrip("0")
     errors_json = json.dumps(payload.common_errors) if payload.common_errors is not None else "[]"
     avg_score = float(payload.avg_form_score if payload.avg_form_score is not None else 100.0)
+    weight_val = float(payload.weight_lbs) if payload.weight_lbs is not None else None
 
     async with get_db() as cur:
         user_id = await resolve_user_id(cur, username, auth_user)
@@ -397,7 +409,8 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
                     SET exercise_name = %s,
                         duration_seconds = %s,
                         reps = %s,
-                        calories_burned = %s
+                        calories_burned = %s,
+                        weight_lbs = %s
                     WHERE id = %s
                     """,
                     (
@@ -405,6 +418,7 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
                         int(payload.duration_seconds),
                         int(payload.reps),
                         float(payload.calories_burned),
+                        weight_val,
                         payload.id,
                     )
                 )
@@ -424,6 +438,7 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
                         avg_form_score = %s,
                         duration_seconds = %s,
                         calories = %s,
+                        weight_lbs = %s,
                         common_errors = %s
                     WHERE id = %s
                     """,
@@ -435,6 +450,7 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
                         avg_score,
                         float(payload.duration_seconds),
                         float(payload.calories_burned),
+                        weight_val,
                         errors_json,
                         payload.id,
                     )
@@ -474,8 +490,8 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
         await cur.execute(
             """
             INSERT INTO workout_history_items 
-                (id, history_id, exercise_name, start_time, duration_seconds, reps, calories_burned)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (id, history_id, exercise_name, start_time, duration_seconds, reps, calories_burned, weight_lbs)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 item_id,
@@ -485,6 +501,7 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
                 int(payload.duration_seconds),
                 int(payload.reps),
                 float(payload.calories_burned),
+                weight_val,
             )
         )
 
@@ -492,8 +509,8 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
         await cur.execute(
             """
             INSERT INTO sessions 
-                (id, user_id, exercise, start_time, end_time, total_reps, avg_form_score, duration_seconds, calories, common_errors)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                (id, user_id, exercise, start_time, end_time, total_reps, avg_form_score, duration_seconds, calories, weight_lbs, common_errors)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 item_id,
@@ -505,6 +522,7 @@ async def save_workout_item(payload: WorkoutHistoryItemCreate, auth_user: dict =
                 avg_score,
                 float(payload.duration_seconds),
                 float(payload.calories_burned),
+                weight_val,
                 errors_json,
             )
         )

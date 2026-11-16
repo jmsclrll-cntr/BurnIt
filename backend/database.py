@@ -210,6 +210,7 @@ async def init_db():
                             avg_form_score DOUBLE DEFAULT 0.0,
                             duration_seconds DOUBLE DEFAULT 0.0,
                             calories DOUBLE DEFAULT 0.0,
+                            weight_lbs DOUBLE DEFAULT NULL,
                             common_errors TEXT DEFAULT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -255,11 +256,22 @@ async def init_db():
                             duration_seconds INT NOT NULL,
                             reps INT NOT NULL DEFAULT 0,
                             calories_burned DOUBLE NOT NULL DEFAULT 0.0,
+                            weight_lbs DOUBLE DEFAULT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             INDEX idx_whi_history (history_id),
                             CONSTRAINT fk_whi_history FOREIGN KEY (history_id) REFERENCES workout_history(id) ON DELETE CASCADE
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
                     """)
+
+                    # Automatic migration checks for weight_lbs column on existing tables
+                    try:
+                        await cur.execute("ALTER TABLE workout_history_items ADD COLUMN weight_lbs DOUBLE DEFAULT NULL AFTER calories_burned")
+                    except Exception:
+                        pass
+                    try:
+                        await cur.execute("ALTER TABLE sessions ADD COLUMN weight_lbs DOUBLE DEFAULT NULL AFTER calories")
+                    except Exception:
+                        pass
 
         logger.info("MySQL tables initialized successfully in phpMyAdmin database: %s", settings.DB_NAME)
     except Exception as e:

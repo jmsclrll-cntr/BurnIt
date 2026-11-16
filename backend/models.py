@@ -38,6 +38,7 @@ class TokenResponse(BaseModel):
 class SessionCreate(BaseModel):
     user_id: Optional[str] = "guest"
     exercise: str = "squat"
+    weight_lbs: Optional[float] = None
 
 class SessionResponse(BaseModel):
     id: str
@@ -49,6 +50,7 @@ class SessionResponse(BaseModel):
     avg_form_score: float = 0.0
     duration_seconds: float = 0.0
     calories: float = 0.0
+    weight_lbs: Optional[float] = None
     common_errors: List[str] = []
 
 class SessionFinish(BaseModel):
@@ -56,6 +58,7 @@ class SessionFinish(BaseModel):
     duration_seconds: float
     avg_form_score: float
     calories: float
+    weight_lbs: Optional[float] = None
     common_errors: List[str] = []
 
 class ExerciseInfo(BaseModel):

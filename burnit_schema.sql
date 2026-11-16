@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2. Workout Sessions Table (Telemetry, Reps, Scores, Calories)
+-- 2. Workout Sessions Table (Telemetry, Reps, Scores, Calories, Weight)
 CREATE TABLE IF NOT EXISTS `sessions` (
     `id` VARCHAR(64) NOT NULL PRIMARY KEY,
     `user_id` VARCHAR(100) DEFAULT NULL,
@@ -35,9 +35,24 @@ CREATE TABLE IF NOT EXISTS `sessions` (
     `avg_form_score` DOUBLE DEFAULT 0.0,
     `duration_seconds` DOUBLE DEFAULT 0.0,
     `calories` DOUBLE DEFAULT 0.0,
+    `weight_lbs` DOUBLE DEFAULT NULL,
     `common_errors` TEXT DEFAULT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX `idx_user_created` (`user_id`, `created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2.1 Workout History Items Table
+CREATE TABLE IF NOT EXISTS `workout_history_items` (
+    `id` VARCHAR(64) NOT NULL PRIMARY KEY,
+    `history_id` VARCHAR(64) NOT NULL,
+    `exercise_name` VARCHAR(64) NOT NULL,
+    `start_time` VARCHAR(64) NOT NULL,
+    `duration_seconds` INT NOT NULL,
+    `reps` INT NOT NULL DEFAULT 0,
+    `calories_burned` DOUBLE NOT NULL DEFAULT 0.0,
+    `weight_lbs` DOUBLE DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_whi_history` (`history_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 3. Dataset Metadata Table (Pose Recording & Model Training Data)

@@ -667,7 +667,7 @@ export default function ProfileModal() {
                                     {workout.exercise_name}
                                   </div>
                                   <div className="text-xs text-neutral-400 mt-0.5 truncate">
-                                    {workout.start_time ? `${workout.start_time} · ` : ''}{workout.reps} reps
+                                    {workout.start_time ? `${workout.start_time} · ` : ''}{workout.reps} reps{workout.weight_lbs != null && Number(workout.weight_lbs) > 0 ? ` @ ${workout.weight_lbs} lbs` : ''}
                                   </div>
                                 </div>
 
@@ -778,12 +778,21 @@ export default function ProfileModal() {
                         </div>
                       </div>
 
-                      <div className={`p-3.5 rounded-2xl border ${darkMode ? 'bg-[#131316] border-[#26262c]' : 'bg-neutral-50 border-neutral-200'}`}>
-                        <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Status</div>
-                        <div className="text-base sm:text-lg font-bold text-emerald-500 mt-1">
-                          Completed
+                      {selectedWorkout.weight_lbs != null && Number(selectedWorkout.weight_lbs) > 0 ? (
+                        <div className={`p-3.5 rounded-2xl border ${darkMode ? 'bg-[#131316] border-[#26262c]' : 'bg-neutral-50 border-neutral-200'}`}>
+                          <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Weight Lifted</div>
+                          <div className="text-xl sm:text-2xl font-bold font-mono text-[#ea580c] mt-1">
+                            {selectedWorkout.weight_lbs} <span className="text-xs font-normal text-neutral-400">lbs</span>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className={`p-3.5 rounded-2xl border ${darkMode ? 'bg-[#131316] border-[#26262c]' : 'bg-neutral-50 border-neutral-200'}`}>
+                          <div className="text-xs text-neutral-400 uppercase tracking-wider font-semibold">Status</div>
+                          <div className="text-base sm:text-lg font-bold text-emerald-500 mt-1">
+                            Completed
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -863,7 +872,7 @@ export default function ProfileModal() {
                                 {item.exercise_name}
                               </div>
                               <div className="text-xs text-neutral-400 mt-0.5 truncate">
-                                {item.start_time} · {item.reps} reps
+                                {item.start_time} · {item.reps} reps{item.weight_lbs != null && Number(item.weight_lbs) > 0 ? ` @ ${item.weight_lbs} lbs` : ''}
                               </div>
                             </div>
 

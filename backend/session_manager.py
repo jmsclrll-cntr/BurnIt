@@ -71,6 +71,7 @@ class SessionManager:
     async def finish_session(self, session_id: str, finish_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         active = self.active_sessions.pop(session_id, None)
         now = datetime.now(timezone.utc).isoformat()
+        weight_lbs = None
 
         if active:
             duration = round(time.time() - active.start_time, 1)
@@ -97,14 +98,19 @@ class SessionManager:
                 avg_score = float(finish_data["avg_form_score"])
             if "calories" in finish_data and finish_data["calories"] > 0:
                 calories = float(finish_data["calories"])
+            if "weight_lbs" in finish_data and finish_data["weight_lbs"] is not None:
+                try:
+                    weight_lbs = float(finish_data["weight_lbs"])
+                except (ValueError, TypeError):
+                    weight_lbs = None
 
         try:
             async with get_db() as cur:
                 await cur.execute("""
                     UPDATE sessions
-                    SET end_time = %s, total_reps = %s, avg_form_score = %s, duration_seconds = %s, calories = %s, common_errors = %s
+                    SET end_time = %s, total_reps = %s, avg_form_score = %s, duration_seconds = %s, calories = %s, weight_lbs = %s, common_errors = %s
                     WHERE id = %s
-                """, (now, reps, avg_score, duration, calories, json.dumps(common_errors), session_id))
+                """, (now, reps, avg_score, duration, calories, weight_lbs, json.dumps(common_errors), session_id))
         except Exception:
             pass
 
@@ -115,6 +121,7 @@ class SessionManager:
             "duration_seconds": duration,
             "avg_form_score": avg_score,
             "calories": calories,
+            "weight_lbs": weight_lbs,
             "common_errors": common_errors,
         }
 

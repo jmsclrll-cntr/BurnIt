@@ -59,19 +59,16 @@ html.dark body {
 
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(24px) scale(0.985);
-  filter: blur(4px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform, filter;
+  transform: translateY(16px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
   backface-visibility: hidden;
 }
 
 .scroll-reveal.is-revealed {
   opacity: 1 !important;
-  transform: translateY(0) scale(1) !important;
-  filter: blur(0px) !important;
+  transform: none !important;
 }
 
 /* Stagger utility for sibling items (e.g. cards in grids) */
