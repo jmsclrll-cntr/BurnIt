@@ -40,15 +40,12 @@ export default function Navbar() {
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo on the left (links to home) */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+        <Link to="/" className="flex items-center gap-2.5 group" aria-label="Burn It Home">
+          <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
             <Flame className="w-4 h-4 text-white fill-white" />
           </div>
-          <div
-            className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${darkMode ? 'text-[#f5f3ef]' : 'text-[#17171c]'
-              }`}
-          >
-            <span>BURN</span>
+          <div className="flex items-center gap-1.5 font-bold text-base tracking-tight select-none">
+            <span className={darkMode ? 'text-white' : 'text-[#17171c]'}>BURN</span>
             <span className="text-orange-600">IT</span>
           </div>
         </Link>
@@ -56,11 +53,10 @@ export default function Navbar() {
         {/* Center Desktop Navigation (only on non-tracker pages) */}
         {!isTrackerPage ? (
           <nav
-            className={`hidden lg:flex items-center gap-[2px] p-[5px] rounded-full border transition-colors duration-150 ${
-              darkMode
-                ? 'bg-[#211E1B] border-[#35302B] shadow-[0_2px_8px_rgba(0,0,0,0.35)]'
-                : 'bg-[#FFFFFF] border-[#E8E4DE] shadow-[0_2px_8px_rgba(31,27,24,0.06)]'
-            }`}
+            className={`hidden lg:flex items-center gap-[2px] p-[5px] rounded-full border transition-colors duration-150 ${darkMode
+              ? 'bg-[#211E1B] border-[#35302B] shadow-[0_2px_8px_rgba(0,0,0,0.35)]'
+              : 'bg-[#FFFFFF] border-[#E8E4DE] shadow-[0_2px_8px_rgba(31,27,24,0.06)]'
+              }`}
             style={{ fontFamily: "'Inter', sans-serif" }}
             aria-label="Primary navigation"
           >
@@ -74,19 +70,17 @@ export default function Navbar() {
                 <a
                   key={item.label}
                   href={isHome ? item.path.replace('/', '') : item.path}
-                  className={`px-3 sm:px-[18px] py-[7px] rounded-full text-[14px] leading-none tracking-normal transition-colors duration-150 ease-in-out select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-                    darkMode
-                      ? 'focus-visible:outline-[#FF6A1F]'
-                      : 'focus-visible:outline-[#E8500A]'
-                  } ${
-                    isActive
+                  className={`px-3 sm:px-[18px] py-[7px] rounded-full text-[14px] leading-none tracking-normal transition-colors duration-150 ease-in-out select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${darkMode
+                    ? 'focus-visible:outline-[#FF6A1F]'
+                    : 'focus-visible:outline-[#E8500A]'
+                    } ${isActive
                       ? darkMode
                         ? 'bg-[#3B2314] text-[#FF8A4D] font-semibold'
                         : 'bg-[#FFEDE3] text-[#E8500A] font-semibold'
                       : darkMode
                         ? 'text-[#C9C4BB] font-medium hover:bg-[#2A2622] hover:text-[#F2EFEA]'
                         : 'text-[#4A463F] font-medium hover:bg-[#F7F5F2] hover:text-[#1F1B18]'
-                  }`}
+                    }`}
                 >
                   <span>{item.label}</span>
                 </a>
@@ -103,10 +97,11 @@ export default function Navbar() {
           {isTrackerPage && (
             <Link
               to="/"
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${darkMode
-                ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
-                : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/80 text-neutral-700 shadow-neutral-900/10'
-                }`}
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${
+                darkMode
+                  ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
+                  : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/80 text-neutral-700 shadow-neutral-900/10'
+              } dark:border-neutral-700/80 dark:bg-[#1a1a27] dark:hover:bg-neutral-800 dark:text-neutral-200 dark:shadow-black/40`}
               title="Home"
               aria-label="Home"
             >
@@ -118,10 +113,11 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => enterFullScreen()}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${darkMode
-              ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
-              : 'border-[#dcd8d2] bg-white hover:bg-[#eae6e1] text-[#17171c] shadow-sm'
-              }`}
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${
+              darkMode
+                ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
+                : 'border-[#dcd8d2] bg-white hover:bg-[#eae6e1] text-[#17171c] shadow-sm'
+            } dark:border-neutral-700/80 dark:bg-[#1a1a27] dark:hover:bg-neutral-800 dark:text-neutral-200 dark:shadow-black/40`}
             title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
             aria-label={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
           >

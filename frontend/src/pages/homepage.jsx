@@ -17,6 +17,7 @@ import {
   Maximize,
   Minimize,
   LogOut,
+  Check,
 } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import { useAuth } from '../context/AuthContext'
@@ -24,6 +25,7 @@ import UserMenu from '../components/auth/UserMenu'
 import AboutBurnIt from '../components/AboutBurnIt'
 import ExerciseDetectorSection from '../components/ExerciseDetectorSection'
 import Footer from '../components/Footer'
+import GuideWalkthrough from '../components/GuideWalkthrough'
 
 
 const CURRENT_YEAR = new Date().getFullYear()
@@ -132,19 +134,23 @@ export default function Homepage() {
             }}
             className="flex items-center gap-2.5 group"
           >
-            <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
               <Flame className="w-4 h-4 text-white fill-white" />
             </div>
-            <div className={`flex items-center gap-1.5 font-bold text-base tracking-tight ${!scrolled
-                  ? 'text-white'
-                  : darkMode
+            <div className="flex items-center gap-1.5 font-bold text-base tracking-tight select-none">
+              <span
+                className={
+                  darkMode
                     ? 'text-white'
-                    : 'text-[#17171c]'
-              }`}
-            >
-            <span>BURN</span>
-            <span className="text-orange-600">IT</span>
-        </div>
+                    : scrolled
+                    ? 'text-[#17171c]'
+                    : 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]'
+                }
+              >
+                BURN
+              </span>
+              <span className="text-orange-600 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">IT</span>
+            </div>
       </a>
 
       {/* Center Links (Light Floating Pill Nav) */}
@@ -451,216 +457,16 @@ export default function Homepage() {
       <ExerciseDetectorSection />
 
       {/* ========================================================= */}
-      {/* HOW TO USE THIS SYSTEM (LIVE WORKFLOW GUIDE) */}
+      {/* HOW TO USE BURN IT / GUIDE SECTION                        */}
       {/* ========================================================= */}
       <section
         id="coaching"
-        className={`py-24 sm:py-28 border-t transition-colors duration-300 ${
-  darkMode ? 'bg-[#0e0e13] border-[#2a2a34]' : 'bg-[#f6f4f1] border-[#dcd8d2]'
-} `}
+        className={`py-20 sm:py-24 border-t scroll-mt-16 transition-colors duration-300 ${
+          darkMode ? 'bg-[#0e0e13] border-[#2a2a34]' : 'bg-[#f6f4f1] border-[#dcd8d2]'
+        }`}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
-          {/* Section Header with Relative Context */}
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
-              Interactive Biometric Guide
-            </span>
-            <h2
-              className={`text-3xl sm:text-4xl font-bold leading-tight ${
-  darkMode ? 'text-white' : 'text-[#17171c]'
-} `}
-            >
-              How to Use This System
-            </h2>
-            <p
-              className={`text-base sm:text-lg leading-relaxed ${
-  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
-} `}
-            >
-              Turn any web browser into your personal AI coach in seconds. Follow these five simple steps to calibrate your camera, track joint angles in real time, and receive instant form corrections without wearing extra sensors or purchasing special equipment.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-2 scroll-reveal">
-              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-white/5 border border-[#dcd8d2] dark:border-white/10 text-[#5d5d68] dark:text-neutral-300">
-                Zero Wearables Needed
-              </span>
-              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-white/5 border border-[#dcd8d2] dark:border-white/10 text-[#5d5d68] dark:text-neutral-300">
-                Real-Time 30+ FPS Kinematics
-              </span>
-              <span className="px-3.5 py-1 rounded-full text-xs font-medium bg-white/80 dark:bg-white/5 border border-[#dcd8d2] dark:border-white/10 text-[#5d5d68] dark:text-neutral-300">
-                100% Client-Side Privacy
-              </span>
-              <span className="px-3.5 py-1 rounded-full text-xs font-semibold bg-orange-600/10 border border-orange-600/20 text-orange-600">
-                Instant Form Feedback
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-24">
-            {/* Step 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className="lg:col-span-5 space-y-4 scroll-reveal">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
-                  Step 01
-                </div>
-                <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-  darkMode ? 'text-white' : 'text-[#17171c]'
-} `}
-                >
-                  Access the Tracker
-                </h3>
-                <p
-                  className={`text-base leading-relaxed ${
-  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
-} `}
-                >
-                  Launch the biometric training engine directly from the home screen by clicking <strong className="text-orange-600 font-semibold">GET STARTED</strong> in the hero section or <strong className="text-orange-600 font-semibold">Workout Tracker</strong> on the top navigation bar. Simply log in or create your free account to unlock real-time tracking, personalized rep counters, and caloric expenditure analysis.
-                </p>
-              </div>
-              <div className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
-} `}
-              >
-                <img
-                  src={darkMode ? '/guide/step-1-access-dark.png' : '/guide/step-1-access-light.png'}
-                  alt="Step 1:Access Workout Tracker"
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            </div>
-
-            {/* Step 2 (Alternating) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
-} `}
-              >
-                <img
-                  src={darkMode ? '/guide/step-2-position-dark.png' : '/guide/step-2-position-light.png'}
-                  alt="Step 2:Position into camera frame"
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-              <div className="order-1 lg:order-2 lg:col-span-5 space-y-4 scroll-reveal">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
-                  Step 02
-                </div>
-                <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-  darkMode ? 'text-white' : 'text-[#17171c]'
-} `}
-                >
-                  Align Body in Frame
-                </h3>
-                <p
-                  className={`text-base leading-relaxed ${
-  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
-} `}
-                >
-                  When prompted by your browser, grant camera permissions to activate the biometric engine. Step back approximately 6 to 8 feet so that your shoulders, hips, and knees are unobstructed inside the camera view. The system displays <strong className="text-orange-600 font-semibold">Step Into Camera Frame</strong> with glowing orange alignment indicators that illuminate green as soon as your pose is calibrated.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className="lg:col-span-5 space-y-4 scroll-reveal">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
-                  Step 03
-                </div>
-                <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-  darkMode ? 'text-white' : 'text-[#17171c]'
-} `}
-                >
-                  Select Workout Mode
-                </h3>
-                <p
-                  className={`text-base leading-relaxed ${
-  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
-} `}
-                >
-                  Choose your targeted exercise from the workout bar—including <strong className="text-orange-600 font-semibold">Squats</strong>, <strong className="text-orange-600 font-semibold">Push-Ups</strong>, <strong className="text-orange-600 font-semibold">Plank</strong>, <strong className="text-orange-600 font-semibold">Jumping Jacks</strong>, or <strong className="text-orange-600 font-semibold">Bicep Curls</strong>. Alternatively, keep <strong className="text-orange-600 font-semibold">Auto-Detect</strong> active to let our machine learning posture engine automatically sample your biomechanics every 2 seconds and switch exercises as you move.
-                </p>
-              </div>
-              <div className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
-} `}
-              >
-                <img
-                  src={darkMode ? '/guide/step-3-select-dark.png' : '/guide/step-3-select-light.png'}
-                  alt="Step 3:Select workout mode"
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            </div>
-
-            {/* Step 4 (Alternating) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className={`order-2 lg:order-1 lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
-} `}
-              >
-                <img
-                  src={darkMode ? '/guide/step-4-track-dark.png' : '/guide/step-4-track-light.png'}
-                  alt="Step 4:Real-time pose tracking"
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-              <div className="order-1 lg:order-2 lg:col-span-5 space-y-4 scroll-reveal">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
-                  Step 04
-                </div>
-                <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-  darkMode ? 'text-white' : 'text-[#17171c]'
-} `}
-                >
-                  Perform Movement
-                </h3>
-                <p
-                  className={`text-base leading-relaxed ${
-  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
-} `}
-                >
-                  Perform each repetition with complete range of motion. The MediaPipe kinematic engine tracks 33 3D skeletal landmarks at 30+ FPS, rendering visible joint nodes and angle measurements directly over your body. Watch your verified <strong className="text-orange-600 font-semibold">REPS</strong> count update, follow the live movement phase (<strong className="text-orange-600 font-semibold">UP</strong> / <strong className="text-orange-600 font-semibold">DOWN</strong>), and maintain your <strong className="text-orange-600 font-semibold">FORM PRECISION</strong> score.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 5 */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-              <div className="lg:col-span-5 space-y-4 scroll-reveal">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-orange-600/10 text-orange-600 border border-orange-600/20">
-                  Step 05
-                </div>
-                <h3
-                  className={`text-2xl sm:text-3xl font-bold leading-tight ${
-  darkMode ? 'text-white' : 'text-[#17171c]'
-} `}
-                >
-                  Finish and Review Summary
-                </h3>
-                <p
-                  className={`text-base leading-relaxed ${
-  darkMode ? 'text-neutral-300' : 'text-[#5d5d68]'
-} `}
-                >
-                  Once you complete your workout set, tap <strong className="text-red-500 font-semibold">Finish Workout</strong> to conclude tracking. The system instantly generates a <strong className="text-orange-600 font-semibold">Workout Complete</strong> report detailing your total completed repetitions, overall form precision percentage, exact session duration, and estimated calories burned, with options to start a new workout or return to the dashboard.
-                </p>
-              </div>
-              <div className={`lg:col-span-7 rounded-2xl overflow-hidden border shadow-lg transition-all duration-300 ${
-  darkMode ? 'border-[#2a2a34] bg-[#16161d]' : 'border-[#dcd8d2] bg-white'
-} `}
-              >
-                <img
-                  src={darkMode ? '/guide/step-5-summary-dark.png' : '/guide/step-5-summary-light.png'}
-                  alt="Step 5:Finish workout and review summary"
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-            </div>
-          </div>
+        <div className="max-w-[1120px] mx-auto px-4 sm:px-6 lg:px-8">
+          <GuideWalkthrough />
         </div>
       </section>
 

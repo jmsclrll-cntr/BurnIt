@@ -9,7 +9,7 @@ export default function PageWrapper({ children, hideFooter = false }) {
     <div
       className={`min-h-screen font-sans antialiased flex flex-col justify-between transition-colors duration-300 selection:bg-orange-500/20 selection:text-orange-500 ${
         darkMode ? 'bg-[#0e0e13] text-[#f5f3ef]' : 'bg-[#f6f4f1] text-[#17171c]'
-      }`}
+      } dark:bg-[#0e0e13] dark:text-[#f5f3ef]`}
     >
       <div>
         <Navbar />

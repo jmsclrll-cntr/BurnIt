@@ -20,7 +20,7 @@ const EXERCISES = [
 ];
 
 const mapToAllowedExercise = (name) => {
-  if (!name) return 'Auto-detect';
+  if (!name) return null;
   const clean = String(name).trim();
   const lower = clean.toLowerCase().replace(/[^a-z]/g, '');
   if (lower.includes('squat')) return 'Squats';
@@ -28,7 +28,7 @@ const mapToAllowedExercise = (name) => {
   if (lower.includes('plank')) return 'Plank';
   if (lower.includes('jump')) return 'Jumping jacks';
   if (lower.includes('curl') || lower.includes('bicep')) return 'Bicep curls';
-  return 'Auto-detect';
+  return null;
 };
 
 export const RealtimeTracker = () => {
@@ -425,6 +425,12 @@ export const RealtimeTracker = () => {
   }, [isCameraActive, activeExercise, showJoints, showAngles, videoSource, sessionStartTimeFormatted]);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('camera') === 'off' || params.get('autoplay') === 'false') {
+        return;
+      }
+    }
     const launchTimer = setTimeout(() => {
       startCamera();
     }, 100);
@@ -511,8 +517,13 @@ export const RealtimeTracker = () => {
   const saveWorkoutToHistory = useCallback(async (cals, stats, inputs) => {
     if (!token) return;
     try {
-      const rawEx = stats?.exercise || activeExercise;
+      const detectedName = telemetry.detectedInfo?.name || telemetry.exercise;
+      const rawEx = activeExercise !== 'auto' ? (stats?.exercise || activeExercise) : (detectedName || stats?.exercise);
       const normEx = mapToAllowedExercise(rawEx);
+      if (!normEx) {
+        // Do not store 'Auto-detect' or unmapped exercises
+        return;
+      }
       const isPlank = normEx === 'Plank';
       const isCurl = normEx === 'Bicep curls' || activeExercise === 'bicepcurl';
       const finalReps = isPlank ? 0 : Math.max(0, Math.round(Number(stats?.totalReps ?? telemetry.reps ?? 0)));

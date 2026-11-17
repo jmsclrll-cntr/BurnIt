@@ -110,8 +110,8 @@ export default function AuthModal() {
             <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-md shadow-orange-600/30">
               <Flame className="w-4 h-4 text-white fill-white" />
             </div>
-            <div className="font-bold text-sm tracking-tight">
-              <span>BURN</span>
+            <div className="font-bold text-sm tracking-tight flex items-center gap-1 select-none">
+              <span className={darkMode ? 'text-white' : 'text-[#17171c]'}>BURN</span>
               <span className="text-orange-600">IT</span>
             </div>
           </div>

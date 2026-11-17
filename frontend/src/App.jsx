@@ -5,6 +5,11 @@ import { AuthProvider } from './context/AuthContext';
 import ScrollRevealManager from './components/ScrollRevealManager';
 import Homepage from './pages/homepage';
 import AboutPage from './pages/AboutPage';
+import GuidePage from './pages/GuidePage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
+import CookiePolicy from './pages/CookiePolicy';
+import ContactPage from './pages/ContactPage';
 import { RealtimeTracker } from './pages/tracker/RealtimeTracker';
 import AdminRecorder from './pages/tracker/AdminRecorder';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -28,6 +33,11 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/guide" element={<GuidePage />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route
               path="/tracker"
               element={

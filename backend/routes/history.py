@@ -31,17 +31,15 @@ async def resolve_user_id(cur, username: str, auth_user: dict) -> str:
     raise HTTPException(status_code=404, detail="User not found")
 
 ALLOWED_EXERCISES = {
-    "Auto-detect",
     "Squats",
     "Push-ups",
     "Plank",
     "Jumping jacks",
     "Bicep curls",
+    "Auto-detect",
 }
 
 CANONICAL_EXERCISE_MAP = {
-    "auto": "Auto-detect",
-    "auto-detect": "Auto-detect",
     "squat": "Squats",
     "squats": "Squats",
     "pushup": "Push-ups",
@@ -57,6 +55,9 @@ CANONICAL_EXERCISE_MAP = {
     "bicepcurl": "Bicep curls",
     "bicepcurls": "Bicep curls",
     "bicep curls": "Bicep curls",
+    "auto-detect": "Auto-detect",
+    "auto detect": "Auto-detect",
+    "autodetect": "Auto-detect",
 }
 
 def normalize_exercise_name(name: str) -> str:

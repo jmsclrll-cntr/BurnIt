@@ -3,23 +3,23 @@ import { useTheme } from '../hooks/useTheme';
 
 const OBSTACLES = [
   {
-    problem: 'Guessing how many calories you burned',
+    problem: 'Guessing how many calories you burned?',
     fix: 'Your predicted burn is ready as soon as you finish.',
   },
   {
-    problem: 'Losing count mid-set',
+    problem: 'Losing count mid-set?',
     fix: 'Reps are counted for you, so you can focus on moving.',
   },
   {
-    problem: 'Typing every workout into a log',
+    problem: 'Typing every workout into a log?',
     fix: 'Each session is saved automatically.',
   },
   {
-    problem: 'Needing a watch or band',
+    problem: 'Needing a watch or band?',
     fix: 'Runs on the camera you already own.',
   },
   {
-    problem: 'Not seeing progress',
+    problem: 'Not seeing progress?',
     fix: 'Weekly totals show reps and calories over time.',
   },
 ];
@@ -454,7 +454,7 @@ export default function AboutBurnIt() {
                     id={`obstacle-header-${index}`}
                   >
                     <span
-                      className={`text-[1.05rem] font-semibold line-through decoration-[#ff6a1a] decoration-2 leading-[1.5] transition-colors ${isOpen
+                      className={`text-[1.05rem] font-semibold leading-[1.5] transition-colors ${isOpen
                           ? darkMode
                             ? 'text-[#f5f3ef]'
                             : 'text-[#17171c]'

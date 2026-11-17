@@ -47,7 +47,7 @@ export default function UserMenu({ isTransparentNav = false }) {
             : darkMode
             ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-white shadow-black/40'
             : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/80 text-neutral-900 shadow-neutral-900/10'
-        }`}
+        } dark:border-neutral-700/80 dark:bg-[#1a1a27] dark:hover:bg-neutral-800 dark:text-white dark:shadow-black/40`}
         title={`Profile: ${displayName}`}
         aria-label="User profile menu"
       >

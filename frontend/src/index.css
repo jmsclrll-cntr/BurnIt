@@ -124,3 +124,31 @@ html.dark body {
   -ms-overflow-style: none !important; /* IE and Edge */
   scrollbar-width: none !important; /* Firefox */
 }
+
+/* ========================================================= */
+/* GUIDE STEP FADE-IN ANIMATION                              */
+/* ========================================================= */
+@keyframes guideFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .guide-fade-in {
+    animation: guideFadeIn 0.35s ease-out forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
