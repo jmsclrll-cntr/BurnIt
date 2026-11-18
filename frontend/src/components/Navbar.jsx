@@ -20,7 +20,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
 
-  // Updated navigation: Tracker moved to hero button, Programs -> Workout, Workouts -> Guide, Coaching removed
+  // Navigation items
   const navItems = [
     { label: 'Home', path: '/#home' },
     { label: 'Workout', path: '/#programs' },
@@ -34,19 +34,19 @@ export default function Navbar() {
   return (
     <header
       className={`sticky top-0 z-50 backdrop-blur-md transition-colors duration-300 border-b ${darkMode
-        ? 'bg-[#0e0e13]/90 border-[#2a2a34]'
-        : 'bg-[#f6f4f1]/90 border-[#dcd8d2]'
+        ? 'bg-[#0F0F0F]/90 border-[#262630]'
+        : 'bg-[#F7F7F7]/90 border-[#E2E4E9]'
         }`}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo on the left (links to home) */}
         <Link to="/" className="flex items-center gap-2.5 group" aria-label="Burn It Home">
-          <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-[#3641C9] flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
             <Flame className="w-4 h-4 text-white fill-white" />
           </div>
           <div className="flex items-center gap-1.5 font-bold text-base tracking-tight select-none">
-            <span className={darkMode ? 'text-white' : 'text-[#17171c]'}>BURN</span>
-            <span className="text-orange-600">IT</span>
+            <span className={darkMode ? 'text-white' : 'text-[#0F0F0F]'}>BURN</span>
+            <span className="text-[#3641C9]">IT</span>
           </div>
         </Link>
 
@@ -54,8 +54,8 @@ export default function Navbar() {
         {!isTrackerPage ? (
           <nav
             className={`hidden lg:flex items-center gap-[2px] p-[5px] rounded-full border transition-colors duration-150 ${darkMode
-              ? 'bg-[#211E1B] border-[#35302B] shadow-[0_2px_8px_rgba(0,0,0,0.35)]'
-              : 'bg-[#FFFFFF] border-[#E8E4DE] shadow-[0_2px_8px_rgba(31,27,24,0.06)]'
+              ? 'bg-[#16161D] border-[#262630] shadow-[0_2px_8px_rgba(0,0,0,0.35)]'
+              : 'bg-[#FFFFFF] border-[#E2E4E9] shadow-[0_2px_8px_rgba(15,15,15,0.06)]'
               }`}
             style={{ fontFamily: "'Inter', sans-serif" }}
             aria-label="Primary navigation"
@@ -71,15 +71,15 @@ export default function Navbar() {
                   key={item.label}
                   href={isHome ? item.path.replace('/', '') : item.path}
                   className={`px-3 sm:px-[18px] py-[7px] rounded-full text-[14px] leading-none tracking-normal transition-colors duration-150 ease-in-out select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${darkMode
-                    ? 'focus-visible:outline-[#FF6A1F]'
-                    : 'focus-visible:outline-[#E8500A]'
+                    ? 'focus-visible:outline-[#8A9CF7]'
+                    : 'focus-visible:outline-[#3641C9]'
                     } ${isActive
                       ? darkMode
-                        ? 'bg-[#3B2314] text-[#FF8A4D] font-semibold'
-                        : 'bg-[#FFEDE3] text-[#E8500A] font-semibold'
+                        ? 'bg-[#3641C9]/25 text-[#8A9CF7] font-semibold'
+                        : 'bg-[#3641C9]/10 text-[#3641C9] font-semibold'
                       : darkMode
-                        ? 'text-[#C9C4BB] font-medium hover:bg-[#2A2622] hover:text-[#F2EFEA]'
-                        : 'text-[#4A463F] font-medium hover:bg-[#F7F5F2] hover:text-[#1F1B18]'
+                        ? 'text-[#A3A3B0] font-medium hover:bg-[#1E1E28] hover:text-[#F7F7F7]'
+                        : 'text-[#5D5D68] font-medium hover:bg-[#EBEBEF] hover:text-[#0F0F0F]'
                     }`}
                 >
                   <span>{item.label}</span>
@@ -97,15 +97,14 @@ export default function Navbar() {
           {isTrackerPage && (
             <Link
               to="/"
-              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${
-                darkMode
-                  ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
-                  : 'border-neutral-200 bg-neutral-100 hover:bg-neutral-200/80 text-neutral-700 shadow-neutral-900/10'
-              } dark:border-neutral-700/80 dark:bg-[#1a1a27] dark:hover:bg-neutral-800 dark:text-neutral-200 dark:shadow-black/40`}
+              className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${darkMode
+                ? 'border-neutral-700/80 bg-[#16161D] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
+                : 'border-[#E2E4E9] bg-white hover:bg-[#eae6e1] text-[#0F0F0F] shadow-sm'
+                }`}
               title="Home"
               aria-label="Home"
             >
-              <Home className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
+              <Home className="w-5 h-5 sm:w-6 sm:h-6 text-[#3641C9] dark:text-[#8A9CF7]" />
             </Link>
           )}
 
@@ -113,11 +112,10 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => enterFullScreen()}
-            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${
-              darkMode
-                ? 'border-neutral-700/80 bg-[#1a1a27] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
-                : 'border-[#dcd8d2] bg-white hover:bg-[#eae6e1] text-[#17171c] shadow-sm'
-            } dark:border-neutral-700/80 dark:bg-[#1a1a27] dark:hover:bg-neutral-800 dark:text-neutral-200 dark:shadow-black/40`}
+            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all hover:scale-105 active:scale-95 border cursor-pointer shadow-md ${darkMode
+              ? 'border-neutral-700/80 bg-[#16161D] hover:bg-neutral-800 text-neutral-200 shadow-black/40'
+              : 'border-[#E2E4E9] bg-white hover:bg-[#eae6e1] text-[#0F0F0F] shadow-sm'
+              }`}
             title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
             aria-label={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
           >
@@ -133,7 +131,7 @@ export default function Navbar() {
               onClick={() => openLogin('/tracker')}
               className={`px-5 py-2.5 rounded-full text-sm font-bold transition-colors ${darkMode
                 ? 'text-white hover:bg-neutral-800 border border-neutral-700'
-                : 'text-[#17171c] hover:bg-white border border-[#dcd8d2]'
+                : 'text-[#0F0F0F] hover:bg-white border border-[#E2E4E9]'
                 }`}
             >
               Log In
@@ -146,17 +144,17 @@ export default function Navbar() {
           {isTrackerPage && (
             <Link
               to="/"
-              className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-[#17171c]'}`}
+              className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-[#0F0F0F]'}`}
               title="Home"
               aria-label="Home"
             >
-              <Home className="w-5 h-5 text-orange-500" />
+              <Home className="w-5 h-5 text-[#3641C9] dark:text-[#8A9CF7]" />
             </Link>
           )}
           <button
             type="button"
             onClick={() => enterFullScreen()}
-            className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-[#17171c]'
+            className={`p-2 rounded-full transition-colors ${darkMode ? 'text-neutral-300' : 'text-[#0F0F0F]'
               }`}
             title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
             aria-label="Toggle full screen"
@@ -169,7 +167,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`p-2 rounded-lg ${darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-[#17171c] hover:bg-[#eae6e1]'
+            className={`p-2 rounded-lg ${darkMode ? 'text-neutral-300 hover:bg-neutral-800' : 'text-[#0F0F0F] hover:bg-[#eae6e1]'
               }`}
             aria-label="Toggle navigation menu"
           >
@@ -181,16 +179,16 @@ export default function Navbar() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div
-          className={`lg:hidden border-b px-6 py-6 space-y-3 ${darkMode ? 'bg-[#16161d] border-[#2a2a34]' : 'bg-[#f6f4f1] border-[#dcd8d2]'
+          className={`lg:hidden border-b px-6 py-6 space-y-3 ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-[#F7F7F7] border-[#E2E4E9]'
             }`}
         >
           {isTrackerPage ? (
             <Link
               to="/"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2.5 text-base font-bold py-2 text-white hover:text-orange-400"
+              className="flex items-center gap-2.5 text-base font-bold py-2 text-white hover:text-[#8A9CF7]"
             >
-              <ArrowLeft className="w-5 h-5 text-orange-500" />
+              <ArrowLeft className="w-5 h-5 text-[#3641C9] dark:text-[#8A9CF7]" />
               <span>Back to Home</span>
             </Link>
           ) : (
@@ -199,7 +197,7 @@ export default function Navbar() {
                 key={item.label}
                 href={isHome ? item.path.replace('/', '') : item.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block text-base font-bold py-1.5 ${darkMode ? 'text-neutral-200 hover:text-orange-400' : 'text-neutral-800 hover:text-orange-600'
+                className={`block text-base font-bold py-1.5 ${darkMode ? 'text-neutral-200 hover:text-[#8A9CF7]' : 'text-neutral-800 hover:text-[#3641C9]'
                   }`}
               >
                 {item.label}
@@ -234,7 +232,7 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   openLogin('/tracker');
                 }}
-                className="w-full py-2.5 rounded-full bg-orange-600 text-white text-sm font-bold shadow-md shadow-orange-600/30 text-center"
+                className="w-full py-2.5 rounded-full bg-[#3641C9] hover:bg-[#2C35A8] text-white text-sm font-bold shadow-md shadow-[#3641C9]/30 text-center"
               >
                 Log In
               </button>

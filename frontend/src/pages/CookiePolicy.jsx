@@ -69,20 +69,19 @@ export default function CookiePolicy() {
         <div className="mb-8">
           <Link
             to="/"
-            className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors duration-150 rounded-full px-4 py-2 border ${
-              darkMode
-                ? 'bg-[#181822] border-[#2a2a36] text-neutral-300 hover:text-white hover:border-orange-500/60'
-                : 'bg-white border-[#dcd8d2] text-[#4a463f] hover:text-[#17171c] hover:border-orange-500/60'
-            }`}
+            className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors duration-150 rounded-full px-4 py-2 border ${darkMode
+              ? 'bg-[#16161D] border-[#262630] text-neutral-300 hover:text-white hover:border-[#8A9CF7]'
+              : 'bg-white border-[#E2E4E9] text-neutral-700 hover:text-[#0F0F0F] hover:border-[#3641C9]'
+              }`}
           >
-            <ArrowLeft className="w-4 h-4 text-orange-500" />
+            <ArrowLeft className="w-4 h-4 text-[#3641C9] dark:text-[#8A9CF7]" />
             <span>Return to Home</span>
           </Link>
         </div>
 
         {/* Header */}
         <div className="space-y-4 mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-orange-500/10 text-orange-500 border border-orange-500/20">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] border border-[#3641C9]/20">
             <Cookie className="w-3.5 h-3.5" />
             <span>Storage & Transparency</span>
           </div>
@@ -97,11 +96,10 @@ export default function CookiePolicy() {
         {/* Notification Toast for Saved Preferences */}
         {savedBanner && (
           <div
-            className={`p-4 rounded-xl mb-8 border flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${
-              darkMode
-                ? 'bg-[#1a2818] border-green-500/40 text-green-300'
-                : 'bg-[#edfcf0] border-green-400/50 text-green-900'
-            }`}
+            className={`p-4 rounded-xl mb-8 border flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300 ${darkMode
+              ? 'bg-[#1a2818] border-green-500/40 text-green-300'
+              : 'bg-[#edfcf0] border-green-400/50 text-green-900'
+              }`}
             role="status"
             aria-live="polite"
           >
@@ -123,14 +121,13 @@ export default function CookiePolicy() {
 
         {/* Interactive Cookie Preference Management Interface */}
         <section
-          className={`p-6 sm:p-8 rounded-2xl border mb-12 shadow-md ${
-            darkMode
-              ? 'bg-[#151520] border-[#292938] shadow-black/40'
-              : 'bg-white border-[#e2ddd5] shadow-neutral-900/5'
-          }`}
+          className={`p-6 sm:p-8 rounded-2xl border mb-12 shadow-md ${darkMode
+            ? 'bg-[#16161D] border-[#262630] shadow-black/40'
+            : 'bg-white border-[#E2E4E9] shadow-neutral-900/5'
+            }`}
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center font-bold">
               <Sliders className="w-4 h-4" />
             </div>
             <h2 className="text-xl font-bold tracking-tight">Interactive Cookie Preferences</h2>
@@ -142,14 +139,13 @@ export default function CookiePolicy() {
           <div className="space-y-4">
             {/* 1. Essential Category */}
             <div
-              className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                darkMode ? 'bg-[#1b1b28] border-[#2f2f42]' : 'bg-[#faf8f5] border-[#eae5dd]'
-              }`}
+              className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${darkMode ? 'bg-[#141419] border-[#262630]' : 'bg-[#F7F7F7] border-[#E2E4E9]'
+                }`}
             >
               <div className="space-y-1 pr-4">
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-sm sm:text-base">1. Essential Authentication Storage</h3>
-                  <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-[#3641C9]/20 text-[#3641C9] dark:text-[#8A9CF7] border border-[#3641C9]/30">
                     Always Required
                   </span>
                 </div>
@@ -163,26 +159,24 @@ export default function CookiePolicy() {
                   checked={true}
                   disabled={true}
                   aria-label="Essential storage (Always active)"
-                  className="w-5 h-5 accent-orange-600 cursor-not-allowed opacity-80"
+                  className="w-5 h-5 accent-[#3641C9] cursor-not-allowed opacity-80"
                 />
               </div>
             </div>
 
             {/* 2. Functional Category */}
             <div
-              className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                darkMode ? 'bg-[#1b1b28] border-[#2f2f42]' : 'bg-[#faf8f5] border-[#eae5dd]'
-              }`}
+              className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${darkMode ? 'bg-[#141419] border-[#262630]' : 'bg-[#F7F7F7] border-[#E2E4E9]'
+                }`}
             >
               <div className="space-y-1 pr-4">
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-sm sm:text-base">2. Functional Preferences</h3>
                   <span
-                    className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase ${
-                      preferences.functional
-                        ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/25'
-                        : 'bg-neutral-500/15 text-neutral-400 border border-neutral-500/25'
-                    }`}
+                    className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase ${preferences.functional
+                      ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/25'
+                      : 'bg-neutral-500/15 text-neutral-400 border border-neutral-500/25'
+                      }`}
                   >
                     {preferences.functional ? 'Active' : 'Disabled'}
                   </span>
@@ -200,16 +194,15 @@ export default function CookiePolicy() {
                     className="sr-only peer"
                     aria-label="Toggle functional preference storage"
                   />
-                  <div className="w-11 h-6 bg-neutral-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+                  <div className="w-11 h-6 bg-neutral-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#3641C9]"></div>
                 </label>
               </div>
             </div>
 
             {/* 3. Analytics & Advertising (Disclosed Not Used) */}
             <div
-              className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-75 ${
-                darkMode ? 'bg-[#1b1b28] border-[#2f2f42]' : 'bg-[#faf8f5] border-[#eae5dd]'
-              }`}
+              className={`p-4 sm:p-5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 opacity-75 ${darkMode ? 'bg-[#141419] border-[#262630]' : 'bg-[#F7F7F7] border-[#E2E4E9]'
+                }`}
             >
               <div className="space-y-1 pr-4">
                 <div className="flex items-center gap-2">
@@ -228,7 +221,7 @@ export default function CookiePolicy() {
                   checked={false}
                   disabled={true}
                   aria-label="Marketing cookies (Not used)"
-                  className="w-5 h-5 accent-orange-600 cursor-not-allowed opacity-40"
+                  className="w-5 h-5 accent-[#3641C9] cursor-not-allowed opacity-40"
                 />
               </div>
             </div>
@@ -239,7 +232,7 @@ export default function CookiePolicy() {
             <button
               type="button"
               onClick={handleSavePreferences}
-              className="px-6 py-2.5 rounded-full bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm shadow-md shadow-orange-600/30 transition-all flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+              className="px-6 py-2.5 rounded-full bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] text-white font-semibold text-sm shadow-md shadow-[#3641C9]/30 transition-all flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Save className="w-4 h-4" />
               <span>Save Preferences</span>
@@ -248,11 +241,10 @@ export default function CookiePolicy() {
             <button
               type="button"
               onClick={handleAcceptAll}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all border ${
-                darkMode
-                  ? 'border-neutral-700 bg-neutral-800 text-white hover:bg-neutral-700'
-                  : 'border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-100'
-              }`}
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all border ${darkMode
+                ? 'border-neutral-700 bg-neutral-800 text-white hover:bg-neutral-700'
+                : 'border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-100'
+                }`}
             >
               Accept All
             </button>
@@ -260,11 +252,10 @@ export default function CookiePolicy() {
             <button
               type="button"
               onClick={handleRejectNonEssential}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all border ${
-                darkMode
-                  ? 'border-neutral-700 bg-transparent text-neutral-400 hover:text-white hover:bg-neutral-800/60'
-                  : 'border-neutral-300 bg-transparent text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
-              }`}
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all border ${darkMode
+                ? 'border-neutral-700 bg-transparent text-neutral-400 hover:text-white hover:bg-neutral-800/60'
+                : 'border-neutral-300 bg-transparent text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                }`}
             >
               Reject Non-Essential
             </button>
@@ -273,11 +264,10 @@ export default function CookiePolicy() {
 
         {/* Detailed Item Breakdown Table */}
         <section
-          className={`p-6 sm:p-8 rounded-2xl border transition-colors ${
-            darkMode ? 'bg-[#15151e] border-[#272733]' : 'bg-white border-[#e5e1da]'
-          }`}
+          className={`p-6 sm:p-8 rounded-2xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-white border-[#E2E4E9]'
+            }`}
         >
-          <div className="flex items-center gap-2 mb-4 font-bold text-lg text-orange-500">
+          <div className="flex items-center gap-2 mb-4 font-bold text-lg text-[#3641C9] dark:text-[#8A9CF7]">
             <Info className="w-5 h-5" />
             <span>Complete Inventory of Browser Storage Keys</span>
           </div>
@@ -297,25 +287,25 @@ export default function CookiePolicy() {
               </thead>
               <tbody className={`divide-y ${darkMode ? 'divide-neutral-800 text-neutral-300' : 'divide-neutral-200 text-neutral-600'}`}>
                 <tr>
-                  <td className="py-3 pr-4 font-mono font-semibold text-orange-500">burnit_token</td>
+                  <td className="py-3 pr-4 font-mono font-semibold text-[#3641C9] dark:text-[#8A9CF7]">burnit_token</td>
                   <td className="py-3 px-4">LocalStorage / Cookie</td>
                   <td className="py-3 px-4">Cryptographic JWT bearer token authenticating your account.</td>
-                  <td className="py-3 pl-4 font-semibold text-orange-400">Strictly Essential</td>
+                  <td className="py-3 pl-4 font-semibold text-[#3641C9] dark:text-[#8A9CF7]">Strictly Essential</td>
                 </tr>
                 <tr>
-                  <td className="py-3 pr-4 font-mono font-semibold text-orange-500">burnit_user</td>
+                  <td className="py-3 pr-4 font-mono font-semibold text-[#3641C9] dark:text-[#8A9CF7]">burnit_user</td>
                   <td className="py-3 px-4">LocalStorage</td>
                   <td className="py-3 px-4">Cached profile username and display metadata.</td>
-                  <td className="py-3 pl-4 font-semibold text-orange-400">Strictly Essential</td>
+                  <td className="py-3 pl-4 font-semibold text-[#3641C9] dark:text-[#8A9CF7]">Strictly Essential</td>
                 </tr>
                 <tr>
-                  <td className="py-3 pr-4 font-mono font-semibold text-orange-500">burnit_theme</td>
+                  <td className="py-3 pr-4 font-mono font-semibold text-[#3641C9] dark:text-[#8A9CF7]">burnit_theme</td>
                   <td className="py-3 px-4">LocalStorage</td>
                   <td className="py-3 px-4">Preserves Dark Mode or Light Mode across visits.</td>
                   <td className="py-3 pl-4 text-emerald-500 font-medium">Functional Preference</td>
                 </tr>
                 <tr>
-                  <td className="py-3 pr-4 font-mono font-semibold text-orange-500">burnit_curl_weight_lbs</td>
+                  <td className="py-3 pr-4 font-mono font-semibold text-[#3641C9] dark:text-[#8A9CF7]">burnit_curl_weight_lbs</td>
                   <td className="py-3 px-4">LocalStorage</td>
                   <td className="py-3 px-4">Stores your selected dumbbell/barbell poundage for bicep curls.</td>
                   <td className="py-3 pl-4 text-emerald-500 font-medium">Functional Preference</td>
@@ -329,7 +319,7 @@ export default function CookiePolicy() {
         <div className="mt-12 pt-8 border-t border-neutral-800/20 text-center">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#3641C9] dark:text-[#8A9CF7] hover:underline transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Return to BURN IT Homepage</span>

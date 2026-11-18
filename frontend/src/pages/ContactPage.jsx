@@ -147,18 +147,18 @@ export default function ContactPage() {
           <Link
             to="/"
             className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors duration-150 rounded-full px-4 py-2 border ${darkMode
-              ? 'bg-[#181822] border-[#2a2a36] text-neutral-300 hover:text-white hover:border-orange-500/60'
-              : 'bg-white border-[#dcd8d2] text-[#4a463f] hover:text-[#17171c] hover:border-orange-500/60'
+              ? 'bg-[#16161D] border-[#262630] text-neutral-300 hover:text-white hover:border-[#8A9CF7]'
+              : 'bg-white border-[#E2E4E9] text-neutral-700 hover:text-[#0F0F0F] hover:border-[#3641C9]'
               }`}
           >
-            <ArrowLeft className="w-4 h-4 text-orange-500" />
+            <ArrowLeft className="w-4 h-4 text-[#3641C9] dark:text-[#8A9CF7]" />
             <span>Return to Home</span>
           </Link>
         </div>
 
         {/* Page Title Header */}
         <div className="space-y-4 mb-12 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-orange-500/10 text-orange-500 border border-orange-500/20">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] border border-[#3641C9]/20">
             <MessageSquare className="w-3.5 h-3.5" />
             <span>Direct Support Channel</span>
           </div>
@@ -175,7 +175,7 @@ export default function ContactPage() {
           {/* Left Column: Official Contact Information (5 columns) */}
           <div className="lg:col-span-5 space-y-6">
             <div
-              className={`p-6 sm:p-8 rounded-3xl border transition-colors ${darkMode ? 'bg-[#151520] border-[#272738]' : 'bg-white border-[#e3dfd7]'
+              className={`p-6 sm:p-8 rounded-3xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-white border-[#E2E4E9]'
                 }`}
             >
               <h2 className="text-xl font-bold tracking-tight mb-6">Contact Information</h2>
@@ -183,7 +183,7 @@ export default function ContactPage() {
               <div className="space-y-6">
                 {/* Email Address */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center shrink-0">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
@@ -192,7 +192,7 @@ export default function ContactPage() {
                     </div>
                     <a
                       href="mailto:support@burnit.fitness"
-                      className="text-base font-bold text-orange-500 hover:text-orange-600 transition-colors"
+                      className="text-base font-bold text-[#3641C9] dark:text-[#8A9CF7] hover:underline transition-colors"
                     >
                       support@burnit.fitness
                     </a>
@@ -204,7 +204,7 @@ export default function ContactPage() {
 
                 {/* Telephone */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center shrink-0">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
@@ -213,7 +213,7 @@ export default function ContactPage() {
                     </div>
                     <a
                       href="tel:+18005552876"
-                      className={`text-base font-bold transition-colors ${darkMode ? 'text-white hover:text-orange-400' : 'text-neutral-900 hover:text-orange-600'
+                      className={`text-base font-bold transition-colors ${darkMode ? 'text-white hover:text-[#8A9CF7]' : 'text-[#0F0F0F] hover:text-[#3641C9]'
                         }`}
                     >
                       +1 (800) 555-BURN (2876)
@@ -226,7 +226,7 @@ export default function ContactPage() {
 
                 {/* Support Hours */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center shrink-0">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
@@ -244,7 +244,7 @@ export default function ContactPage() {
 
                 {/* Engineering Lab */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center shrink-0">
                     <Building2 className="w-5 h-5" />
                   </div>
                   <div>
@@ -265,11 +265,11 @@ export default function ContactPage() {
             {/* Quick Response Promise Card */}
             <div
               className={`p-6 rounded-3xl border ${darkMode
-                ? 'bg-gradient-to-br from-[#1b1928] to-[#141420] border-orange-500/20'
-                : 'bg-gradient-to-br from-[#fff7f2] to-[#fffaf6] border-orange-300/40'
+                ? 'bg-gradient-to-br from-[#16161D] to-[#111116] border-[#3641C9]/30'
+                : 'bg-gradient-to-br from-[#F0F2FE] to-[#F7F7F7] border-[#3641C9]/20'
                 }`}
             >
-              <div className="flex items-center gap-2 font-bold text-sm text-orange-500 mb-2">
+              <div className="flex items-center gap-2 font-bold text-sm text-[#3641C9] dark:text-[#8A9CF7] mb-2">
                 <Sparkles className="w-4 h-4" />
                 <span>24-Hour Guarantee</span>
               </div>
@@ -283,8 +283,8 @@ export default function ContactPage() {
           <div className="lg:col-span-7">
             <div
               className={`p-6 sm:p-10 rounded-3xl border shadow-xl transition-colors ${darkMode
-                ? 'bg-[#151520] border-[#272738] shadow-black/50'
-                : 'bg-white border-[#e3dfd7] shadow-neutral-900/5'
+                ? 'bg-[#16161D] border-[#262630] shadow-black/50'
+                : 'bg-white border-[#E2E4E9] shadow-neutral-900/5'
                 }`}
             >
               <h2 className="text-2xl font-bold tracking-tight mb-2">Send Us a Message</h2>
@@ -333,7 +333,7 @@ export default function ContactPage() {
                     className={`block text-xs font-bold uppercase tracking-wider mb-2 ${darkMode ? 'text-neutral-300' : 'text-neutral-700'
                       }`}
                   >
-                    Full Name <span className="text-orange-500">*</span>
+                    Full Name <span className="text-[#3641C9] dark:text-[#8A9CF7]">*</span>
                   </label>
                   <input
                     type="text"
@@ -343,11 +343,11 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="e.g. Alex Morgan"
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.name
+                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#3641C9] ${errors.name
                       ? 'border-red-500 bg-red-500/5 text-red-200'
                       : darkMode
-                        ? 'bg-[#1e1e2d] border-[#313144] text-white placeholder-neutral-500 focus:border-orange-500'
-                        : 'bg-[#faf8f5] border-[#dcd8d2] text-[#17171c] placeholder-neutral-400 focus:border-orange-500'
+                        ? 'bg-[#141419] border-[#262630] text-white placeholder-neutral-500 focus:border-[#8A9CF7]'
+                        : 'bg-[#F7F7F7] border-[#E2E4E9] text-[#0F0F0F] placeholder-neutral-400 focus:border-[#3641C9]'
                       }`}
                   />
                   {errors.name && (
@@ -365,7 +365,7 @@ export default function ContactPage() {
                     className={`block text-xs font-bold uppercase tracking-wider mb-2 ${darkMode ? 'text-neutral-300' : 'text-neutral-700'
                       }`}
                   >
-                    Email Address <span className="text-orange-500">*</span>
+                    Email Address <span className="text-[#3641C9] dark:text-[#8A9CF7]">*</span>
                   </label>
                   <input
                     type="email"
@@ -375,11 +375,11 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="e.g. alex@example.com"
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.email
+                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#3641C9] ${errors.email
                       ? 'border-red-500 bg-red-500/5 text-red-200'
                       : darkMode
-                        ? 'bg-[#1e1e2d] border-[#313144] text-white placeholder-neutral-500 focus:border-orange-500'
-                        : 'bg-[#faf8f5] border-[#dcd8d2] text-[#17171c] placeholder-neutral-400 focus:border-orange-500'
+                        ? 'bg-[#141419] border-[#262630] text-white placeholder-neutral-500 focus:border-[#8A9CF7]'
+                        : 'bg-[#F7F7F7] border-[#E2E4E9] text-[#0F0F0F] placeholder-neutral-400 focus:border-[#3641C9]'
                       }`}
                   />
                   {errors.email && (
@@ -397,7 +397,7 @@ export default function ContactPage() {
                     className={`block text-xs font-bold uppercase tracking-wider mb-2 ${darkMode ? 'text-neutral-300' : 'text-neutral-700'
                       }`}
                   >
-                    Subject <span className="text-orange-500">*</span>
+                    Subject <span className="text-[#3641C9] dark:text-[#8A9CF7]">*</span>
                   </label>
                   <input
                     type="text"
@@ -407,11 +407,11 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="e.g. Rep counting feedback / Partnership"
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.subject
+                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#3641C9] ${errors.subject
                       ? 'border-red-500 bg-red-500/5 text-red-200'
                       : darkMode
-                        ? 'bg-[#1e1e2d] border-[#313144] text-white placeholder-neutral-500 focus:border-orange-500'
-                        : 'bg-[#faf8f5] border-[#dcd8d2] text-[#17171c] placeholder-neutral-400 focus:border-orange-500'
+                        ? 'bg-[#141419] border-[#262630] text-white placeholder-neutral-500 focus:border-[#8A9CF7]'
+                        : 'bg-[#F7F7F7] border-[#E2E4E9] text-[#0F0F0F] placeholder-neutral-400 focus:border-[#3641C9]'
                       }`}
                   />
                   {errors.subject && (
@@ -429,7 +429,7 @@ export default function ContactPage() {
                     className={`block text-xs font-bold uppercase tracking-wider mb-2 ${darkMode ? 'text-neutral-300' : 'text-neutral-700'
                       }`}
                   >
-                    Message <span className="text-orange-500">*</span>
+                    Message <span className="text-[#3641C9] dark:text-[#8A9CF7]">*</span>
                   </label>
                   <textarea
                     id="contact-message"
@@ -439,11 +439,11 @@ export default function ContactPage() {
                     onChange={handleChange}
                     placeholder="Please describe how we can assist you..."
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all resize-y focus:outline-none focus:ring-2 focus:ring-orange-500 ${errors.message
+                    className={`w-full px-4 py-3 rounded-xl border text-sm transition-all resize-y focus:outline-none focus:ring-2 focus:ring-[#3641C9] ${errors.message
                       ? 'border-red-500 bg-red-500/5 text-red-200'
                       : darkMode
-                        ? 'bg-[#1e1e2d] border-[#313144] text-white placeholder-neutral-500 focus:border-orange-500'
-                        : 'bg-[#faf8f5] border-[#dcd8d2] text-[#17171c] placeholder-neutral-400 focus:border-orange-500'
+                        ? 'bg-[#141419] border-[#262630] text-white placeholder-neutral-500 focus:border-[#8A9CF7]'
+                        : 'bg-[#F7F7F7] border-[#E2E4E9] text-[#0F0F0F] placeholder-neutral-400 focus:border-[#3641C9]'
                       }`}
                   ></textarea>
                   {errors.message && (
@@ -459,7 +459,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm shadow-lg shadow-orange-600/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm shadow-lg shadow-[#3641C9]/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
                   >
                     {isSubmitting ? (
                       <>
@@ -483,7 +483,7 @@ export default function ContactPage() {
         <div className="mt-16 pt-8 border-t border-neutral-800/20 text-center">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#3641C9] dark:text-[#8A9CF7] hover:underline transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Return to BURN IT Homepage</span>

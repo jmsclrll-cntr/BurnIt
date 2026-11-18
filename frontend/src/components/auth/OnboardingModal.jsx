@@ -75,15 +75,14 @@ export default function OnboardingModal() {
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className={`w-full max-w-lg rounded-2xl border transition-all duration-200 shadow-2xl overflow-hidden ${
-          darkMode
-            ? 'bg-[#14141e] border-neutral-800 text-white shadow-black/80'
-            : 'bg-white border-neutral-200 text-neutral-900 shadow-xl'
-        }`}
+        className={`w-full max-w-lg rounded-2xl border transition-all duration-200 shadow-2xl overflow-hidden ${darkMode
+          ? 'bg-[#141419] border-[#262630] text-white shadow-black/80'
+          : 'bg-white border-[#E2E4E9] text-[#0F0F0F] shadow-xl'
+          }`}
       >
         {/* Top Accent Graphic Banner */}
         <div className="px-6 pt-6 pb-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-500 border border-orange-500/20 mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] border border-[#3641C9]/20 mb-3">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Personalize Your Experience</span>
           </div>
@@ -92,9 +91,8 @@ export default function OnboardingModal() {
             Complete Your Fitness Profile
           </h2>
           <p
-            className={`text-xs sm:text-sm mt-1 leading-relaxed ${
-              darkMode ? 'text-neutral-400' : 'text-neutral-600'
-            }`}
+            className={`text-xs sm:text-sm mt-1 leading-relaxed ${darkMode ? 'text-neutral-400' : 'text-neutral-600'
+              }`}
           >
             BurnIt uses these biometrics to calculate accurate calorie expenditure, basal metabolic rate, and custom range-of-motion metrics during workouts.
           </p>
@@ -116,18 +114,16 @@ export default function OnboardingModal() {
           <div>
             <label
               htmlFor="onboarding-name"
-              className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${
-                darkMode ? 'text-neutral-400' : 'text-neutral-600'
-              }`}
+              className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${darkMode ? 'text-neutral-400' : 'text-neutral-600'
+                }`}
             >
               Full Name or Nickname
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <User
-                  className={`w-4 h-4 ${
-                    darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                  }`}
+                  className={`w-4 h-4 ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
+                    }`}
                 />
               </div>
               <input
@@ -136,11 +132,10 @@ export default function OnboardingModal() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Alex Johnson"
-                className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-sm border transition-colors outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 ${
-                  darkMode
-                    ? 'bg-[#1a1a27] border-neutral-800 text-white placeholder-neutral-500'
-                    : 'bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400'
-                }`}
+                className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-sm border transition-colors outline-none focus:ring-2 focus:ring-[#3641C9]/40 focus:border-[#3641C9] ${darkMode
+                  ? 'bg-[#181822] border-[#262630] text-white placeholder-neutral-500'
+                  : 'bg-[#F7F7F7] border-[#E2E4E9] text-[#0F0F0F] placeholder-neutral-400'
+                  }`}
                 disabled={isSubmitting}
               />
             </div>
@@ -152,18 +147,16 @@ export default function OnboardingModal() {
             <div>
               <label
                 htmlFor="onboarding-age"
-                className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${
-                  darkMode ? 'text-neutral-400' : 'text-neutral-600'
-                }`}
+                className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${darkMode ? 'text-neutral-400' : 'text-neutral-600'
+                  }`}
               >
                 Age (years)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Calendar
-                    className={`w-4 h-4 ${
-                      darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                    }`}
+                    className={`w-4 h-4 ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
+                      }`}
                   />
                 </div>
                 <input
@@ -174,11 +167,10 @@ export default function OnboardingModal() {
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
                   placeholder="e.g. 25"
-                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-sm border transition-colors outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 ${
-                    darkMode
-                      ? 'bg-[#1a1a27] border-neutral-800 text-white placeholder-neutral-500'
-                      : 'bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400'
-                  }`}
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-sm border transition-colors outline-none focus:ring-2 focus:ring-[#3641C9]/40 focus:border-[#3641C9] ${darkMode
+                    ? 'bg-[#181822] border-[#262630] text-white placeholder-neutral-500'
+                    : 'bg-[#F7F7F7] border-[#E2E4E9] text-[#0F0F0F] placeholder-neutral-400'
+                    }`}
                   disabled={isSubmitting}
                 />
               </div>
@@ -187,31 +179,28 @@ export default function OnboardingModal() {
             {/* Sex */}
             <div>
               <span
-                className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${
-                  darkMode ? 'text-neutral-400' : 'text-neutral-600'
-                }`}
+                className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${darkMode ? 'text-neutral-400' : 'text-neutral-600'
+                  }`}
               >
                 Sex
               </span>
               <div
-                className={`grid grid-cols-3 p-1 rounded-xl border ${
-                  darkMode
-                    ? 'bg-[#1a1a27] border-neutral-800'
-                    : 'bg-neutral-50 border-neutral-200'
-                }`}
+                className={`grid grid-cols-3 p-1 rounded-xl border ${darkMode
+                  ? 'bg-[#181822] border-[#262630]'
+                  : 'bg-[#F0F1F5] border-[#E2E4E9]'
+                  }`}
               >
                 {['male', 'female', 'other'].map((option) => (
                   <button
                     key={option}
                     type="button"
                     onClick={() => setSex(option)}
-                    className={`py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${
-                      sex === option
-                        ? 'bg-orange-600 text-white shadow-sm'
-                        : darkMode
+                    className={`py-1.5 text-xs font-semibold rounded-lg capitalize transition-all ${sex === option
+                      ? 'bg-[#3641C9] text-white shadow-sm'
+                      : darkMode
                         ? 'text-neutral-400 hover:text-white'
                         : 'text-neutral-600 hover:text-black'
-                    }`}
+                      }`}
                   >
                     {option}
                   </button>
@@ -226,18 +215,16 @@ export default function OnboardingModal() {
             <div>
               <label
                 htmlFor="onboarding-weight"
-                className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${
-                  darkMode ? 'text-neutral-400' : 'text-neutral-600'
-                }`}
+                className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${darkMode ? 'text-neutral-400' : 'text-neutral-600'
+                  }`}
               >
                 Weight (kg)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Scale
-                    className={`w-4 h-4 ${
-                      darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                    }`}
+                    className={`w-4 h-4 ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
+                      }`}
                   />
                 </div>
                 <input
@@ -249,17 +236,15 @@ export default function OnboardingModal() {
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
                   placeholder="e.g. 70"
-                  className={`w-full pl-9 pr-12 py-2.5 rounded-xl text-sm border transition-colors outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 ${
-                    darkMode
-                      ? 'bg-[#1a1a27] border-neutral-800 text-white placeholder-neutral-500'
-                      : 'bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400'
-                  }`}
+                  className={`w-full pl-9 pr-12 py-2.5 rounded-xl text-sm border transition-colors outline-none focus:ring-2 focus:ring-[#3641C9]/40 focus:border-[#3641C9] ${darkMode
+                    ? 'bg-[#181822] border-[#262630] text-white placeholder-neutral-500'
+                    : 'bg-[#F7F7F7] border-[#E2E4E9] text-[#0F0F0F] placeholder-neutral-400'
+                    }`}
                   disabled={isSubmitting}
                 />
                 <span
-                  className={`absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-medium ${
-                    darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                  }`}
+                  className={`absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-medium ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
+                    }`}
                 >
                   kg
                 </span>
@@ -270,18 +255,16 @@ export default function OnboardingModal() {
             <div>
               <label
                 htmlFor="onboarding-height"
-                className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${
-                  darkMode ? 'text-neutral-400' : 'text-neutral-600'
-                }`}
+                className={`block text-xs font-semibold uppercase tracking-wider mb-1.5 ${darkMode ? 'text-neutral-400' : 'text-neutral-600'
+                  }`}
               >
                 Height (cm)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Ruler
-                    className={`w-4 h-4 ${
-                      darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                    }`}
+                    className={`w-4 h-4 ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
+                      }`}
                   />
                 </div>
                 <input
@@ -293,17 +276,15 @@ export default function OnboardingModal() {
                   value={height}
                   onChange={(e) => setHeight(e.target.value)}
                   placeholder="e.g. 175"
-                  className={`w-full pl-9 pr-12 py-2.5 rounded-xl text-sm border transition-colors outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 ${
-                    darkMode
-                      ? 'bg-[#1a1a27] border-neutral-800 text-white placeholder-neutral-500'
-                      : 'bg-neutral-50 border-neutral-200 text-neutral-900 placeholder-neutral-400'
-                  }`}
+                  className={`w-full pl-9 pr-12 py-2.5 rounded-xl text-sm border transition-colors outline-none focus:ring-2 focus:ring-[#3641C9]/40 focus:border-[#3641C9] ${darkMode
+                    ? 'bg-[#181822] border-[#262630] text-white placeholder-neutral-500'
+                    : 'bg-[#F7F7F7] border-[#E2E4E9] text-[#0F0F0F] placeholder-neutral-400'
+                    }`}
                   disabled={isSubmitting}
                 />
                 <span
-                  className={`absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-medium ${
-                    darkMode ? 'text-neutral-500' : 'text-neutral-400'
-                  }`}
+                  className={`absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-medium ${darkMode ? 'text-neutral-500' : 'text-neutral-400'
+                    }`}
                 >
                   cm
                 </span>
@@ -316,7 +297,7 @@ export default function OnboardingModal() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 px-4 rounded-full bg-orange-600 hover:bg-orange-500 active:bg-orange-700 text-white text-sm font-semibold shadow-lg shadow-orange-600/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none"
+              className="w-full py-3.5 px-4 rounded-full bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] text-white text-sm font-semibold shadow-lg shadow-[#3641C9]/30 transition-all flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 disabled:pointer-events-none"
             >
               {isSubmitting ? (
                 <>
@@ -336,4 +317,3 @@ export default function OnboardingModal() {
     </div>
   );
 }
-

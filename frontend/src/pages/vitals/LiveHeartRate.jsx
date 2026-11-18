@@ -215,8 +215,8 @@ export default function LiveHeartRate() {
         {/* Main Vitals Card */}
         <div
           className={`rounded-3xl border p-6 sm:p-8 text-center transition-all shadow-xl relative overflow-hidden ${darkMode
-              ? 'bg-[#15151e] border-white/10 shadow-black/40'
-              : 'bg-white border-neutral-200/80 shadow-neutral-200/50'
+            ? 'bg-[#16161D] border-[#262630] shadow-black/40'
+            : 'bg-white border-[#E2E4E9] shadow-neutral-200/50'
             }`}
         >
           {/* Subtle Ambient Background Glow on Active Heart Rate */}
@@ -228,22 +228,22 @@ export default function LiveHeartRate() {
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-medium mb-6 backdrop-blur-md">
             <span
               className={`w-2 h-2 rounded-full transition-colors ${isConnected
-                  ? 'bg-emerald-500 animate-pulse'
-                  : isConnecting
-                    ? 'bg-amber-400 animate-ping'
-                    : isDisconnected
-                      ? 'bg-rose-500'
-                      : 'bg-neutral-400'
+                ? 'bg-emerald-500 animate-pulse'
+                : isConnecting
+                  ? 'bg-amber-400 animate-ping'
+                  : isDisconnected
+                    ? 'bg-rose-500'
+                    : 'bg-neutral-400'
                 }`}
             />
             <span
               className={`font-semibold ${isConnected
-                  ? 'text-emerald-500'
-                  : isConnecting
-                    ? 'text-amber-400'
-                    : isDisconnected
-                      ? 'text-rose-500'
-                      : 'text-neutral-400'
+                ? 'text-emerald-500'
+                : isConnecting
+                  ? 'text-amber-400'
+                  : isDisconnected
+                    ? 'text-rose-500'
+                    : 'text-neutral-400'
                 }`}
             >
               {getStatusLabel()}
@@ -255,8 +255,8 @@ export default function LiveHeartRate() {
             <div className="flex items-center justify-center gap-3 mb-2">
               <Heart
                 className={`w-10 h-10 sm:w-12 sm:h-12 transition-all ${isConnected && bpm
-                    ? 'text-rose-500 fill-rose-500 scale-110 animate-[pulse_0.8s_ease-in-out_infinite]'
-                    : 'text-neutral-300 dark:text-neutral-700'
+                  ? 'text-rose-500 fill-rose-500 scale-110 animate-[pulse_0.8s_ease-in-out_infinite]'
+                  : 'text-neutral-300 dark:text-neutral-700'
                   }`}
               />
               <span className="text-7xl sm:text-8xl font-black font-mono tracking-tighter text-neutral-900 dark:text-white">
@@ -363,7 +363,7 @@ export default function LiveHeartRate() {
           <div className="p-4 rounded-2xl bg-neutral-100/70 dark:bg-white/5 border border-neutral-200/60 dark:border-white/5 text-left text-xs space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-200 font-semibold">
-                <Smartphone className="w-4 h-4 text-orange-500" />
+                <Smartphone className="w-4 h-4 text-[#3641C9] dark:text-[#8A9CF7]" />
                 <span>Select Your Smartwatch Brand:</span>
               </div>
               <span className="text-[10px] text-neutral-400 font-mono">Standard BLE 0x180D</span>
@@ -375,13 +375,12 @@ export default function LiveHeartRate() {
                 <button
                   key={brand.id}
                   onClick={() => setActiveBrandTab(brand.id)}
-                  className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap ${
-                    activeBrandTab === brand.id
-                      ? 'bg-orange-600 text-white shadow-sm'
-                      : darkMode
-                        ? 'bg-white/5 text-neutral-400 hover:text-white'
-                        : 'bg-neutral-200/60 text-neutral-600 hover:text-black'
-                  }`}
+                  className={`px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all whitespace-nowrap ${activeBrandTab === brand.id
+                    ? 'bg-[#3641C9] text-white shadow-sm'
+                    : darkMode
+                      ? 'bg-white/5 text-neutral-400 hover:text-white'
+                      : 'bg-neutral-200/60 text-neutral-600 hover:text-black'
+                    }`}
                 >
                   {brand.name}
                 </button>
@@ -390,12 +389,12 @@ export default function LiveHeartRate() {
 
             {/* Step-by-Step Instructions for Selected Brand */}
             <div className="pt-2 border-t border-neutral-200/60 dark:border-white/5 text-[11px] text-neutral-600 dark:text-neutral-300 space-y-1.5">
-              <div className="font-semibold text-orange-500">
+              <div className="font-semibold text-[#3641C9] dark:text-[#8A9CF7]">
                 How to connect {currentGuide.name}:
               </div>
               {currentGuide.steps.map((step, idx) => (
                 <div key={idx} className="flex items-start gap-2">
-                  <span className="w-4 h-4 rounded-full bg-orange-500/10 text-orange-500 font-bold font-mono text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="w-4 h-4 rounded-full bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] font-bold font-mono text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
                   <span className="leading-relaxed">{step}</span>

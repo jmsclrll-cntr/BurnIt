@@ -363,11 +363,10 @@ export default function ProfileModal() {
     >
       <div
         ref={modalRef}
-        className={`relative w-full max-w-[820px] rounded-[32px] border p-7 sm:p-9 shadow-2xl transition-all duration-200 overflow-hidden ${
-          darkMode
-            ? 'bg-[#131316] border-[#26262c] text-[#f4f4f5]'
-            : 'bg-white border-neutral-200 text-[#16161a]'
-        }`}
+        className={`relative w-full max-w-[820px] rounded-[32px] border p-7 sm:p-9 shadow-2xl transition-all duration-200 overflow-hidden ${darkMode
+          ? 'bg-[#141419] border-[#262630] text-[#F7F7F7]'
+          : 'bg-white border-[#E2E4E9] text-[#0F0F0F]'
+          }`}
       >
         {/* Toast Alert */}
         {toastMsg && (
@@ -389,11 +388,11 @@ export default function ProfileModal() {
 
         {/* User Header */}
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#ea580c] text-white flex items-center justify-center font-bold text-xl sm:text-2xl shadow-sm shrink-0">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#3641C9] text-white flex items-center justify-center font-bold text-xl sm:text-2xl shadow-sm shrink-0">
             {initial}
           </div>
           <div>
-            <h2 className="font-bold text-xl sm:text-2xl text-[#16161a] dark:text-white leading-tight">
+            <h2 className="font-bold text-xl sm:text-2xl text-[#0F0F0F] dark:text-white leading-tight">
               {displayName}
             </h2>
             <p className="text-sm text-neutral-400 font-medium mt-0.5">
@@ -413,21 +412,18 @@ export default function ProfileModal() {
 
               {/* Biometrics 3-Row Card */}
               <div
-                className={`rounded-2xl border overflow-hidden ${
-                  darkMode ? 'bg-[#1a1a1f] border-[#26262c]' : 'bg-neutral-50/80 border-neutral-200'
-                }`}
+                className={`rounded-2xl border overflow-hidden ${darkMode ? 'bg-[#181822] border-[#262630]' : 'bg-neutral-50/80 border-[#E2E4E9]'
+                  }`}
               >
                 {/* Age Row */}
                 <div
-                  className={`flex items-center justify-between px-4 sm:px-5 py-3.5 border-b transition-colors ${
-                    darkMode ? 'border-[#26262c]' : 'border-neutral-200/80'
-                  } ${
-                    invalidField === 'age'
+                  className={`flex items-center justify-between px-4 sm:px-5 py-3.5 border-b transition-colors ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
+                    } ${invalidField === 'age'
                       ? 'bg-red-500/10'
                       : isEditing && invalidField === null
-                      ? 'focus-within:bg-orange-50/50 dark:focus-within:bg-orange-500/5'
-                      : ''
-                  }`}
+                        ? 'focus-within:bg-[#3641C9]/5 dark:focus-within:bg-[#3641C9]/10'
+                        : ''
+                    }`}
                 >
                   <span className="text-sm text-neutral-600 dark:text-neutral-300 font-medium">Age</span>
                   {isEditing ? (
@@ -444,17 +440,16 @@ export default function ProfileModal() {
                             setErrorMsg('');
                           }
                         }}
-                        className={`w-16 text-right text-sm sm:text-base font-semibold bg-transparent focus:outline-none ${
-                          invalidField === 'age'
-                            ? 'text-red-500 font-bold'
-                            : 'text-[#16161a] dark:text-white'
-                        }`}
+                        className={`w-16 text-right text-sm sm:text-base font-semibold bg-transparent focus:outline-none ${invalidField === 'age'
+                          ? 'text-red-500 font-bold'
+                          : 'text-[#0F0F0F] dark:text-white'
+                          }`}
                         placeholder="21"
                       />
                       <span className="text-sm text-neutral-400">yrs</span>
                     </div>
                   ) : (
-                    <span className="text-sm sm:text-base font-semibold text-[#16161a] dark:text-white">
+                    <span className="text-sm sm:text-base font-semibold text-[#0F0F0F] dark:text-white">
                       {age || '—'} <span className="text-neutral-400 font-normal text-sm">yrs</span>
                     </span>
                   )}
@@ -462,15 +457,13 @@ export default function ProfileModal() {
 
                 {/* Weight Row */}
                 <div
-                  className={`flex items-center justify-between px-4 sm:px-5 py-3.5 border-b transition-colors ${
-                    darkMode ? 'border-[#26262c]' : 'border-neutral-200/80'
-                  } ${
-                    invalidField === 'weight'
+                  className={`flex items-center justify-between px-4 sm:px-5 py-3.5 border-b transition-colors ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
+                    } ${invalidField === 'weight'
                       ? 'bg-red-500/10'
                       : isEditing
-                      ? 'bg-[#ffedd5]/50 dark:bg-orange-500/10'
-                      : ''
-                  }`}
+                        ? 'bg-[#3641C9]/10 dark:bg-[#3641C9]/20'
+                        : ''
+                    }`}
                 >
                   <span className="text-sm text-neutral-600 dark:text-neutral-300 font-medium">Weight</span>
                   {isEditing ? (
@@ -487,19 +480,18 @@ export default function ProfileModal() {
                             setErrorMsg('');
                           }
                         }}
-                        className={`w-16 text-right text-sm sm:text-base font-semibold bg-transparent focus:outline-none ${
-                          invalidField === 'weight'
-                            ? 'text-red-500 font-bold'
-                            : isEditing
-                            ? 'text-[#ea580c] font-bold'
-                            : 'text-[#16161a] dark:text-white'
-                        }`}
+                        className={`w-16 text-right text-sm sm:text-base font-semibold bg-transparent focus:outline-none ${invalidField === 'weight'
+                          ? 'text-red-500 font-bold'
+                          : isEditing
+                            ? 'text-[#3641C9] dark:text-[#8A9CF7] font-bold'
+                            : 'text-[#0F0F0F] dark:text-white'
+                          }`}
                         placeholder="55"
                       />
                       <span className="text-sm text-neutral-400">kg</span>
                     </div>
                   ) : (
-                    <span className="text-sm sm:text-base font-semibold text-[#16161a] dark:text-white">
+                    <span className="text-sm sm:text-base font-semibold text-[#0F0F0F] dark:text-white">
                       {weight || '—'} <span className="text-neutral-400 font-normal text-sm">kg</span>
                     </span>
                   )}
@@ -507,13 +499,12 @@ export default function ProfileModal() {
 
                 {/* Height Row */}
                 <div
-                  className={`flex items-center justify-between px-4 sm:px-5 py-3.5 transition-colors ${
-                    invalidField === 'height'
-                      ? 'bg-red-500/10'
-                      : isEditing && invalidField === null
-                      ? 'focus-within:bg-orange-50/50 dark:focus-within:bg-orange-500/5'
+                  className={`flex items-center justify-between px-4 sm:px-5 py-3.5 transition-colors ${invalidField === 'height'
+                    ? 'bg-red-500/10'
+                    : isEditing && invalidField === null
+                      ? 'focus-within:bg-[#3641C9]/5 dark:focus-within:bg-[#3641C9]/10'
                       : ''
-                  }`}
+                    }`}
                 >
                   <span className="text-sm text-neutral-600 dark:text-neutral-300 font-medium">Height</span>
                   {isEditing ? (
@@ -530,17 +521,16 @@ export default function ProfileModal() {
                             setErrorMsg('');
                           }
                         }}
-                        className={`w-16 text-right text-sm sm:text-base font-semibold bg-transparent focus:outline-none ${
-                          invalidField === 'height'
-                            ? 'text-red-500 font-bold'
-                            : 'text-[#16161a] dark:text-white'
-                        }`}
+                        className={`w-16 text-right text-sm sm:text-base font-semibold bg-transparent focus:outline-none ${invalidField === 'height'
+                          ? 'text-red-500 font-bold'
+                          : 'text-[#0F0F0F] dark:text-white'
+                          }`}
                         placeholder="160"
                       />
                       <span className="text-sm text-neutral-400">cm</span>
                     </div>
                   ) : (
-                    <span className="text-sm sm:text-base font-semibold text-[#16161a] dark:text-white">
+                    <span className="text-sm sm:text-base font-semibold text-[#0F0F0F] dark:text-white">
                       {height || '—'} <span className="text-neutral-400 font-normal text-sm">cm</span>
                     </span>
                   )}
@@ -552,9 +542,8 @@ export default function ProfileModal() {
                 Gender
               </h3>
               <div
-                className={`p-1.5 rounded-2xl border flex items-center gap-1.5 ${
-                  darkMode ? 'bg-[#1a1a1f] border-[#26262c]' : 'bg-neutral-50/80 border-neutral-200'
-                }`}
+                className={`p-1.5 rounded-2xl border flex items-center gap-1.5 ${darkMode ? 'bg-[#181822] border-[#262630]' : 'bg-neutral-50/80 border-[#E2E4E9]'
+                  }`}
               >
                 {['Male', 'Female', 'Other'].map((opt) => {
                   const isSelected = gender.toLowerCase() === opt.toLowerCase();
@@ -570,13 +559,12 @@ export default function ProfileModal() {
                           setErrorMsg('');
                         }
                       }}
-                      className={`flex-1 py-2.5 sm:py-3 text-center text-sm rounded-xl font-medium transition-all ${
-                        isSelected
-                          ? darkMode
-                            ? 'bg-orange-500/20 text-[#ea580c] dark:text-orange-400 font-semibold shadow-sm'
-                            : 'bg-[#ffedd5] text-[#ea580c] font-semibold shadow-sm'
-                          : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
-                      } ${!isEditing ? 'cursor-default' : 'cursor-pointer'}`}
+                      className={`flex-1 py-2.5 sm:py-3 text-center text-sm rounded-xl font-medium transition-all ${isSelected
+                        ? darkMode
+                          ? 'bg-[#3641C9]/25 text-[#8A9CF7] font-semibold shadow-sm'
+                          : 'bg-[#3641C9]/10 text-[#3641C9] font-semibold shadow-sm'
+                        : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+                        } ${!isEditing ? 'cursor-default' : 'cursor-pointer'}`}
                     >
                       {opt}
                     </button>
@@ -613,7 +601,7 @@ export default function ProfileModal() {
                     type="button"
                     disabled={isSaving}
                     onClick={handleSave}
-                    className="w-full bg-[#ea580c] hover:bg-[#c2410c] disabled:opacity-50 text-white font-semibold text-sm sm:text-base rounded-2xl py-3.5 sm:py-4 active:scale-[0.98] transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
+                    className="w-full bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] disabled:opacity-50 text-white font-semibold text-sm sm:text-base rounded-2xl py-3.5 sm:py-4 active:scale-[0.98] transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
                   >
                     {isSaving ? (
                       <>
@@ -638,7 +626,7 @@ export default function ProfileModal() {
                   type="button"
                   disabled={isLoadingProfile || Boolean(profileLoadError)}
                   onClick={handleStartEdit}
-                  className="w-full bg-[#ea580c] hover:bg-[#c2410c] disabled:opacity-50 text-white font-semibold text-sm sm:text-base rounded-2xl py-3.5 sm:py-4 active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                  className="w-full bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] disabled:opacity-50 text-white font-semibold text-sm sm:text-base rounded-2xl py-3.5 sm:py-4 active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                 >
                   {isLoadingProfile ? 'Loading...' : 'Edit'}
                 </button>
@@ -689,7 +677,7 @@ export default function ProfileModal() {
             {/* Loading / Error / Grid View */}
             {isLoadingHistory ? (
               <div className="flex-1 flex flex-col items-center justify-center gap-2.5 text-neutral-400 text-sm py-16">
-                <Loader2 className="w-5 h-5 animate-spin text-[#ea580c]" />
+                <Loader2 className="w-5 h-5 animate-spin text-[#3641C9] dark:text-[#8A9CF7]" />
                 <span>Loading activity...</span>
               </div>
             ) : historyError ? (
@@ -698,7 +686,7 @@ export default function ProfileModal() {
                 <button
                   type="button"
                   onClick={loadHistoryFromDB}
-                  className="mt-2 text-sm text-[#ea580c] underline hover:text-[#c2410c] cursor-pointer"
+                  className="mt-2 text-sm text-[#3641C9] dark:text-[#8A9CF7] underline hover:opacity-80 cursor-pointer"
                 >
                   Retry
                 </button>
@@ -746,13 +734,13 @@ export default function ProfileModal() {
                               ? 'border border-neutral-200 dark:border-neutral-800/60 opacity-30 cursor-not-allowed pointer-events-none'
                               : 'border border-neutral-300 dark:border-neutral-700/80 bg-transparent hover:border-neutral-500 cursor-pointer';
                           } else if (count === 1) {
-                            bgClass = 'bg-[#8c3d14] border-transparent hover:brightness-110 cursor-pointer text-white';
+                            bgClass = 'bg-[#14006A] border-transparent hover:brightness-110 cursor-pointer text-white';
                           } else if (count >= 2 && count <= 3) {
-                            bgClass = 'bg-[#c25419] border-transparent hover:brightness-110 cursor-pointer text-white';
+                            bgClass = 'bg-[#3641C9]/70 border-transparent hover:brightness-110 cursor-pointer text-white';
                           } else if (count >= 4 && count <= 5) {
-                            bgClass = 'bg-[#e65c19] border-transparent hover:brightness-110 cursor-pointer text-white';
+                            bgClass = 'bg-[#3641C9] border-transparent hover:brightness-110 cursor-pointer text-white';
                           } else {
-                            bgClass = 'bg-[#ff6a13] border-transparent hover:brightness-110 shadow-[0_0_8px_rgba(255,106,19,0.35)] cursor-pointer text-white';
+                            bgClass = 'bg-[#8A9CF7] border-transparent hover:brightness-110 shadow-[0_0_8px_rgba(138,156,247,0.45)] cursor-pointer text-[#14006A]';
                           }
 
                           const ariaLabel = isFut
@@ -767,13 +755,12 @@ export default function ProfileModal() {
                               aria-label={ariaLabel}
                               disabled={isFut}
                               onClick={() => !isFut && handleSquareClick(dayNum, dayWorkouts)}
-                              className={`group relative w-9 h-9 sm:w-11 sm:h-11 rounded-[8px] sm:rounded-[10px] flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${bgClass}`}
+                              className={`group relative w-9 h-9 sm:w-11 sm:h-11 rounded-[8px] sm:rounded-[10px] flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3641C9] ${bgClass}`}
                             >
                               {/* Day number shown on hover or focus */}
                               <span
-                                className={`opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity text-xs font-bold leading-none select-none ${
-                                  count === 0 ? 'text-neutral-800 dark:text-white' : 'text-white'
-                                }`}
+                                className={`opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity text-xs font-bold leading-none select-none ${count === 0 ? 'text-neutral-800 dark:text-white' : count >= 6 ? 'text-[#14006A]' : 'text-white'
+                                  }`}
                               >
                                 {dayNum}
                               </span>
@@ -781,9 +768,8 @@ export default function ProfileModal() {
                               {/* Today dot indicator */}
                               {isTod && (
                                 <span
-                                  className={`absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full pointer-events-none ${
-                                    count === 0 ? 'bg-neutral-800 dark:bg-white' : 'bg-white'
-                                  }`}
+                                  className={`absolute bottom-1 right-1 w-1.5 h-1.5 rounded-full pointer-events-none ${count === 0 ? 'bg-neutral-800 dark:bg-white' : count >= 6 ? 'bg-[#14006A]' : 'bg-white'
+                                    }`}
                                 />
                               )}
                             </button>
@@ -805,7 +791,7 @@ export default function ProfileModal() {
             onClick={() => setActivePopupDay(null)}
           >
             <div
-              className="w-full max-w-[420px] bg-white dark:bg-[#16161d] border border-neutral-200 dark:border-neutral-700/70 rounded-2xl p-5 sm:p-6 shadow-2xl overflow-y-auto max-h-[92%] text-neutral-900 dark:text-white animate-in zoom-in-95 duration-150 no-scrollbar"
+              className="w-full max-w-[420px] bg-white dark:bg-[#16161D] border border-[#E2E4E9] dark:border-[#262630] rounded-2xl p-5 sm:p-6 shadow-2xl overflow-y-auto max-h-[92%] text-neutral-900 dark:text-white animate-in zoom-in-95 duration-150 no-scrollbar"
               onClick={(e) => e.stopPropagation()}
             >
               {(() => {
@@ -839,7 +825,7 @@ export default function ProfileModal() {
                     {/* Top Row: Title & Close Button */}
                     <div className="flex items-start justify-between pb-3 shrink-0">
                       <div>
-                        <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[#16161a] dark:text-white">
+                        <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[#0F0F0F] dark:text-white">
                           {activePopupDay.dateObj.toLocaleDateString('en-US', {
                             month: 'short',
                             day: 'numeric',
@@ -857,7 +843,7 @@ export default function ProfileModal() {
                       <button
                         type="button"
                         onClick={() => setActivePopupDay(null)}
-                        className="w-8 h-8 rounded-full border border-orange-500/40 hover:border-orange-500 flex items-center justify-center text-orange-500 transition-all cursor-pointer shrink-0"
+                        className="w-8 h-8 rounded-full border border-[#3641C9]/40 hover:border-[#3641C9] flex items-center justify-center text-[#3641C9] dark:text-[#8A9CF7] transition-all cursor-pointer shrink-0"
                         title="Close"
                         aria-label="Close day details"
                       >
@@ -876,7 +862,7 @@ export default function ProfileModal() {
                           {groups.map((group, gIdx) => (
                             <div key={group.name} className="space-y-2">
                               {/* Exercise Heading */}
-                              <h4 className="text-[17px] sm:text-[18px] font-bold text-[#16161a] dark:text-white tracking-tight">
+                              <h4 className="text-[17px] sm:text-[18px] font-bold text-[#0F0F0F] dark:text-white tracking-tight">
                                 {group.name}
                               </h4>
 
@@ -913,10 +899,10 @@ export default function ProfileModal() {
                                       <span className="text-neutral-500 dark:text-neutral-400 font-medium">
                                         {weightStr}
                                       </span>
-                                      <span className="text-right text-[#16161a] dark:text-white font-bold pr-3">
+                                      <span className="text-right text-[#0F0F0F] dark:text-white font-bold pr-3">
                                         {amountStr}
                                       </span>
-                                      <span className="text-right text-[#ea580c] font-bold">
+                                      <span className="text-right text-[#3641C9] dark:text-[#8A9CF7] font-bold">
                                         {Math.round(Number(set.calories_burned) || 0)} kcal
                                       </span>
                                     </div>
@@ -934,7 +920,7 @@ export default function ProfileModal() {
                           {/* Footer line: Total and the day's total kcal */}
                           <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800/80 flex items-center justify-between text-base sm:text-lg">
                             <span className="text-neutral-500 dark:text-neutral-400 font-medium">Total</span>
-                            <span className="text-[#16161a] dark:text-white font-bold">{totalKcal} kcal</span>
+                            <span className="text-[#0F0F0F] dark:text-white font-bold">{totalKcal} kcal</span>
                           </div>
                         </>
                       )}

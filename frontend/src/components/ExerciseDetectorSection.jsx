@@ -140,23 +140,21 @@ export default function ExerciseDetectorSection() {
   return (
     <section
       id="programs"
-      className={`w-full font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed transition-colors duration-200 ${
-        darkMode ? 'bg-[#0e0e13] text-[#f5f3ef]' : 'bg-[#f6f4f1] text-[#17171c]'
-      }`}
+      className={`w-full font-['Plus_Jakarta_Sans',sans-serif] leading-relaxed transition-colors duration-200 ${darkMode ? 'bg-[#0F0F0F] text-[#F7F7F7]' : 'bg-[#F7F7F7] text-[#0F0F0F]'
+        }`}
     >
       <div className="max-w-[960px] mx-auto px-6 pt-12 pb-24 sm:pt-[72px]">
         {/* 1. Header (centered) */}
         <div className="text-center">
           <h1 className="text-[clamp(2rem,5.2vw,3.5rem)] font-extrabold tracking-[-0.03em] leading-[1.1] m-0 text-center">
             Exercises the System{' '}
-            <span className={darkMode ? 'text-[#ff7a1a]' : 'text-[#d9480f]'}>
+            <span className="text-[#3641C9] dark:text-[#8A9CF7]">
               Can Detect
             </span>
           </h1>
           <p
-            className={`mt-4 mx-auto max-w-[54ch] text-[1.05rem] leading-[1.6] text-center ${
-              darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
-            }`}
+            className={`mt-4 mx-auto max-w-[54ch] text-[1.05rem] leading-[1.6] text-center ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
+              }`}
           >
             Real-time 33-point pose estimation, joint angle measurement, and automatic rep counting for supported workouts.
           </p>
@@ -164,9 +162,8 @@ export default function ExerciseDetectorSection() {
 
         {/* 2. Tabs */}
         <div
-          className={`mt-12 border-b relative w-full ${
-            darkMode ? 'border-[#2a2a34]' : 'border-[#dcd8d2]'
-          }`}
+          className={`mt-12 border-b relative w-full ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
+            }`}
         >
           <div
             ref={tablistRef}
@@ -186,19 +183,17 @@ export default function ExerciseDetectorSection() {
                   aria-selected={isSelected}
                   aria-controls={`panel-${ex.id}`}
                   tabIndex={isSelected ? 0 : -1}
-                  className={`bg-transparent border-0 py-3.5 px-5 font-semibold text-[0.98rem] whitespace-nowrap min-h-[48px] inline-flex items-center justify-center transition-colors duration-200 cursor-pointer outline-none focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 ${
-                    darkMode
-                      ? 'focus-visible:outline-[#ff7a1a]'
-                      : 'focus-visible:outline-[#d9480f]'
-                  } ${
-                    isSelected
+                  className={`bg-transparent border-0 py-3.5 px-5 font-semibold text-[0.98rem] whitespace-nowrap min-h-[48px] inline-flex items-center justify-center transition-colors duration-200 cursor-pointer outline-none focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 ${darkMode
+                    ? 'focus-visible:outline-[#8A9CF7]'
+                    : 'focus-visible:outline-[#3641C9]'
+                    } ${isSelected
                       ? darkMode
-                        ? 'text-[#f5f3ef]'
-                        : 'text-[#14161a]'
+                        ? 'text-[#F7F7F7]'
+                        : 'text-[#0F0F0F]'
                       : darkMode
-                      ? 'text-[#a3a3b0] hover:text-[#f5f3ef]'
-                      : 'text-[#5d646c] hover:text-[#14161a]'
-                  }`}
+                        ? 'text-[#A3A3B0] hover:text-[#F7F7F7]'
+                        : 'text-[#5D5D68] hover:text-[#0F0F0F]'
+                    }`}
                   onClick={() => handleTabClick(index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
                 >
@@ -207,9 +202,8 @@ export default function ExerciseDetectorSection() {
               );
             })}
             <div
-              className={`absolute bottom-0 h-[3px] rounded-t-[3px] transition-all duration-300 pointer-events-none z-10 motion-reduce:transition-none ${
-                darkMode ? 'bg-[#ff7a1a]' : 'bg-[#d9480f]'
-              }`}
+              className={`absolute bottom-0 h-[3px] rounded-t-[3px] transition-all duration-300 pointer-events-none z-10 motion-reduce:transition-none ${darkMode ? 'bg-[#8A9CF7]' : 'bg-[#3641C9]'
+                }`}
               style={indicatorStyle}
               aria-hidden="true"
             />
@@ -228,34 +222,30 @@ export default function ExerciseDetectorSection() {
             className="transition-all duration-350 ease-out"
           >
             <h2
-              className={`text-[1.8rem] sm:text-[2.2rem] font-extrabold tracking-[-0.02em] leading-[1.1] m-0 text-left ${
-                darkMode ? 'text-[#ff7a1a]' : 'text-[#d9480f]'
-              }`}
+              className={`text-[1.8rem] sm:text-[2.2rem] font-extrabold tracking-[-0.02em] leading-[1.1] m-0 text-left ${darkMode ? 'text-[#8A9CF7]' : 'text-[#3641C9]'
+                }`}
             >
               {currentExercise.name}
             </h2>
             <p
-              className={`mt-2.5 text-[1.05rem] max-w-[52ch] leading-[1.6] text-left ${
-                darkMode ? 'text-[#a3a3b0]' : 'text-[#5d646c]'
-              }`}
+              className={`mt-2.5 text-[1.05rem] max-w-[52ch] leading-[1.6] text-left ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
+                }`}
             >
               {currentExercise.desc}
             </p>
 
             <div
-              className={`mt-7 aspect-[4/3] sm:aspect-video rounded-[18px] sm:rounded-[24px] overflow-hidden border shadow-[0_20px_50px_-30px_rgba(0,0,0,0.45)] relative w-full ${
-                darkMode
-                  ? 'bg-[#17171e] border-[#2a2a34]'
-                  : 'bg-[#ffffff] border-[#dcd8d2]'
-              }`}
+              className={`mt-7 aspect-[4/3] sm:aspect-video rounded-[18px] sm:rounded-[24px] overflow-hidden border shadow-[0_20px_50px_-30px_rgba(0,0,0,0.45)] relative w-full ${darkMode
+                ? 'bg-[#16161D] border-[#262630]'
+                : 'bg-[#ffffff] border-[#E2E4E9]'
+                }`}
             >
               {imgError[currentExercise.id] ? (
                 <div
-                  className={`w-full h-full flex items-center justify-center font-semibold text-xl ${
-                    darkMode
-                      ? 'bg-[#17171e] text-[#a3a3b0]'
-                      : 'bg-[#ffffff] text-[#5d5d68]'
-                  }`}
+                  className={`w-full h-full flex items-center justify-center font-semibold text-xl ${darkMode
+                    ? 'bg-[#16161D] text-[#A3A3B0]'
+                    : 'bg-[#ffffff] text-[#5D5D68]'
+                    }`}
                 >
                   <span>{currentExercise.name}</span>
                 </div>

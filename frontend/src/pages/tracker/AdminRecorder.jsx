@@ -109,7 +109,7 @@ export default function AdminRecorder() {
       drawPoseSkeleton(ctx, poseData.landmarks, canvas.width, canvas.height, {
         formErrors: formLabel === 'incorrect' ? ['manual_error'] : [],
         isMirrored: true,
-        goodColor: '#ea580c',
+        goodColor: '#3641C9',
         errorColor: '#ef4444',
       })
     }
@@ -209,7 +209,7 @@ export default function AdminRecorder() {
     <PageWrapper>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-8">
-          <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#3641C9] dark:text-[#8A9CF7]">
             Internal ML Pipeline
           </span>
           <h1 className={`text-3xl sm:text-4xl font-bold tracking-tight mt-1 ${darkMode ? 'text-white' : 'text-[#202124]'}`}>
@@ -254,11 +254,10 @@ export default function AdminRecorder() {
               <button
                 type="button"
                 onClick={handleToggleRecording}
-                className={`flex-1 inline-flex items-center justify-center gap-2.5 py-4 rounded-full text-white text-sm font-bold uppercase tracking-wider shadow-lg transition-all ${
-                  isRecording
-                    ? 'bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-900 border border-red-500/50'
-                    : 'bg-red-600 hover:bg-red-500 active:bg-red-700'
-                }`}
+                className={`flex-1 inline-flex items-center justify-center gap-2.5 py-4 rounded-full text-white text-sm font-bold uppercase tracking-wider shadow-lg transition-all ${isRecording
+                  ? 'bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-900 border border-red-500/50'
+                  : 'bg-red-600 hover:bg-red-500 active:bg-red-700'
+                  }`}
               >
                 {isRecording ? <Square className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white" />}
                 <span>{isRecording ? 'Stop Recording' : 'Start Recording Data'}</span>
@@ -267,9 +266,8 @@ export default function AdminRecorder() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className={`px-6 py-4 rounded-full border text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
-                  darkMode ? 'bg-[#15151e] border-neutral-800 hover:bg-neutral-800 text-white' : 'bg-white border-neutral-300 text-neutral-800 shadow-sm'
-                }`}
+                className={`px-6 py-4 rounded-full border text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${darkMode ? 'bg-[#16161D] border-[#262630] hover:bg-neutral-800 text-white' : 'bg-white border-[#E2E4E9] text-neutral-800 shadow-sm'
+                  }`}
               >
                 <Upload className="w-4 h-4" />
                 <span>Import Video</span>
@@ -284,7 +282,7 @@ export default function AdminRecorder() {
             </div>
 
             {importStatus && (
-              <div className="p-3 rounded-xl bg-orange-600/10 border border-orange-600/30 text-orange-400 text-xs">
+              <div className="p-3 rounded-xl bg-[#3641C9]/10 border border-[#3641C9]/30 text-[#3641C9] dark:text-[#8A9CF7] text-xs">
                 {importStatus}
               </div>
             )}
@@ -293,9 +291,8 @@ export default function AdminRecorder() {
           {/* Right Column: Ground-Truth Label Controls */}
           <div className="lg:col-span-5 space-y-6">
             <div
-              className={`p-6 rounded-2xl border transition-colors ${
-                darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#f6f4f1] border-[#dcd8d2] shadow-sm'
-              }`}
+              className={`p-6 rounded-2xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-[#F7F7F7] border-[#E2E4E9] shadow-sm'
+                }`}
             >
               <h3 className={`text-base font-bold uppercase tracking-wider mb-4 ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
                 Label Configuration
@@ -307,9 +304,8 @@ export default function AdminRecorder() {
                   <select
                     value={exercise}
                     onChange={(e) => setExercise(e.target.value)}
-                    className={`w-full p-2.5 rounded-lg border font-medium ${
-                      darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
-                    }`}
+                    className={`w-full p-2.5 rounded-lg border font-medium ${darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
+                      }`}
                   >
                     <option value="squat">Squat</option>
                     <option value="pushup">Push-up</option>
@@ -325,9 +321,8 @@ export default function AdminRecorder() {
                     <select
                       value={phase}
                       onChange={(e) => setPhase(e.target.value)}
-                      className={`w-full p-2.5 rounded-lg border font-medium ${
-                        darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
-                      }`}
+                      className={`w-full p-2.5 rounded-lg border font-medium ${darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
+                        }`}
                     >
                       <option value="down">Down (Bottom)</option>
                       <option value="up">Up (Top)</option>
@@ -341,9 +336,8 @@ export default function AdminRecorder() {
                     <select
                       value={formLabel}
                       onChange={(e) => setFormLabel(e.target.value)}
-                      className={`w-full p-2.5 rounded-lg border font-medium ${
-                        darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
-                      }`}
+                      className={`w-full p-2.5 rounded-lg border font-medium ${darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
+                        }`}
                     >
                       <option value="correct">Correct Form</option>
                       <option value="incorrect">Incorrect Form</option>
@@ -356,9 +350,8 @@ export default function AdminRecorder() {
                   <select
                     value={errorType}
                     onChange={(e) => setErrorType(e.target.value)}
-                    className={`w-full p-2.5 rounded-lg border font-medium ${
-                      darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
-                    }`}
+                    className={`w-full p-2.5 rounded-lg border font-medium ${darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
+                      }`}
                   >
                     <option value="none">None (Clean Form)</option>
                     <option value="knees_caving">Knees Caving (Valgus)</option>
@@ -379,9 +372,8 @@ export default function AdminRecorder() {
                       type="text"
                       value={subjectId}
                       onChange={(e) => setSubjectId(e.target.value)}
-                      className={`w-full p-2.5 rounded-lg border font-medium ${
-                        darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
-                      }`}
+                      className={`w-full p-2.5 rounded-lg border font-medium ${darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
+                        }`}
                     />
                   </div>
 
@@ -390,9 +382,8 @@ export default function AdminRecorder() {
                     <select
                       value={cameraView}
                       onChange={(e) => setCameraView(e.target.value)}
-                      className={`w-full p-2.5 rounded-lg border font-medium ${
-                        darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
-                      }`}
+                      className={`w-full p-2.5 rounded-lg border font-medium ${darkMode ? 'bg-neutral-900 border-neutral-700 text-white' : 'bg-white border-neutral-300 text-neutral-900'
+                        }`}
                     >
                       <option value="front">Front Facing</option>
                       <option value="side_45">45° Diagonal</option>
@@ -405,15 +396,14 @@ export default function AdminRecorder() {
 
             {/* Dataset Statistics & Export */}
             <div
-              className={`p-6 rounded-2xl border transition-colors ${
-                darkMode ? 'bg-[#15151e] border-neutral-800' : 'bg-[#f6f4f1] border-[#dcd8d2] shadow-sm'
-              }`}
+              className={`p-6 rounded-2xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-[#F7F7F7] border-[#E2E4E9] shadow-sm'
+                }`}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className={`text-base font-bold uppercase tracking-wider ${darkMode ? 'text-white' : 'text-neutral-900'}`}>
                   Dataset Records
                 </h3>
-                <span className="text-xs font-mono text-orange-600 font-bold">
+                <span className="text-xs font-mono text-[#3641C9] dark:text-[#8A9CF7] font-bold">
                   {datasetStats?.total_frames || 0} Frames Total
                 </span>
               </div>
@@ -425,9 +415,8 @@ export default function AdminRecorder() {
                     href={`/api/dataset/export/${ex}`}
                     target="_blank"
                     rel="noreferrer"
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider border transition-colors ${
-                      darkMode ? 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:text-white' : 'bg-white border-neutral-200 text-neutral-700 shadow-sm'
-                    }`}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider border transition-colors ${darkMode ? 'bg-neutral-900 border-neutral-700 text-neutral-300 hover:text-white' : 'bg-white border-neutral-200 text-neutral-700 shadow-sm'
+                      }`}
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>{ex} CSV</span>
@@ -441,7 +430,7 @@ export default function AdminRecorder() {
                   type="button"
                   onClick={handleTrainModel}
                   disabled={isTraining}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider shadow-md transition-all"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider shadow-md transition-all"
                 >
                   <Cpu className="w-4 h-4" />
                   <span>{isTraining ? 'Training Classifier...' : 'Train ML Classifier (RandomForest)'}</span>

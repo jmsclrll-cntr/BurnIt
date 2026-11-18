@@ -52,7 +52,7 @@ export default function SetTrackerStepper({
       {allExerciseKeys.length === 0 ? (
         <div className="p-5 rounded-xl border border-dashed border-neutral-400 dark:border-white/10 text-center">
           <p className="text-xs text-black dark:text-neutral-300 font-medium">
-            Perform your first rep to start <strong className="text-orange-600 dark:text-orange-500 font-bold">Set 1</strong>
+            Perform your first rep to start <strong className="text-[#3641C9] dark:text-[#8A9CF7] font-bold">Set 1</strong>
           </p>
         </div>
       ) : (
@@ -86,12 +86,12 @@ export default function SetTrackerStepper({
                   <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-2">
                     <span>{info.name}</span>
                     {exKey === 'bicepcurl' && weightLbs != null && Number(weightLbs) > 0 && (
-                      <span className="text-[10px] normal-case font-bold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] normal-case font-bold text-[#3641C9] dark:text-[#8A9CF7] bg-[#3641C9]/10 dark:bg-[#8A9CF7]/15 px-2 py-0.5 rounded-full">
                         {weightLbs} lbs
                       </span>
                     )}
                     {isAuto && (
-                      <span className="text-[10px] normal-case font-semibold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] normal-case font-semibold text-[#3641C9] dark:text-[#8A9CF7] bg-[#3641C9]/10 dark:bg-[#8A9CF7]/15 px-2 py-0.5 rounded-full">
                         First form
                       </span>
                     )}
@@ -117,15 +117,15 @@ export default function SetTrackerStepper({
                 <h4 className="text-xs font-black uppercase tracking-wider text-black dark:text-white flex items-center gap-2">
                   <span>{info.name}</span>
                   {exKey === 'bicepcurl' && weightLbs != null && Number(weightLbs) > 0 && (
-                    <span className="text-[10px] normal-case font-bold text-orange-600 dark:text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] normal-case font-bold text-[#3641C9] dark:text-[#8A9CF7] bg-[#3641C9]/10 dark:bg-[#8A9CF7]/15 px-2 py-0.5 rounded-full">
                       {weightLbs} lbs
                     </span>
                   )}
                   {isCurrentExercise && (
-                    <span className="w-2 h-2 rounded-full bg-orange-600 dark:bg-orange-500 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-[#3641C9] dark:bg-[#8A9CF7] animate-pulse" />
                   )}
                 </h4>
-                <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400">
+                <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#3641C9]/10 dark:bg-[#8A9CF7]/15 text-[#3641C9] dark:text-[#8A9CF7]">
                   {finishedSets.length} {finishedSets.length === 1 ? 'set' : 'sets'}
                 </span>
               </div>
@@ -159,11 +159,10 @@ export default function SetTrackerStepper({
                       <div className="flex flex-col items-center">
                         {/* Numbered Circle */}
                         <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-all flex-shrink-0 ${
-                            isLive
-                              ? 'bg-orange-600 text-white shadow-md shadow-orange-600/30 ring-4 ring-orange-500/20 animate-pulse'
-                              : 'bg-neutral-300 dark:bg-white/10 text-black dark:text-neutral-200'
-                          }`}
+                          className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-all flex-shrink-0 ${isLive
+                            ? 'bg-[#3641C9] text-white shadow-md shadow-[#3641C9]/30 ring-4 ring-[#3641C9]/20 animate-pulse'
+                            : 'bg-neutral-300 dark:bg-white/10 text-black dark:text-neutral-200'
+                            }`}
                         >
                           {set.setNumber}
                         </div>
@@ -179,11 +178,10 @@ export default function SetTrackerStepper({
                         {/* Summary Line: "10 reps · 00:42" */}
                         <div className="flex items-center gap-2">
                           <span
-                            className={`text-xs font-mono font-bold ${
-                              isLive
-                                ? 'text-orange-600 dark:text-orange-400'
-                                : 'text-black dark:text-neutral-100'
-                            }`}
+                            className={`text-xs font-mono font-bold ${isLive
+                              ? 'text-[#3641C9] dark:text-[#8A9CF7]'
+                              : 'text-black dark:text-neutral-100'
+                              }`}
                           >
                             {isPlank
                               ? `${set.reps}s hold`
@@ -193,8 +191,8 @@ export default function SetTrackerStepper({
 
                           {/* Live Indicator next to active set summary */}
                           {isLive && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-mono font-bold uppercase tracking-wider">
-                              <span className="w-1.5 h-1.5 rounded-full bg-orange-600 dark:bg-orange-500 animate-ping" />
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] text-[10px] font-mono font-bold uppercase tracking-wider">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#3641C9] dark:bg-[#8A9CF7] animate-ping" />
                               Live
                             </span>
                           )}
@@ -204,11 +202,10 @@ export default function SetTrackerStepper({
                         {!isLive && (
                           <div className="mt-1">
                             <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-mono border ${
-                                isLiveRest
-                                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-400 font-bold'
-                                  : 'bg-neutral-100 dark:bg-white/5 border-neutral-400 dark:border-white/10 text-black dark:text-neutral-300 font-bold'
-                              }`}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-mono border ${isLiveRest
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-400 font-bold'
+                                : 'bg-neutral-100 dark:bg-white/5 border-neutral-400 dark:border-white/10 text-black dark:text-neutral-300 font-bold'
+                                }`}
                             >
                               <span>Rest {formatMMSS(restSeconds)}</span>
                               {isLiveRest && (
@@ -223,7 +220,7 @@ export default function SetTrackerStepper({
                           <div className="mt-2 flex items-center gap-2">
                             <button
                               onClick={() => onEndSet()}
-                              className="px-3.5 py-1 rounded-full text-[11px] font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-sm transition-all cursor-pointer"
+                              className="px-3.5 py-1 rounded-full text-[11px] font-bold bg-[#3641C9] hover:bg-[#2C35A8] text-white shadow-sm transition-all cursor-pointer"
                             >
                               End Set {set.setNumber}
                             </button>

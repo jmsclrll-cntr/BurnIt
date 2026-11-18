@@ -74,8 +74,8 @@ export function ObstaclesFlipCards() {
     <section
       id="obstacles-solved"
       className={`w-full min-h-screen flex items-center py-14 sm:py-22 border-t transition-colors duration-200 ${darkMode
-          ? 'bg-[#0f1015] text-[#f5f3ef] border-[#2a2a34]'
-          : 'bg-[#f6f4f1] text-[#17171c] border-[#dcd8d2]'
+        ? 'bg-[#0F0F0F] text-[#F7F7F7] border-[#262630]'
+        : 'bg-[#F7F7F7] text-[#0F0F0F] border-[#E2E4E9]'
         }`}
       aria-label="The common workout obstacles we solve"
     >
@@ -84,12 +84,12 @@ export function ObstaclesFlipCards() {
         <div className="text-left">
           <h2 className="text-[clamp(1.8rem,3.8vw,2.8rem)] font-extrabold tracking-[-0.025em] leading-[1.15] m-0 text-left">
             The common workout obstacles
-            <span className="block text-[clamp(2.4rem,5.2vw,3.8rem)] font-black text-[#ff6a1a] tracking-[-0.03em] leading-[1.05] mt-1.5">
+            <span className="block text-[clamp(2.4rem,5.2vw,3.8rem)] font-black text-[#3641C9] dark:text-[#8A9CF7] tracking-[-0.03em] leading-[1.05] mt-1.5">
               We Solve
             </span>
           </h2>
           <p
-            className={`mt-4 max-w-[60ch] text-[1.05rem] leading-[1.6] text-left ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+            className={`mt-4 max-w-[60ch] text-[1.05rem] leading-[1.6] text-left ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
               }`}
           >
             Why millions abandon fitness routines—and how BURN IT bridges every gap through accessible software.
@@ -108,86 +108,84 @@ export function ObstaclesFlipCards() {
               <button
                 key={card.id}
                 type="button"
-                className="relative [perspective:1200px] bg-transparent border-0 p-0 cursor-pointer w-full text-left block outline-none rounded-[24px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#ff6a1a] focus-visible:outline-offset-[3px] group"
+                className="relative [perspective:1200px] bg-transparent border-0 p-0 cursor-pointer w-full text-left block outline-none rounded-[24px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#3641C9] dark:focus-visible:outline-[#8A9CF7] focus-visible:outline-offset-[3px] group"
                 onClick={() => toggleFlip(card.id)}
                 aria-label={`${card.title}. Click to ${isFlipped ? 'flip to challenge' : 'flip to solution'
                   }`}
               >
                 <div
-                  className={`relative w-full h-full min-h-[270px] sm:min-h-[250px] [transform-style:preserve-3d] transition-transform duration-[1200ms] ease-in-out will-change-transform rounded-[24px] motion-reduce:transition-none group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)] ${
-                    isFlipped ? '[transform:rotateY(180deg)]' : ''
-                  }`}
+                  className={`relative w-full h-full min-h-[270px] sm:min-h-[250px] [transform-style:preserve-3d] transition-transform duration-[1200ms] ease-in-out will-change-transform rounded-[24px] motion-reduce:transition-none group-hover:[transform:rotateY(180deg)] group-focus-visible:[transform:rotateY(180deg)] ${isFlipped ? '[transform:rotateY(180deg)]' : ''
+                    }`}
                 >
                   {/* FRONT: Challenge */}
                   <div
-                    className={`w-full h-full rounded-[24px] p-7 sm:p-8 [backface-visibility:hidden] [transform:rotateY(0deg)] flex flex-col border ${
-                  darkMode
-                    ? 'bg-[#171821] border-[#262730] text-[#f5f3ef]'
-                    : 'bg-white border-[#e5e3de] text-[#17171c]'
-                }`}
+                    className={`w-full h-full rounded-[24px] p-7 sm:p-8 [backface-visibility:hidden] [transform:rotateY(0deg)] flex flex-col border ${darkMode
+                      ? 'bg-[#16161D] border-[#262630] text-[#F7F7F7]'
+                      : 'bg-white border-[#E2E4E9] text-[#0F0F0F]'
+                      }`}
                   >
-                <h3 className="text-[1.35rem] font-extrabold leading-[1.25] tracking-[-0.015em] mb-4.5">
-                  {card.title}
-                </h3>
+                    <h3 className="text-[1.35rem] font-extrabold leading-[1.25] tracking-[-0.015em] mb-4.5">
+                      {card.title}
+                    </h3>
 
-                <div className="mt-0">
-                  <span
-                    className={`block font-extrabold text-[0.85rem] mb-1 ${darkMode ? 'text-[#ff4d4f]' : 'text-[#dc2626]'
-                      }`}
-                  >
-                    The challenge:
-                  </span>
-                  <p
-                    className={`m-0 text-[0.95rem] leading-[1.5] ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
-                      }`}
-                  >
-                    {card.challenge}
-                  </p>
+                    <div className="mt-0">
+                      <span
+                        className={`block font-extrabold text-[0.85rem] mb-1 ${darkMode ? 'text-[#ff4d4f]' : 'text-[#dc2626]'
+                          }`}
+                      >
+                        The challenge:
+                      </span>
+                      <p
+                        className={`m-0 text-[0.95rem] leading-[1.5] ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
+                          }`}
+                      >
+                        {card.challenge}
+                      </p>
+                    </div>
+
+                    <div className="mt-3.5">
+                      <span
+                        className={`block font-extrabold text-[0.85rem] mb-1 ${darkMode ? 'text-[#ff4d4f]' : 'text-[#dc2626]'
+                          }`}
+                      >
+                        What it looks like:
+                      </span>
+                      <p
+                        className={`m-0 text-[0.95rem] leading-[1.5] ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
+                          }`}
+                      >
+                        {card.scenarioFront}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* BACK: Solution */}
+                  <div className="absolute inset-0 w-full h-full rounded-[24px] p-7 sm:p-8 bg-[#3641C9] text-white [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-center shadow-[0_16px_40px_-16px_rgba(54,65,201,0.4)]">
+                    <div>
+                      <span className="block font-extrabold text-[0.85rem] text-white mb-1">
+                        The Burn It solution:
+                      </span>
+                      <p className="m-0 text-[0.98rem] font-medium leading-[1.55] text-white">
+                        {card.solution}
+                      </p>
+                    </div>
+
+                    <div className="mt-3.5">
+                      <span className="block font-extrabold text-[0.85rem] text-white mb-1">
+                        How it helps:
+                      </span>
+                      <p className="m-0 text-[0.98rem] font-medium leading-[1.55] text-white/95">
+                        {card.scenarioBack}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="mt-3.5">
-                  <span
-                    className={`block font-extrabold text-[0.85rem] mb-1 ${darkMode ? 'text-[#ff4d4f]' : 'text-[#dc2626]'
-                      }`}
-                  >
-                    What it looks like:
-                  </span>
-                  <p
-                    className={`m-0 text-[0.95rem] leading-[1.5] ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
-                      }`}
-                  >
-                    {card.scenarioFront}
-                  </p>
-                </div>
-              </div>
-
-                  {/* BACK: Solution */ }
-            <div className="absolute inset-0 w-full h-full rounded-[24px] p-7 sm:p-8 bg-[#ff8a3d] text-[#17171c] [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col justify-center shadow-[0_16px_40px_-16px_rgba(255,138,61,0.4)]">
-              <div>
-                <span className="block font-extrabold text-[0.85rem] text-[#17171c] mb-1">
-                  The Burn It solution:
-                </span>
-                <p className="m-0 text-[0.98rem] font-medium leading-[1.55] text-[#17171c]">
-                  {card.solution}
-                </p>
-              </div>
-
-              <div className="mt-3.5">
-                <span className="block font-extrabold text-[0.85rem] text-[#17171c] mb-1">
-                  How it helps:
-                </span>
-                <p className="m-0 text-[0.98rem] font-medium leading-[1.55] text-[#17171c]">
-                  {card.scenarioBack}
-                </p>
-              </div>
-            </div>
-                </div>
-      </button>
-      );
+              </button>
+            );
           })}
-    </div>
-      </div >
-    </section >
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -203,7 +201,7 @@ export default function AboutBurnIt() {
   return (
     <div
       id="about"
-      className={`w-full font-['Archivo',sans-serif] leading-relaxed transition-colors duration-200 ${darkMode ? 'bg-[#0e0e13] text-[#f5f3ef]' : 'bg-[#f6f4f1] text-[#17171c]'
+      className={`w-full font-['Archivo',sans-serif] leading-relaxed transition-colors duration-200 ${darkMode ? 'bg-[#0F0F0F] text-[#F7F7F7]' : 'bg-[#F7F7F7] text-[#0F0F0F]'
         }`}
       aria-label="About BURN IT"
     >
@@ -216,13 +214,13 @@ export default function AboutBurnIt() {
           <div className="text-left">
             <h1 className="text-[clamp(2.3rem,5.2vw,4.1rem)] font-black leading-[1.03] tracking-[-0.03em] m-0 text-left">
               Finish your workout. Get your{' '}
-              <span className="text-[#ff6a1a] font-black not-italic">
+              <span className="text-[#3641C9] dark:text-[#8A9CF7] font-black not-italic">
                 calorie burn
               </span>{' '}
               and rep summary
             </h1>
             <p
-              className={`mt-6 max-w-[52ch] text-[1.08rem] leading-[1.6] text-left ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+              className={`mt-6 max-w-[52ch] text-[1.08rem] leading-[1.6] text-left ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                 }`}
             >
               Work out in front of your camera. When you finish, BURN IT shows
@@ -236,8 +234,8 @@ export default function AboutBurnIt() {
           {/* Right Column: Workout Complete Card */}
           <div
             className={`rounded-[24px] p-7 sm:p-8 border shadow-xl ${darkMode
-                ? 'bg-[#16161d] border-[#2a2a34]'
-                : 'bg-white border-[#dcd8d2]'
+              ? 'bg-[#16161D] border-[#262630]'
+              : 'bg-white border-[#E2E4E9]'
               }`}
             role="region"
             aria-label="Workout complete summary card"
@@ -249,7 +247,7 @@ export default function AboutBurnIt() {
                   Workout complete
                 </h3>
                 <div
-                  className={`text-[0.9rem] mt-1 ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+                  className={`text-[0.9rem] mt-1 ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                     }`}
                 >
                   Here's your estimated burn.
@@ -258,8 +256,8 @@ export default function AboutBurnIt() {
               <button
                 type="button"
                 className={`bg-transparent border-0 text-[1.6rem] leading-none cursor-pointer p-1 rounded ${darkMode
-                    ? 'text-[#a3a3b0] hover:text-[#f5f3ef]'
-                    : 'text-[#5d5d68] hover:text-[#17171c]'
+                  ? 'text-[#A3A3B0] hover:text-[#F7F7F7]'
+                  : 'text-[#5D5D68] hover:text-[#0F0F0F]'
                   }`}
                 aria-label="Close summary"
               >
@@ -270,14 +268,14 @@ export default function AboutBurnIt() {
             {/* Result block */}
             <div className="text-center mt-7">
               <div
-                className="text-[6rem] font-black leading-none tracking-[-0.03em] text-[#ff6a1a]"
+                className="text-[6rem] font-black leading-none tracking-[-0.03em] text-[#14006A] dark:text-[#8A9CF7]"
                 aria-live="polite"
                 aria-atomic="true"
               >
                 {kcal}
               </div>
               <div
-                className={`text-[0.85rem] mt-1.5 ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+                className={`text-[0.85rem] mt-1.5 ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                   }`}
               >
                 kcal burned
@@ -291,7 +289,7 @@ export default function AboutBurnIt() {
                   12:40
                 </span>
                 <span
-                  className={`text-[0.85rem] mt-1 ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+                  className={`text-[0.85rem] mt-1 ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                     }`}
                 >
                   duration
@@ -302,20 +300,20 @@ export default function AboutBurnIt() {
             {/* Heart-rate block (static, non-editable on home page) */}
             <div className="mt-7">
               <div
-                className={`block text-left text-[0.85rem] mb-2 ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+                className={`block text-left text-[0.85rem] mb-2 ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                   }`}
               >
                 Average heart rate
               </div>
               <div
                 className={`w-full flex items-center justify-between h-12 px-4 rounded-[14px] border ${darkMode
-                    ? 'bg-[#0e0e13] border-[#2a2a34]'
-                    : 'bg-[#f6f4f1] border-[#dcd8d2]'
+                  ? 'bg-[#0F0F0F] border-[#262630]'
+                  : 'bg-[#F7F7F7] border-[#E2E4E9]'
                   }`}
               >
                 <span className="font-bold text-base select-text">138</span>
                 <span
-                  className={`text-[0.8rem] font-semibold select-none ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+                  className={`text-[0.8rem] font-semibold select-none ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                     }`}
                   aria-hidden="true"
                 >
@@ -327,7 +325,7 @@ export default function AboutBurnIt() {
             {/* Primary button */}
             <button
               type="button"
-              className="w-full h-12 mt-4 rounded-[14px] bg-[#ff6a1a] hover:bg-[#ff7a29] text-white font-extrabold text-[0.92rem] transition-colors cursor-pointer border-0 outline-none focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#ff6a1a] focus-visible:outline-offset-2"
+              className="w-full h-12 mt-4 rounded-[14px] bg-[#3641C9] hover:bg-[#2C35A8] text-white font-extrabold text-[0.92rem] transition-colors cursor-pointer border-0 outline-none focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#3641C9] focus-visible:outline-offset-2"
             >
               Start new session
             </button>
@@ -335,9 +333,9 @@ export default function AboutBurnIt() {
             {/* Text link button */}
             <button
               type="button"
-              className={`w-full text-center mt-3.5 bg-transparent border-0 font-medium text-[0.85rem] cursor-pointer outline-none focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#ff6a1a] focus-visible:outline-offset-2 ${darkMode
-                  ? 'text-[#a3a3b0] hover:text-[#f5f3ef]'
-                  : 'text-[#5d5d68] hover:text-[#17171c]'
+              className={`w-full text-center mt-3.5 bg-transparent border-0 font-medium text-[0.85rem] cursor-pointer outline-none focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#3641C9] focus-visible:outline-offset-2 ${darkMode
+                ? 'text-[#A3A3B0] hover:text-[#F7F7F7]'
+                : 'text-[#5D5D68] hover:text-[#0F0F0F]'
                 }`}
             >
               Return to dashboard
@@ -349,18 +347,18 @@ export default function AboutBurnIt() {
         {/* SECTION 2: FEATURE STRIP                                  */}
         {/* ========================================================= */}
         <div
-          className={`grid grid-cols-2 md:grid-cols-4 border-y ${darkMode ? 'border-[#2a2a34]' : 'border-[#dcd8d2]'
+          className={`grid grid-cols-2 md:grid-cols-4 border-y ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
             }`}
         >
           <div
-            className={`py-7 px-4 sm:px-6 border-l first:border-l-0 ${darkMode ? 'border-[#2a2a34]' : 'border-[#dcd8d2]'
+            className={`py-7 px-4 sm:px-6 border-l first:border-l-0 ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
               }`}
           >
             <h4 className="text-sm font-bold m-0 leading-tight">
               Camera rep counting
             </h4>
             <div
-              className={`text-xs mt-1.5 leading-relaxed ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+              className={`text-xs mt-1.5 leading-relaxed ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                 }`}
             >
               Reps are counted from your recorded movement.
@@ -368,14 +366,14 @@ export default function AboutBurnIt() {
           </div>
 
           <div
-            className={`py-7 px-4 sm:px-6 border-l ${darkMode ? 'border-[#2a2a34]' : 'border-[#dcd8d2]'
+            className={`py-7 px-4 sm:px-6 border-l ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
               }`}
           >
             <h4 className="text-sm font-bold m-0 leading-tight">
               Calorie prediction
             </h4>
             <div
-              className={`text-xs mt-1.5 leading-relaxed ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+              className={`text-xs mt-1.5 leading-relaxed ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                 }`}
             >
               Estimated from your exercise, weight and effort.
@@ -383,14 +381,14 @@ export default function AboutBurnIt() {
           </div>
 
           <div
-            className={`py-7 px-4 sm:px-6 border-l ${darkMode ? 'border-[#2a2a34]' : 'border-[#dcd8d2]'
+            className={`py-7 px-4 sm:px-6 border-l ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
               }`}
           >
             <h4 className="text-sm font-bold m-0 leading-tight">
               Private by design
             </h4>
             <div
-              className={`text-xs mt-1.5 leading-relaxed ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+              className={`text-xs mt-1.5 leading-relaxed ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                 }`}
             >
               Video is processed on your device, never uploaded.
@@ -398,14 +396,14 @@ export default function AboutBurnIt() {
           </div>
 
           <div
-            className={`py-7 px-4 sm:px-6 border-l ${darkMode ? 'border-[#2a2a34]' : 'border-[#dcd8d2]'
+            className={`py-7 px-4 sm:px-6 border-l ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
               }`}
           >
             <h4 className="text-sm font-bold m-0 leading-tight">
               Workout history
             </h4>
             <div
-              className={`text-xs mt-1.5 leading-relaxed ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+              className={`text-xs mt-1.5 leading-relaxed ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                 }`}
             >
               Every summary is saved so you can see your trend.
@@ -423,7 +421,7 @@ export default function AboutBurnIt() {
               Why people stop tracking their workouts
             </h2>
             <p
-              className={`mt-4 max-w-[36ch] text-[1.05rem] leading-[1.6] text-left ${darkMode ? 'text-[#a3a3b0]' : 'text-[#5d5d68]'
+              className={`mt-4 max-w-[36ch] text-[1.05rem] leading-[1.6] text-left ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
                 }`}
             >
               Logging is tedious and guesses are unreliable. BURN IT handles
@@ -442,12 +440,12 @@ export default function AboutBurnIt() {
               return (
                 <div
                   key={item.problem}
-                  className={`border-t last:border-b transition-colors ${darkMode ? 'border-[#2a2a34]' : 'border-[#dcd8d2]'
+                  className={`border-t last:border-b transition-colors ${darkMode ? 'border-[#262630]' : 'border-[#E2E4E9]'
                     }`}
                 >
                   <button
                     type="button"
-                    className="w-full flex items-center justify-between gap-4 py-5.5 bg-transparent border-0 cursor-pointer text-left font-inherit outline-none min-h-[48px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#ff6a1a] focus-visible:outline-offset-2"
+                    className="w-full flex items-center justify-between gap-4 py-5.5 bg-transparent border-0 cursor-pointer text-left font-inherit outline-none min-h-[48px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-[#3641C9] dark:focus-visible:outline-[#8A9CF7] focus-visible:outline-offset-2"
                     onClick={() => toggleObstacle(index)}
                     aria-expanded={isOpen}
                     aria-controls={`obstacle-content-${index}`}
@@ -455,22 +453,22 @@ export default function AboutBurnIt() {
                   >
                     <span
                       className={`text-[1.05rem] font-semibold leading-[1.5] transition-colors ${isOpen
-                          ? darkMode
-                            ? 'text-[#f5f3ef]'
-                            : 'text-[#17171c]'
-                          : darkMode
-                            ? 'text-[#a3a3b0] hover:text-[#f5f3ef]'
-                            : 'text-[#5d5d68] hover:text-[#17171c]'
+                        ? darkMode
+                          ? 'text-[#F7F7F7]'
+                          : 'text-[#0F0F0F]'
+                        : darkMode
+                          ? 'text-[#A3A3B0] hover:text-[#F7F7F7]'
+                          : 'text-[#5D5D68] hover:text-[#0F0F0F]'
                         }`}
                     >
                       {item.problem}
                     </span>
                     <span
                       className={`inline-flex items-center justify-center shrink-0 transition-transform duration-300 motion-reduce:transition-none ${isOpen
-                          ? 'rotate-180 text-[#ff6a1a]'
-                          : darkMode
-                            ? 'text-[#a3a3b0]'
-                            : 'text-[#5d5d68]'
+                        ? 'rotate-180 text-[#3641C9] dark:text-[#8A9CF7]'
+                        : darkMode
+                          ? 'text-[#A3A3B0]'
+                          : 'text-[#5D5D68]'
                         }`}
                       aria-hidden="true"
                     >
@@ -494,14 +492,14 @@ export default function AboutBurnIt() {
                     role="region"
                     aria-labelledby={`obstacle-header-${index}`}
                     className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${isOpen
-                        ? 'grid-rows-[1fr] opacity-100'
-                        : 'grid-rows-[0fr] opacity-0'
+                      ? 'grid-rows-[1fr] opacity-100'
+                      : 'grid-rows-[0fr] opacity-0'
                       }`}
                   >
                     <div className="overflow-hidden">
                       <div className="flex items-start gap-3 pb-5.5">
                         <span
-                          className="w-[3px] h-[22px] bg-[#ff6a1a] rounded-sm shrink-0 mt-[3px]"
+                          className="w-[3px] h-[22px] bg-[#3641C9] dark:bg-[#8A9CF7] rounded-sm shrink-0 mt-[3px]"
                           aria-hidden="true"
                         />
                         <p className="m-0 font-medium leading-[1.6] text-[1.02rem]">

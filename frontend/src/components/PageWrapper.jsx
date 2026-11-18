@@ -7,9 +7,8 @@ export default function PageWrapper({ children, hideFooter = false }) {
 
   return (
     <div
-      className={`min-h-screen font-sans antialiased flex flex-col justify-between transition-colors duration-300 selection:bg-orange-500/20 selection:text-orange-500 ${
-        darkMode ? 'bg-[#0e0e13] text-[#f5f3ef]' : 'bg-[#f6f4f1] text-[#17171c]'
-      } dark:bg-[#0e0e13] dark:text-[#f5f3ef]`}
+      className={`min-h-screen font-sans antialiased flex flex-col justify-between transition-colors duration-300 selection:bg-[#3641C9]/20 selection:text-[#3641C9] ${darkMode ? 'bg-[#0F0F0F] text-[#F7F7F7]' : 'bg-[#F7F7F7] text-[#0F0F0F]'
+        } dark:bg-[#0F0F0F] dark:text-[#F7F7F7]`}
     >
       <div>
         <Navbar />
@@ -19,4 +18,3 @@ export default function PageWrapper({ children, hideFooter = false }) {
     </div>
   )
 }
-

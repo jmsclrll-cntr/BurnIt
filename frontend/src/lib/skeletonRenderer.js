@@ -39,8 +39,8 @@ export function drawPoseSkeleton(ctx, landmarks, width, height, options = {}) {
     showAngles = true
   } = options;
 
-  const primaryColor = hasError ? '#ef4444' : '#ea580c'; // Vibrant Red or BurnIt Orange
-  const secondaryColor = hasError ? '#f87171' : '#f97316';
+  const primaryColor = hasError ? '#ef4444' : '#3641C9';
+  const secondaryColor = hasError ? '#f87171' : '#8A9CF7';
   const jointFill = '#ffffff';
 
   ctx.save();
@@ -90,7 +90,7 @@ export function drawPoseSkeleton(ctx, landmarks, width, height, options = {}) {
     // Outer glowing halo
     ctx.beginPath();
     ctx.arc(p.x, p.y, outerRadius, 0, 2 * Math.PI);
-    ctx.fillStyle = hasError ? 'rgba(239, 68, 68, 0.4)' : 'rgba(234, 88, 12, 0.4)';
+    ctx.fillStyle = hasError ? 'rgba(239, 68, 68, 0.4)' : 'rgba(54, 65, 201, 0.4)';
     ctx.fill();
 
     // Joint stroke border
@@ -111,7 +111,7 @@ export function drawPoseSkeleton(ctx, landmarks, width, height, options = {}) {
   // 3. Render real-time angle badge overlays directly next to target joints
   if (showAngles && angles) {
     ctx.shadowBlur = 0;
-    ctx.font = 'bold 12px Inter, system-ui, -apple-system, sans-serif';
+    ctx.font = '600 12px Inter, -apple-system, sans-serif';
 
     const drawAngleTag = (p, text) => {
       if (!p || p.vis <= 0.4) return;
@@ -165,15 +165,6 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
   if (!bodyVisible) {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
     ctx.fillRect(0, 0, width, height);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 22px Inter, system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Step Into Camera Frame', width / 2, height / 2 - 12);
-
-    ctx.fillStyle = '#ea580c';
-    ctx.font = '500 14px Inter, system-ui, sans-serif';
-    ctx.fillText('Position your shoulders, hips, and knees clearly in view', width / 2, height / 2 + 18);
     ctx.restore();
     return;
   }
@@ -181,7 +172,7 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
   // 2. High-Contrast Coaching Banner (Bottom Center)
   // Only shows helpful coaching corrections without cluttering the view with duplicate reps/time
   if (feedback) {
-    ctx.font = '600 14px Inter, system-ui, sans-serif';
+    ctx.font = '600 14px Inter, -apple-system, sans-serif';
     const textWidth = ctx.measureText(feedback).width;
     const bannerW = Math.max(textWidth + 48, 240);
     const bannerH = 42;
@@ -189,7 +180,7 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
     const bannerY = height - 58;
 
     ctx.fillStyle = formScore < 80 ? 'rgba(239, 68, 68, 0.92)' : 'rgba(14, 14, 20, 0.9)';
-    ctx.strokeStyle = formScore < 80 ? 'rgba(255, 255, 255, 0.3)' : 'rgba(234, 88, 12, 0.5)';
+    ctx.strokeStyle = formScore < 80 ? 'rgba(255, 255, 255, 0.3)' : 'rgba(54, 65, 201, 0.6)';
     ctx.lineWidth = 1.5;
 
     ctx.beginPath();

@@ -18,20 +18,19 @@ export default function TermsAndConditions() {
         <div className="mb-8">
           <Link
             to="/"
-            className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors duration-150 rounded-full px-4 py-2 border ${
-              darkMode
-                ? 'bg-[#181822] border-[#2a2a36] text-neutral-300 hover:text-white hover:border-orange-500/60'
-                : 'bg-white border-[#dcd8d2] text-[#4a463f] hover:text-[#17171c] hover:border-orange-500/60'
-            }`}
+            className={`inline-flex items-center gap-2 text-sm font-semibold transition-colors duration-150 rounded-full px-4 py-2 border ${darkMode
+              ? 'bg-[#16161D] border-[#262630] text-neutral-300 hover:text-white hover:border-[#8A9CF7]'
+              : 'bg-white border-[#E2E4E9] text-neutral-700 hover:text-[#0F0F0F] hover:border-[#3641C9]'
+              }`}
           >
-            <ArrowLeft className="w-4 h-4 text-orange-500" />
+            <ArrowLeft className="w-4 h-4 text-[#3641C9] dark:text-[#8A9CF7]" />
             <span>Return to Home</span>
           </Link>
         </div>
 
         {/* Header */}
         <div className="space-y-4 mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-orange-500/10 text-orange-500 border border-orange-500/20">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] border border-[#3641C9]/20">
             <FileText className="w-3.5 h-3.5" />
             <span>Usage Agreement</span>
           </div>
@@ -45,18 +44,17 @@ export default function TermsAndConditions() {
 
         {/* Mandatory Fitness & Health Disclaimer Callout */}
         <div
-          className={`p-6 sm:p-8 rounded-2xl border mb-12 shadow-md ${
-            darkMode
-              ? 'bg-gradient-to-br from-[#241814] to-[#1a1413] border-orange-500/40 shadow-orange-500/5'
-              : 'bg-gradient-to-br from-[#fff6f0] to-[#fff3eb] border-orange-400/40 shadow-orange-500/5'
-          }`}
+          className={`p-6 sm:p-8 rounded-2xl border mb-12 shadow-md ${darkMode
+            ? 'bg-gradient-to-br from-[#16161D] to-[#111116] border-[#3641C9]/30 shadow-[#3641C9]/5'
+            : 'bg-gradient-to-br from-[#F0F2FE] to-[#F7F7F7] border-[#3641C9]/20 shadow-[#3641C9]/5'
+            }`}
         >
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-orange-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-orange-600/30">
+            <div className="w-12 h-12 rounded-xl bg-[#3641C9] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#3641C9]/30">
               <HeartPulse className="w-6 h-6" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-xl font-bold tracking-tight text-orange-500">
+              <h2 className="text-xl font-bold tracking-tight text-[#3641C9] dark:text-[#8A9CF7]">
                 Fitness & Medical Disclaimer: Exercise Responsibly
               </h2>
               <p className={`text-sm sm:text-base leading-relaxed ${darkMode ? 'text-neutral-200' : 'text-neutral-800'}`}>
@@ -70,12 +68,11 @@ export default function TermsAndConditions() {
         <div className="space-y-10 text-sm sm:text-base leading-relaxed">
           {/* 1. Acceptance of Terms */}
           <section
-            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${
-              darkMode ? 'bg-[#15151e] border-[#272733]' : 'bg-white border-[#e5e1da]'
-            }`}
+            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-white border-[#E2E4E9]'
+              }`}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center font-bold">
                 1
               </div>
               <h2 className="text-xl font-bold tracking-tight">Acceptance of Terms</h2>
@@ -87,12 +84,11 @@ export default function TermsAndConditions() {
 
           {/* 2. Acceptable Use of BURN IT */}
           <section
-            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${
-              darkMode ? 'bg-[#15151e] border-[#272733]' : 'bg-white border-[#e5e1da]'
-            }`}
+            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-white border-[#E2E4E9]'
+              }`}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center font-bold">
                 2
               </div>
               <h2 className="text-xl font-bold tracking-tight">Acceptable Use of BURN IT</h2>
@@ -102,15 +98,15 @@ export default function TermsAndConditions() {
             </p>
             <ul className="space-y-2.5">
               <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-[#3641C9] dark:text-[#8A9CF7] shrink-0 mt-0.5" />
                 <span>Decompile, reverse engineer, or disassemble the client-side biomechanics algorithms or backend classification models.</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-[#3641C9] dark:text-[#8A9CF7] shrink-0 mt-0.5" />
                 <span>Interfere with or disrupt the integrity or performance of backend database services through automated bot traffic or denial-of-service attempts.</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-[#3641C9] dark:text-[#8A9CF7] shrink-0 mt-0.5" />
                 <span>Attempt to bypass authentication boundaries or access workout histories belonging to other users.</span>
               </li>
             </ul>
@@ -118,12 +114,11 @@ export default function TermsAndConditions() {
 
           {/* 3. User Account Responsibilities */}
           <section
-            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${
-              darkMode ? 'bg-[#15151e] border-[#272733]' : 'bg-white border-[#e5e1da]'
-            }`}
+            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-white border-[#E2E4E9]'
+              }`}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center font-bold">
                 3
               </div>
               <h2 className="text-xl font-bold tracking-tight">Account Usage & User Responsibilities</h2>
@@ -133,19 +128,19 @@ export default function TermsAndConditions() {
             </p>
             <ul className="space-y-3">
               <li className="flex items-start gap-2.5">
-                <UserCheck className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <UserCheck className="w-5 h-5 text-[#3641C9] dark:text-[#8A9CF7] shrink-0 mt-0.5" />
                 <span>
                   <strong>Account Confidentiality:</strong> You are responsible for maintaining the confidentiality of your login credentials and for all activities conducted under your authenticated session.
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
-                <UserCheck className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <UserCheck className="w-5 h-5 text-[#3641C9] dark:text-[#8A9CF7] shrink-0 mt-0.5" />
                 <span>
                   <strong>Data Accuracy:</strong> Providing reasonably accurate biometric data (body weight, biological sex, age) ensures that the mathematical models generate representative calorie estimations.
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
-                <UserCheck className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                <UserCheck className="w-5 h-5 text-[#3641C9] dark:text-[#8A9CF7] shrink-0 mt-0.5" />
                 <span>
                   <strong>Immediate Notification:</strong> You agree to notify BURN IT immediately if you suspect any unauthorized access or security breach involving your account.
                 </span>
@@ -155,12 +150,11 @@ export default function TermsAndConditions() {
 
           {/* 4. Workout Safety & Physical Environment */}
           <section
-            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${
-              darkMode ? 'bg-[#15151e] border-[#272733]' : 'bg-white border-[#e5e1da]'
-            }`}
+            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-white border-[#E2E4E9]'
+              }`}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center font-bold">
                 4
               </div>
               <h2 className="text-xl font-bold tracking-tight">Training Environment & Physical Safety</h2>
@@ -177,12 +171,11 @@ export default function TermsAndConditions() {
 
           {/* 5. Limitation of Liability */}
           <section
-            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${
-              darkMode ? 'bg-[#15151e] border-[#272733]' : 'bg-white border-[#e5e1da]'
-            }`}
+            className={`p-6 sm:p-8 rounded-2xl border transition-colors ${darkMode ? 'bg-[#16161D] border-[#262630]' : 'bg-white border-[#E2E4E9]'
+              }`}
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-[#3641C9]/10 text-[#3641C9] dark:text-[#8A9CF7] flex items-center justify-center font-bold">
                 5
               </div>
               <h2 className="text-xl font-bold tracking-tight">Limitation of Liability</h2>
@@ -197,7 +190,7 @@ export default function TermsAndConditions() {
         <div className="mt-12 pt-8 border-t border-neutral-800/20 text-center">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#3641C9] dark:text-[#8A9CF7] hover:underline transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Return to BURN IT Homepage</span>

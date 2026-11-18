@@ -702,17 +702,17 @@ export const RealtimeTracker = () => {
 
   return (
     <PageWrapper hideFooter={true}>
-      <div className="w-full min-h-[calc(100vh-64px)] bg-[#f6f4f1] dark:bg-[#0e0e13] py-6 sm:py-8 px-4 sm:px-8 text-[#17171c] dark:text-[#f4f4f5] transition-colors">
+      <div className="w-full min-h-[calc(100vh-64px)] bg-[#F7F7F7] dark:bg-[#0F0F0F] py-6 sm:py-8 px-4 sm:px-8 text-[#0F0F0F] dark:text-[#F7F7F7] transition-colors">
         <div className="max-w-7xl mx-auto font-sans">
           {/* Header: title "Workout tracker" */}
           <div className="mb-7 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl md:text-[42px] font-black tracking-tight text-[#16161a] dark:text-[#f4f4f5] leading-tight">
-                Workout <span className="text-[#ea580c] dark:text-orange-500">tracker</span>
+              <h1 className="text-3xl sm:text-4xl md:text-[42px] font-black tracking-tight text-[#0F0F0F] dark:text-[#F7F7F7] leading-tight">
+                Workout <span className="text-[#3641C9] dark:text-[#8A9CF7]">tracker</span>
               </h1>
             </div>
 
-            {/* Exercise pills on the right: selected is filled orange, others outlined/gray */}
+            {/* Exercise pills on the right: selected is filled blue, others outlined/gray */}
             <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto overflow-y-hidden py-1.5 no-scrollbar">
               {EXERCISES.map((ex) => {
                 const isSelected = activeExercise === ex.id;
@@ -721,8 +721,8 @@ export const RealtimeTracker = () => {
                     key={ex.id}
                     onClick={() => setActiveExercise(ex.id)}
                     className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all cursor-pointer ${isSelected
-                      ? 'bg-[#ea580c] text-white shadow-md shadow-orange-600/30 font-bold'
-                      : 'bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#4b5563] dark:text-[#8b8b94] hover:text-[#16161a] dark:hover:text-[#f4f4f5] hover:bg-[#d8dadf] dark:hover:bg-[#25252e]'
+                      ? 'bg-[#3641C9] text-white shadow-md shadow-[#3641C9]/30 font-bold'
+                      : 'bg-[#e2e4e9] dark:bg-[#181822] text-[#4b5563] dark:text-[#8b8b94] hover:text-[#0F0F0F] dark:hover:text-[#F7F7F7] hover:bg-[#d8dadf] dark:hover:bg-[#25252e]'
                       }`}
                   >
                     {ex.name}
@@ -731,68 +731,6 @@ export const RealtimeTracker = () => {
               })}
             </div>
           </div>
-
-          {/* Bicep Curls Dumbbell Weight Input Bar (shown when Bicep curls mode is selected) */}
-          {activeExercise === 'bicepcurl' && (
-            <div className="mb-6 p-4 sm:p-5 rounded-[22px] bg-white dark:bg-[#131316] border border-[#e2e4e9] dark:border-[#26262c] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-orange-500/10 dark:bg-orange-500/20 text-[#ea580c] dark:text-orange-400 flex items-center justify-center shrink-0 shadow-inner">
-                  <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div>
-                  <div className="text-sm sm:text-base font-bold text-[#16161a] dark:text-[#f4f4f5] flex items-center gap-2">
-                    <span>Weight lifted (Pounds)</span>
-                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-orange-500/15 text-[#ea580c] dark:text-orange-400">
-                      Bicep curls
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-0.5 font-normal">
-                    Specify the weight in pounds (lbs) you are lifting for telemetry and history logging.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-                <button
-                  type="button"
-                  onClick={() => handleWeightChange(Math.max(0, (Number(curlWeightLbs) || 0) - 5))}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#e2e4e9] dark:bg-[#1a1a1f] hover:bg-[#d8dadf] dark:hover:bg-[#25252e] text-[#16161a] dark:text-[#f4f4f5] font-bold text-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
-                  title="Decrease 5 lbs"
-                  aria-label="Decrease 5 lbs"
-                >
-                  -5
-                </button>
-
-                <div className="relative flex items-center">
-                  <input
-                    id="bicep-curl-weight-input"
-                    type="number"
-                    min="0"
-                    max="500"
-                    step="1"
-                    value={curlWeightLbs}
-                    onChange={(e) => handleWeightChange(e.target.value)}
-                    onBlur={handleWeightBlur}
-                    className="w-24 sm:w-28 pl-3 pr-10 py-2 sm:py-2.5 text-center font-bold font-mono text-base sm:text-lg rounded-xl border border-[#e2e4e9] dark:border-[#26262c] bg-neutral-50 dark:bg-[#1a1a1f] text-[#16161a] dark:text-white focus:outline-none focus:border-[#ea580c] focus:ring-2 focus:ring-[#ea580c]/20 transition-all"
-                    placeholder="15"
-                  />
-                  <span className="absolute right-3 text-xs font-bold text-[#6b6b76] dark:text-[#8b8b94] pointer-events-none select-none">
-                    lbs
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleWeightChange((Number(curlWeightLbs) || 0) + 5)}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#e2e4e9] dark:bg-[#1a1a1f] hover:bg-[#d8dadf] dark:hover:bg-[#25252e] text-[#16161a] dark:text-[#f4f4f5] font-bold text-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
-                  title="Increase 5 lbs"
-                  aria-label="Increase 5 lbs"
-                >
-                  +5
-                </button>
-              </div>
-            </div>
-          )}
 
           {/* Camera Permission Alert (if blocked) */}
           {cameraError && (
@@ -804,13 +742,13 @@ export const RealtimeTracker = () => {
               <div className="flex items-center justify-center gap-2">
                 <button
                   onClick={() => startCamera('camera')}
-                  className="px-4 py-2 rounded-[14px] text-xs font-semibold bg-[#ea580c] hover:bg-[#c2410c] text-white transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-[14px] text-xs font-semibold bg-[#3641C9] hover:bg-[#2C35A8] text-white transition-all cursor-pointer"
                 >
                   Retry camera
                 </button>
                 <button
                   onClick={() => startCamera('demo')}
-                  className="px-4 py-2 rounded-[14px] text-xs font-semibold bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#16161a] dark:text-[#f4f4f5] transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-[14px] text-xs font-semibold bg-[#e2e4e9] dark:bg-[#181822] text-[#0F0F0F] dark:text-[#F7F7F7] transition-all cursor-pointer"
                 >
                   Try demo video
                 </button>
@@ -822,7 +760,7 @@ export const RealtimeTracker = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Camera Panel: Large rounded white/dark panel */}
             <div className="lg:col-span-8 xl:col-span-9 flex flex-col">
-              <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-white dark:bg-[#131316] border border-[#e2e4e9] dark:border-[#26262c] shadow-sm">
+              <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-white dark:bg-[#16161D] border border-[#E2E4E9] dark:border-[#262630] shadow-sm">
                 {/* Webcam or Demo Athlete Video */}
                 <video
                   ref={videoRef}
@@ -854,22 +792,9 @@ export const RealtimeTracker = () => {
                 {isCameraActive && (
                   <div className="absolute top-3 right-3 flex items-center gap-1.5 pointer-events-auto flex-wrap justify-end">
                     <button
-                      onClick={() => {
-                        const next = videoSource === 'camera' ? 'demo' : 'camera';
-                        startCamera(next);
-                      }}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${videoSource === 'demo'
-                        ? 'bg-[#ea580c] border-[#ea580c] text-white'
-                        : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
-                        }`}
-                      title="Switch between live camera and demo video"
-                    >
-                      {videoSource === 'demo' ? 'Demo active' : 'Demo user'}
-                    </button>
-                    <button
                       onClick={() => setShowJoints(!showJoints)}
                       className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${showJoints
-                        ? 'bg-[#ea580c]/90 border-[#ea580c] text-white'
+                        ? 'bg-[#3641C9]/90 border-[#3641C9] text-white'
                         : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
                         }`}
                     >
@@ -878,7 +803,7 @@ export const RealtimeTracker = () => {
                     <button
                       onClick={() => setShowAngles(!showAngles)}
                       className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${showAngles
-                        ? 'bg-[#ea580c]/90 border-[#ea580c] text-white'
+                        ? 'bg-[#3641C9]/90 border-[#3641C9] text-white'
                         : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
                         }`}
                     >
@@ -889,11 +814,11 @@ export const RealtimeTracker = () => {
 
                 {/* Centered Camera-Off Standby State (Pure white in light mode, dark in dark mode) */}
                 {!isCameraActive && !cameraError && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-[#131316] p-6 text-center z-20">
-                    <div className="w-12 h-12 rounded-full bg-[#e2e4e9] dark:bg-[#1a1a1f] text-[#6b6b76] dark:text-[#8b8b94] flex items-center justify-center mb-3">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-[#16161D] p-6 text-center z-20">
+                    <div className="w-12 h-12 rounded-full bg-[#e2e4e9] dark:bg-[#181822] text-[#6b6b76] dark:text-[#8b8b94] flex items-center justify-center mb-3">
                       <CameraOff className="w-5 h-5" />
                     </div>
-                    <h3 className="text-lg font-bold text-[#16161a] dark:text-[#f4f4f5] mb-1 tracking-tight">
+                    <h3 className="text-lg font-bold text-[#0F0F0F] dark:text-[#F7F7F7] mb-1 tracking-tight">
                       Camera is off
                     </h3>
                     <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] max-w-xs mb-4 font-normal leading-relaxed">
@@ -901,10 +826,22 @@ export const RealtimeTracker = () => {
                     </p>
                     <button
                       onClick={() => startCamera()}
-                      className="bg-[#ea580c] hover:bg-[#c2410c] text-white font-semibold text-xs rounded-[14px] px-5 py-2.5 active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                      className="bg-[#3641C9] hover:bg-[#2C35A8] text-white font-semibold text-xs rounded-[14px] px-5 py-2.5 active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                     >
                       Turn on camera
                     </button>
+                  </div>
+                )}
+
+                {/* Position Warning Overlay: When user is out of camera frame */}
+                {isCameraActive && !telemetry.bodyVisible && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px] p-6 text-center z-10 pointer-events-none transition-opacity duration-200">
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 tracking-tight font-sans">
+                      Step Into Camera Frame
+                    </h3>
+                    <p className="text-xs sm:text-sm font-semibold text-[#8A9CF7] max-w-md leading-relaxed font-sans">
+                      Position your shoulders, hips, and knees clearly in view
+                    </p>
                   </div>
                 )}
               </div>
@@ -912,16 +849,16 @@ export const RealtimeTracker = () => {
 
             {/* Side Panel (Card): 28px radius, matching reference UI in both light & dark mode */}
             <div className="lg:col-span-4 xl:col-span-3 flex flex-col">
-              <div className="p-6 rounded-[28px] border border-[#e2e4e9] dark:border-[#26262c] bg-[#f4f5f7] dark:bg-[#131316] text-[#16161a] dark:text-[#f4f4f5] shadow-sm dark:shadow-xl flex-1 flex flex-col justify-between transition-colors">
+              <div className="p-6 rounded-[28px] border border-[#E2E4E9] dark:border-[#262630] bg-white dark:bg-[#16161D] text-[#0F0F0F] dark:text-[#F7F7F7] shadow-sm dark:shadow-xl flex-1 flex flex-col justify-between transition-colors">
                 <div>
                   {/* Set 1 at top left */}
-                  <div className="text-sm font-bold text-left text-[#16161a] dark:text-white">
+                  <div className="text-sm font-bold text-left text-[#0F0F0F] dark:text-white">
                     Set {currentSetNumber}
                   </div>
 
-                  {/* Huge Centered Orange Rep Number */}
+                  {/* Huge Centered Rep Number */}
                   <div className="text-center py-6 sm:py-7">
-                    <div className="text-[100px] sm:text-[110px] font-[800] text-[#f97316] leading-none tracking-tight font-sans">
+                    <div className="text-[100px] sm:text-[110px] font-[800] text-[#14006A] dark:text-[#8A9CF7] leading-none tracking-tight font-sans">
                       {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
                     </div>
                     <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] font-normal lowercase text-center mt-3">
@@ -930,11 +867,11 @@ export const RealtimeTracker = () => {
                   </div>
 
                   {/* Details Card */}
-                  <div className="rounded-[18px] bg-white dark:bg-[#1a1a1f] border border-[#e2e4e9] dark:border-[#26262c] p-4 text-xs shadow-sm dark:shadow-none transition-colors">
+                  <div className="rounded-[18px] bg-[#F7F7F7] dark:bg-[#181822] border border-[#E2E4E9] dark:border-[#262630] p-4 text-xs shadow-sm dark:shadow-none transition-colors">
                     <button
                       type="button"
                       onClick={() => setDetailsOpen(!detailsOpen)}
-                      className="w-full flex items-center justify-between text-left font-bold text-[#16161a] dark:text-white text-sm focus:outline-none cursor-pointer"
+                      className="w-full flex items-center justify-between text-left font-bold text-[#0F0F0F] dark:text-white text-sm focus:outline-none cursor-pointer"
                     >
                       <span>Details</span>
                       <ChevronDown
@@ -947,29 +884,29 @@ export const RealtimeTracker = () => {
                       <div className="mt-3.5 space-y-3 pt-1">
                         <div className="flex items-center justify-between">
                           <span className="text-[#6b6b76] dark:text-[#8b8b94] font-normal text-xs">Duration</span>
-                          <span className="text-[#16161a] dark:text-white font-bold font-mono text-sm">
+                          <span className="text-[#0F0F0F] dark:text-white font-bold font-mono text-sm">
                             {formatDuration(workoutDuration)}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-[#6b6b76] dark:text-[#8b8b94] font-normal text-xs">Exercise</span>
-                          <span className="text-[#16161a] dark:text-white font-bold text-sm">
+                          <span className="text-[#0F0F0F] dark:text-white font-bold text-sm">
                             {getExerciseDisplayName()}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-[#6b6b76] dark:text-[#8b8b94] font-normal text-xs">Form precision</span>
-                          <span className="text-[#16161a] dark:text-white font-bold text-sm">
+                          <span className="text-[#0F0F0F] dark:text-white font-bold text-sm">
                             {telemetry.formScore}%
                           </span>
                         </div>
                         {(activeExercise === 'bicepcurl' || currentExercise === 'bicepcurl') && (
-                          <div className="flex items-center justify-between pt-2.5 border-t border-[#e2e4e9] dark:border-[#26262c]">
+                          <div className="flex items-center justify-between pt-2.5 border-t border-[#E2E4E9] dark:border-[#262630]">
                             <label
                               htmlFor="details-curl-weight-input"
                               className="text-[#6b6b76] dark:text-[#8b8b94] font-normal text-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                             >
-                              <Dumbbell className="w-3.5 h-3.5 text-[#ea580c] shrink-0" />
+                              <Dumbbell className="w-3.5 h-3.5 text-[#3641C9] dark:text-[#8A9CF7] shrink-0" />
                               Weight lifted
                             </label>
                             <div className="relative flex items-center">
@@ -982,10 +919,10 @@ export const RealtimeTracker = () => {
                                 value={curlWeightLbs}
                                 onChange={(e) => handleWeightChange(e.target.value)}
                                 onBlur={handleWeightBlur}
-                                className="w-20 pl-2 pr-8 py-0.5 text-right font-bold font-mono text-sm text-[#ea580c] dark:text-orange-400 bg-neutral-100 hover:bg-neutral-200/80 dark:bg-[#26262c]/60 dark:hover:bg-[#26262c] border border-[#e2e4e9] dark:border-[#35353d] rounded-lg focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all cursor-text"
+                                className="w-20 pl-2 pr-8 py-0.5 text-right font-bold font-mono text-sm text-[#3641C9] dark:text-[#8A9CF7] bg-neutral-100 hover:bg-neutral-200/80 dark:bg-[#262630]/60 dark:hover:bg-[#262630] border border-[#E2E4E9] dark:border-[#35353d] rounded-lg focus:outline-none focus:border-[#3641C9] focus:ring-1 focus:ring-[#3641C9] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all cursor-text"
                                 placeholder="15"
                               />
-                              <span className="absolute right-2 text-xs font-bold text-[#ea580c] dark:text-orange-400 pointer-events-none select-none">
+                              <span className="absolute right-2 text-xs font-bold text-[#3641C9] dark:text-[#8A9CF7] pointer-events-none select-none">
                                 lbs
                               </span>
                             </div>
@@ -1002,7 +939,7 @@ export const RealtimeTracker = () => {
                     <button
                       type="button"
                       onClick={isCameraActive ? stopCamera : () => startCamera()}
-                      className="py-3 px-3 rounded-[14px] text-xs sm:text-sm font-medium bg-[#e2e4e9] hover:bg-[#d8dadf] dark:bg-[#1a1a1f] dark:hover:bg-[#26262c] border border-[#e2e4e9] dark:border-[#26262c] text-[#16161a] dark:text-white active:scale-[0.98] transition-all cursor-pointer text-center"
+                      className="py-3 px-3 rounded-[14px] text-xs sm:text-sm font-medium bg-[#E2E4E9] hover:bg-[#d8dadf] dark:bg-[#181822] dark:hover:bg-[#262630] border border-[#E2E4E9] dark:border-[#262630] text-[#0F0F0F] dark:text-white active:scale-[0.98] transition-all cursor-pointer text-center"
                     >
                       {isCameraActive ? 'Turn off camera' : 'Turn on camera'}
                     </button>
@@ -1010,7 +947,7 @@ export const RealtimeTracker = () => {
                     <button
                       type="button"
                       onClick={handleResetReps}
-                      className="py-3 px-3 rounded-[14px] text-xs sm:text-sm font-medium bg-[#e2e4e9] hover:bg-[#d8dadf] dark:bg-[#1a1a1f] dark:hover:bg-[#26262c] border border-[#e2e4e9] dark:border-[#26262c] text-[#16161a] dark:text-white active:scale-[0.98] transition-all cursor-pointer text-center"
+                      className="py-3 px-3 rounded-[14px] text-xs sm:text-sm font-medium bg-[#E2E4E9] hover:bg-[#d8dadf] dark:bg-[#181822] dark:hover:bg-[#262630] border border-[#E2E4E9] dark:border-[#262630] text-[#0F0F0F] dark:text-white active:scale-[0.98] transition-all cursor-pointer text-center"
                     >
                       Reset
                     </button>
@@ -1019,7 +956,7 @@ export const RealtimeTracker = () => {
                   <button
                     type="button"
                     onClick={handleFinishWorkout}
-                    className="w-full bg-[#f97316] hover:bg-[#ea580c] text-white rounded-[14px] py-3.5 text-xs sm:text-sm font-semibold active:scale-[0.98] transition-all cursor-pointer shadow-none text-center"
+                    className="w-full bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] text-white rounded-[14px] py-3.5 text-xs sm:text-sm font-semibold active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-[#3641C9]/25 text-center"
                   >
                     Finish & predict calories
                   </button>
@@ -1030,17 +967,17 @@ export const RealtimeTracker = () => {
 
           {/* Set History Card: 28px radius */}
           <div className="mt-6">
-            <div className="p-6 rounded-[28px] border border-[#e2e4e9] dark:border-[#26262c] bg-[#f4f5f7] dark:bg-[#131316] text-[#16161a] dark:text-[#f4f4f5] shadow-sm">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#e2e4e9] dark:border-[#26262c]">
+            <div className="p-6 rounded-[28px] border border-[#E2E4E9] dark:border-[#262630] bg-white dark:bg-[#16161D] text-[#0F0F0F] dark:text-[#F7F7F7] shadow-sm">
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#E2E4E9] dark:border-[#262630]">
                 <div>
-                  <h3 className="text-sm font-bold text-[#16161a] dark:text-[#f4f4f5]">
+                  <h3 className="text-sm font-bold text-[#0F0F0F] dark:text-[#F7F7F7]">
                     Set history
                   </h3>
                   <p className="text-xs mt-0.5 font-normal text-[#6b6b76] dark:text-[#8b8b94]">
                     Sets save automatically after a rep goal or 10 seconds of rest.
                   </p>
                 </div>
-                <span className="text-xs font-normal px-3 py-0.5 rounded-full border border-[#e2e4e9] dark:border-[#26262c] text-[#6b6b76] dark:text-[#8b8b94]">
+                <span className="text-xs font-normal px-3 py-0.5 rounded-full border border-[#E2E4E9] dark:border-[#262630] text-[#6b6b76] dark:text-[#8b8b94]">
                   10s auto-end
                 </span>
               </div>
@@ -1062,7 +999,7 @@ export const RealtimeTracker = () => {
       {/* Post-Workout Progress & Calorie Prediction Modal */}
       {summaryData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto font-sans">
-          <div className="relative w-full max-w-[440px] p-8 rounded-[28px] bg-white dark:bg-[#131316] border border-[#e2e4e9] dark:border-[#26262c] shadow-2xl text-[#16161a] dark:text-[#f4f4f5] my-auto space-y-6 animate-in fade-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-[440px] p-8 rounded-[28px] bg-white dark:bg-[#16161D] border border-[#E2E4E9] dark:border-[#262630] shadow-2xl text-[#0F0F0F] dark:text-[#F7F7F7] my-auto space-y-6 animate-in fade-in zoom-in-95 duration-150">
             {/* Small × close top-right */}
             <button
               type="button"
@@ -1071,7 +1008,7 @@ export const RealtimeTracker = () => {
                 setCalorieResult(null);
                 currentSavedItemIdRef.current = null;
               }}
-              className="absolute top-7 right-7 text-[#6b6b76] hover:text-[#16161a] dark:text-[#8b8b94] dark:hover:text-[#f4f4f5] transition-colors p-1 rounded-lg focus:outline-none"
+              className="absolute top-7 right-7 text-[#6b6b76] hover:text-[#0F0F0F] dark:text-[#8b8b94] dark:hover:text-[#F7F7F7] transition-colors p-1 rounded-lg focus:outline-none"
               title="Close"
               aria-label="Close"
             >
@@ -1083,7 +1020,7 @@ export const RealtimeTracker = () => {
               <>
                 {/* Title & Muted Subtitle */}
                 <div className="pr-8">
-                  <h2 className="text-2xl font-bold text-[#16161a] dark:text-[#f4f4f5] tracking-tight">
+                  <h2 className="text-2xl font-bold text-[#0F0F0F] dark:text-[#F7F7F7] tracking-tight">
                     Workout complete
                   </h2>
                   <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-1 font-normal">
@@ -1093,7 +1030,7 @@ export const RealtimeTracker = () => {
 
                 {/* Centered Duration Stat (48px bold number + muted "duration" below) */}
                 <div className="text-center py-2">
-                  <div className="text-[48px] font-bold text-[#16161a] dark:text-[#f4f4f5] leading-none tracking-tight font-mono">
+                  <div className="text-[48px] font-bold text-[#0F0F0F] dark:text-[#F7F7F7] leading-none tracking-tight font-mono">
                     {formatDuration(summaryData.duration)}
                   </div>
                   <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-2 font-normal lowercase">
@@ -1103,12 +1040,12 @@ export const RealtimeTracker = () => {
 
                 {/* Weight Lifted Stat for Bicep Curls */}
                 {(activeExercise === 'bicepcurl' || (summaryData?.exercise || '').toLowerCase().includes('curl')) && (
-                  <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#f4f5f7] dark:bg-[#1a1a1f] border border-[#e2e4e9] dark:border-[#26262c] text-xs">
+                  <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#F7F7F7] dark:bg-[#181822] border border-[#E2E4E9] dark:border-[#262630] text-xs">
                     <span className="text-[#6b6b76] dark:text-[#8b8b94] font-medium flex items-center gap-1.5">
-                      <Dumbbell className="w-4 h-4 text-[#ea580c]" />
+                      <Dumbbell className="w-4 h-4 text-[#3641C9] dark:text-[#8A9CF7]" />
                       Weight lifted:
                     </span>
-                    <span className="font-bold font-mono text-[#ea580c] dark:text-orange-400 text-sm">
+                    <span className="font-bold font-mono text-[#3641C9] dark:text-[#8A9CF7] text-sm">
                       {curlWeightLbs || 0} lbs
                     </span>
                   </div>
@@ -1119,8 +1056,8 @@ export const RealtimeTracker = () => {
                   <label className="block text-xs text-[#6b6b76] dark:text-[#8b8b94] mb-2 font-normal">
                     Average heart rate
                   </label>
-                  <div className="flex items-center gap-2.5 p-1.5 pl-4 bg-[#f4f5f7] dark:bg-[#1a1a1f] border border-[#e2e4e9] dark:border-[#26262c] rounded-[16px] focus-within:border-[#ea580c] focus-within:ring-2 focus-within:ring-[#ea580c]/20 transition-all">
-                    <Heart className="w-4 h-4 text-[#ea580c] fill-[#ea580c] shrink-0" />
+                  <div className="flex items-center gap-2.5 p-1.5 pl-4 bg-[#F7F7F7] dark:bg-[#0F0F0F] border border-[#E2E4E9] dark:border-[#262630] rounded-[16px] focus-within:border-[#3641C9] focus-within:ring-2 focus-within:ring-[#3641C9]/20 transition-all">
+                    <Heart className="w-4 h-4 text-[#3641C9] dark:text-[#8A9CF7] fill-[#3641C9] dark:fill-[#8A9CF7] shrink-0" />
                     <input
                       type="text"
                       inputMode="numeric"
@@ -1143,7 +1080,7 @@ export const RealtimeTracker = () => {
                         }
                       }}
                       placeholder="138"
-                      className="w-full bg-transparent text-[#16161a] dark:text-[#f4f4f5] font-semibold text-base focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none min-w-0"
+                      className="w-full bg-transparent text-[#0F0F0F] dark:text-[#F7F7F7] font-semibold text-base focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none min-w-0"
                     />
                     <span className="text-xs font-medium text-[#6b6b76] dark:text-[#8b8b94] shrink-0">
                       BPM
@@ -1152,7 +1089,7 @@ export const RealtimeTracker = () => {
                       type="button"
                       disabled={isPredictingCal}
                       onClick={() => predictCalories(calorieInputs, summaryData)}
-                      className="shrink-0 bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-[12px] px-4 py-2.5 font-semibold text-xs active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 shadow-sm"
+                      className="shrink-0 bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] text-white rounded-[12px] px-4 py-2.5 font-semibold text-xs active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 shadow-sm"
                     >
                       {isPredictingCal ? 'Calculating...' : 'Predict calories'}
                     </button>
@@ -1166,7 +1103,7 @@ export const RealtimeTracker = () => {
               <>
                 {/* Title & Muted Subtitle */}
                 <div className="pr-8">
-                  <h2 className="text-2xl font-bold text-[#16161a] dark:text-[#f4f4f5] tracking-tight">
+                  <h2 className="text-2xl font-bold text-[#0F0F0F] dark:text-[#F7F7F7] tracking-tight">
                     Workout complete
                   </h2>
                   <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-1 font-normal">
@@ -1176,7 +1113,7 @@ export const RealtimeTracker = () => {
 
                 {/* Hero: Huge Centered Calorie Number (~100px, 800 weight) + Muted "kcal burned" + 30px Duration */}
                 <div className="text-center pt-2">
-                  <div className="text-[100px] font-[800] text-[#ea580c] leading-none tracking-tight font-sans">
+                  <div className="text-[100px] font-[800] text-[#14006A] dark:text-[#8A9CF7] leading-none tracking-tight font-sans">
                     {calorieResult.predicted_calories}
                   </div>
                   <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-2 font-normal lowercase">
@@ -1184,7 +1121,7 @@ export const RealtimeTracker = () => {
                   </div>
 
                   <div className="mt-4">
-                    <div className="text-[30px] font-bold text-[#16161a] dark:text-[#f4f4f5] leading-none font-mono">
+                    <div className="text-[30px] font-bold text-[#0F0F0F] dark:text-[#F7F7F7] leading-none font-mono">
                       {formatDuration(summaryData.duration)}
                     </div>
                     <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] mt-1 font-normal lowercase">
@@ -1194,7 +1131,7 @@ export const RealtimeTracker = () => {
 
                   {/* Weight Lifted for Bicep Curls */}
                   {(activeExercise === 'bicepcurl' || (summaryData?.exercise || '').toLowerCase().includes('curl')) && (
-                    <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 text-xs font-mono font-bold text-[#ea580c] dark:text-orange-400 border border-orange-500/20">
+                    <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3641C9]/10 text-xs font-mono font-bold text-[#3641C9] dark:text-[#8A9CF7] border border-[#3641C9]/20">
                       <Dumbbell className="w-3.5 h-3.5" />
                       <span>{curlWeightLbs || 0} lbs weight lifted</span>
                     </div>
@@ -1231,7 +1168,7 @@ export const RealtimeTracker = () => {
                             }
                           }}
                           placeholder="138"
-                          className="w-full bg-[#f4f5f7] dark:bg-[#1a1a1f] border border-[#e2e4e9] dark:border-[#26262c] text-[#16161a] dark:text-[#f4f4f5] rounded-[14px] px-4 py-2.5 pr-12 font-semibold text-sm focus:outline-none focus:border-[#ea580c] focus:ring-2 focus:ring-[#ea580c]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
+                          className="w-full bg-[#F7F7F7] dark:bg-[#0F0F0F] border border-[#E2E4E9] dark:border-[#262630] text-[#0F0F0F] dark:text-[#F7F7F7] rounded-[14px] px-4 py-2.5 pr-12 font-semibold text-sm focus:outline-none focus:border-[#3641C9] focus:ring-2 focus:ring-[#3641C9]/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
                         />
                         <span className="absolute right-3.5 top-3 text-xs font-medium text-[#6b6b76] dark:text-[#8b8b94] pointer-events-none">
                           BPM
@@ -1242,7 +1179,7 @@ export const RealtimeTracker = () => {
                         type="button"
                         disabled={isPredictingCal}
                         onClick={() => predictCalories(calorieInputs, summaryData)}
-                        className="bg-[#f4f5f7] dark:bg-[#1a1a1f] hover:bg-[#e2e4e9] dark:hover:bg-[#26262c] text-[#16161a] dark:text-[#f4f4f5] border border-[#e2e4e9] dark:border-[#26262c] rounded-[14px] px-5 py-2.5 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap disabled:opacity-50"
+                        className="bg-[#F7F7F7] dark:bg-[#181822] hover:bg-[#e2e4e9] dark:hover:bg-[#262630] text-[#0F0F0F] dark:text-[#F7F7F7] border border-[#E2E4E9] dark:border-[#262630] rounded-[14px] px-5 py-2.5 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap disabled:opacity-50"
                       >
                         {isPredictingCal ? '...' : 'Recalculate'}
                       </button>
@@ -1261,14 +1198,14 @@ export const RealtimeTracker = () => {
                       heartRateSamplesRef.current = [];
                       startCamera();
                     }}
-                    className="w-full bg-[#ea580c] hover:bg-[#c2410c] text-white rounded-[14px] py-3.5 font-semibold text-xs active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                    className="w-full bg-[#3641C9] hover:bg-[#2C35A8] text-white rounded-[14px] py-3.5 font-semibold text-xs active:scale-[0.98] transition-all cursor-pointer shadow-sm"
                   >
                     Start new session
                   </button>
 
                   <Link
                     to="/"
-                    className="block w-full text-center text-xs text-[#6b6b76] hover:text-[#16161a] dark:text-[#8b8b94] dark:hover:text-[#f4f4f5] transition-colors py-1"
+                    className="block w-full text-center text-xs text-[#6b6b76] hover:text-[#0F0F0F] dark:text-[#8b8b94] dark:hover:text-[#F7F7F7] transition-colors py-1"
                   >
                     Return to dashboard
                   </Link>

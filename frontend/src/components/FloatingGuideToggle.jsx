@@ -13,10 +13,10 @@ const STAGES = [
     title: 'Pick an exercise or use Auto-detect',
     subtitle: 'Tap an exercise pill, or leave Auto-detect on.',
     desc: 'Auto-detect identifies your movement in real time, so you never need to touch the screen mid-set.',
-    imageDark: '/guide/actual_step1_select_dark.png',
-    imageLight: '/guide/actual_step1_select_light.png',
+    imageDark: '/guide/actual_step1_select_dark.png?v=clean-v3',
+    imageLight: '/guide/actual_step1_select_light.png?v=clean-v3',
     keyPoints: [
-      'The active pill turns orange.',
+      'The active pill turns blue.',
       'Auto-detect checks your posture every 2 seconds.',
       'Switch exercises any time without ending your session.',
     ],
@@ -27,8 +27,8 @@ const STAGES = [
     title: 'Stand in frame and calibrate joints',
     subtitle: 'Position 6–8 feet away so your full body (head to feet) is visible.',
     desc: 'Ambient lighting helps the 33-point MediaPipe pose estimation model lock onto your joints at 30+ FPS, illuminating green skeletal lines when calibrated.',
-    imageDark: '/guide/actual_step2_camera_dark.png',
-    imageLight: '/guide/actual_step2_camera_light.png',
+    imageDark: '/guide/actual_step2_camera_dark.png?v=clean-v3',
+    imageLight: '/guide/actual_step2_camera_light.png?v=clean-v3',
     keyPoints: [
       'Maintain 6–8 feet distance in good ambient lighting.',
       'Ensure head, shoulders, hips, knees, and feet are fully in frame.',
@@ -40,9 +40,9 @@ const STAGES = [
     num: '03',
     title: 'Finish workout and trigger calorie engine',
     subtitle: 'Tap Finish & predict calories when your final repetition is complete.',
-    desc: 'When you finish your sets, click the orange Finish & predict calories button. This halts camera tracking to conserve power and transfers telemetry to the calorie prediction model.',
-    imageDark: '/guide/actual_step3_finish_dark.png',
-    imageLight: '/guide/actual_step3_finish_light.png',
+    desc: 'When you finish your sets, click the Finish & predict calories button. This halts camera tracking to conserve power and transfers telemetry to the calorie prediction model.',
+    imageDark: '/guide/actual_step3_finish_dark.png?v=clean-v3',
+    imageLight: '/guide/actual_step3_finish_light.png?v=clean-v3',
     keyPoints: [
       'Located prominently on the right-hand controls card under Camera/Reset.',
       'Consolidates all completed sets and time-under-tension.',
@@ -55,8 +55,8 @@ const STAGES = [
     title: 'Review calorie burn and session summary',
     subtitle: 'View your metabolic burn, duration, and heart rate integration.',
     desc: 'The Workout Complete modal displays your predicted caloric burn, total active duration, and average heart rate using clinically validated MET ratings and ML prediction.',
-    imageDark: '/guide/actual_step4_summary_dark.png',
-    imageLight: '/guide/actual_step4_summary_light.png',
+    imageDark: '/guide/actual_step4_summary_dark.png?v=clean-v3',
+    imageLight: '/guide/actual_step4_summary_light.png?v=clean-v3',
     keyPoints: [
       'Features high-contrast stat for kcal burned.',
       'Supports on-the-fly BPM heart rate recalculation.',
@@ -189,11 +189,10 @@ export default function FloatingGuideToggle() {
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className={`fixed bottom-6 left-6 z-50 w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md border focus-visible:outline-2 focus-visible:outline-offset-2 ${
-              darkMode
-                ? 'bg-[#16161b] text-[#ff6a1a] border-[#26262e] shadow-black/60 hover:bg-[#202028] hover:border-orange-500/50 focus-visible:outline-[#ff6a1a]'
-                : 'bg-white text-[#e8500a] border-[#e4e1dc] shadow-md shadow-neutral-900/10 hover:bg-[#f6f4f1] hover:border-orange-500/50 focus-visible:outline-[#e8500a]'
-            }`}
+            className={`fixed bottom-6 left-6 z-50 w-13 h-13 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 cursor-pointer backdrop-blur-md border focus-visible:outline-2 focus-visible:outline-offset-2 ${darkMode
+              ? 'bg-[#16161D] text-[#8A9CF7] border-[#262630] shadow-black/60 hover:bg-[#20202A] hover:border-[#3641C9] focus-visible:outline-[#3641C9]'
+              : 'bg-white text-[#3641C9] border-[#E2E4E9] shadow-md shadow-neutral-900/10 hover:bg-[#F0F1F5] hover:border-[#3641C9] focus-visible:outline-[#3641C9]'
+              }`}
             title="Workout Guide & System Tour"
             aria-label="Open workout guide"
           >
@@ -205,9 +204,8 @@ export default function FloatingGuideToggle() {
       {/* Guide Modal Overlay */}
       {isOpen && (
         <div
-          className={`fixed inset-0 z-[130] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-all duration-200 ${
-            darkMode ? 'bg-black/80' : 'bg-black/55'
-          }`}
+          className={`fixed inset-0 z-[130] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-all duration-200 ${darkMode ? 'bg-black/80' : 'bg-black/55'
+            }`}
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false);
           }}
@@ -217,21 +215,19 @@ export default function FloatingGuideToggle() {
         >
           {/* Card wrapper: max-w-[560px] mx-auto rounded-[18px] */}
           <div
-            className={`relative w-full max-w-[560px] mx-auto rounded-[18px] border p-5 shadow-2xl max-h-[94vh] overflow-y-auto no-scrollbar transition-colors duration-200 ${
-              darkMode
-                ? 'border-[#26262e] bg-[#16161b] text-zinc-100 shadow-black/80'
-                : 'border-[#E8E4DE] bg-[#FFFFFF] text-[#1F1B18] shadow-[0_20px_50px_rgba(31,27,24,0.14)]'
-            }`}
+            className={`relative w-full max-w-[560px] mx-auto rounded-[18px] border p-5 shadow-2xl max-h-[94vh] overflow-y-auto no-scrollbar transition-colors duration-200 ${darkMode
+              ? 'border-[#262630] bg-[#16161D] text-[#F7F7F7] shadow-black/80'
+              : 'border-[#E2E4E9] bg-white text-[#0F0F0F] shadow-[0_20px_50px_rgba(15,15,15,0.14)]'
+              }`}
           >
             {/* Close button (accessible top-right) */}
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className={`absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer border ${
-                darkMode
-                  ? 'border-[#26262e] bg-[#0f0f13] text-zinc-400 hover:text-white hover:bg-[#202028]'
-                  : 'border-[#E8E4DE] bg-[#F7F5F2] text-[#716C64] hover:text-[#1F1B18] hover:bg-[#EFECE6]'
-              } focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6a1a]`}
+              className={`absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer border ${darkMode
+                ? 'border-[#262630] bg-[#101015] text-[#A3A3B0] hover:text-[#F7F7F7] hover:bg-[#20202A]'
+                : 'border-[#E2E4E9] bg-[#F0F1F5] text-[#5D5D68] hover:text-[#0F0F0F] hover:bg-[#E2E4E9]'
+                } focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3641C9]`}
               aria-label="Close guide"
               title="Close guide"
             >
@@ -242,12 +238,12 @@ export default function FloatingGuideToggle() {
             <div className="flex items-baseline justify-between mb-2.5 pr-8">
               <span
                 id="guide-modal-title"
-                className={`text-base font-bold ${darkMode ? 'text-zinc-400' : 'text-[#716C64]'}`}
+                className={`text-base font-bold ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'}`}
               >
                 How to use the workout tracker
               </span>
               <span
-                className={`text-[13px] font-semibold ${darkMode ? 'text-zinc-400' : 'text-[#716C64]'}`}
+                className={`text-[13px] font-semibold ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'}`}
               >
                 Step {currentStep + 1} of {stages.length}
               </span>
@@ -263,19 +259,18 @@ export default function FloatingGuideToggle() {
                     key={idx}
                     type="button"
                     onClick={() => handleJumpToStep(idx)}
-                    className="flex h-[26px] flex-1 items-center cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6a1a] rounded"
+                    className="flex h-[26px] flex-1 items-center cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3641C9] rounded"
                     aria-label={`Step ${idx + 1}: ${st.title}`}
                     aria-selected={isCurrent}
                     role="tab"
                   >
                     <span
-                      className={`w-full rounded transition-colors ${
-                        isDoneOrCurrent
-                          ? 'bg-[#ff6a1a]'
-                          : darkMode
-                            ? 'bg-[#26262e]'
-                            : 'bg-[#E8E4DE]'
-                      } ${isCurrent ? 'h-1.5' : 'h-1'}`}
+                      className={`w-full rounded transition-colors ${isDoneOrCurrent
+                        ? darkMode ? 'bg-[#8A9CF7]' : 'bg-[#3641C9]'
+                        : darkMode
+                          ? 'bg-[#262630]'
+                          : 'bg-[#E2E4E9]'
+                        } ${isCurrent ? 'h-1.5' : 'h-1'}`}
                     />
                   </button>
                 );
@@ -293,29 +288,26 @@ export default function FloatingGuideToggle() {
             >
               {/* 3) Stage title: text-[22px] font-extrabold leading-tight */}
               <h3
-                className={`text-[22px] font-extrabold leading-tight ${
-                  darkMode ? 'text-zinc-100' : 'text-[#1F1B18]'
-                }`}
+                className={`text-[22px] font-extrabold leading-tight ${darkMode ? 'text-[#F7F7F7]' : 'text-[#0F0F0F]'
+                  }`}
               >
                 {currentStage.title}
               </h3>
 
               {/* 4) doText: mt-1.5 mb-4 text-[15px] */}
               <p
-                className={`mt-1.5 mb-4 text-[15px] ${
-                  darkMode ? 'text-zinc-300' : 'text-[#4A463F]'
-                }`}
+                className={`mt-1.5 mb-4 text-[15px] ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
+                  }`}
               >
                 {currentStage.doText}
               </p>
 
               {/* 5) Illustration panel: Real system website screenshot */}
               <div
-                className={`overflow-hidden rounded-[14px] border transition-colors shadow-inner ${
-                  darkMode
-                    ? 'border-[#26262e] bg-[#0f0f13]'
-                    : 'border-[#E8E4DE] bg-[#F7F5F2]'
-                }`}
+                className={`overflow-hidden rounded-[14px] border transition-colors shadow-inner ${darkMode
+                  ? 'border-[#262630] bg-[#101015]'
+                  : 'border-[#E2E4E9] bg-[#F7F7F7]'
+                  }`}
               >
                 <img
                   src={darkMode ? currentStage.imageDark : currentStage.imageLight}
@@ -327,32 +319,28 @@ export default function FloatingGuideToggle() {
 
               {/* 6) detail: mt-3.5 text-sm */}
               <p
-                className={`mt-3.5 text-sm leading-relaxed ${
-                  darkMode ? 'text-zinc-400' : 'text-[#5C574F]'
-                }`}
+                className={`mt-3.5 text-sm leading-relaxed ${darkMode ? 'text-[#A3A3B0]' : 'text-[#5D5D68]'
+                  }`}
               >
                 {currentStage.detail}
               </p>
 
               {/* 7) Tips: ONE bordered panel, not separate cards */}
               <ul
-                className={`mt-3.5 divide-y overflow-hidden rounded-xl border transition-colors ${
-                  darkMode
-                    ? 'border-[#26262e] bg-[#0f0f13] divide-[#26262e]'
-                    : 'border-[#E8E4DE] bg-[#FAF8F5] divide-[#E8E4DE]'
-                }`}
+                className={`mt-3.5 divide-y overflow-hidden rounded-xl border transition-colors ${darkMode
+                  ? 'border-[#262630] bg-[#101015] divide-[#262630]'
+                  : 'border-[#E2E4E9] bg-white divide-[#E2E4E9]'
+                  }`}
               >
                 {currentStage.tips.map((tip, idx) => (
                   <li
                     key={idx}
-                    className={`flex items-center gap-3 px-3.5 py-[11px] text-sm ${
-                      darkMode ? 'text-zinc-100' : 'text-[#2E2A25]'
-                    }`}
+                    className={`flex items-center gap-3 px-3.5 py-[11px] text-sm ${darkMode ? 'text-[#F7F7F7]' : 'text-[#0F0F0F]'
+                      }`}
                   >
                     <span
-                      className={`grid h-[22px] w-[22px] flex-none place-items-center rounded-full ${
-                        darkMode ? 'bg-[#2a1b13] text-[#ff6a1a]' : 'bg-[#FFEDE3] text-[#E8500A]'
-                      }`}
+                      className={`grid h-[22px] w-[22px] flex-none place-items-center rounded-full ${darkMode ? 'bg-[#3641C9]/30 text-[#8A9CF7]' : 'bg-[#3641C9]/15 text-[#3641C9]'
+                        }`}
                     >
                       <svg
                         width="12"
@@ -380,18 +368,17 @@ export default function FloatingGuideToggle() {
                 type="button"
                 onClick={handleBack}
                 disabled={currentStep === 0}
-                className={`rounded-[10px] border px-5 py-[11px] text-sm font-bold disabled:opacity-35 cursor-pointer disabled:cursor-not-allowed transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6a1a] ${
-                  darkMode
-                    ? 'border-[#26262e] text-zinc-100 hover:bg-[#202028]'
-                    : 'border-[#D9D4CC] text-[#2E2A25] hover:bg-[#EFECE6]'
-                }`}
+                className={`rounded-[10px] border px-5 py-[11px] text-sm font-bold disabled:opacity-35 cursor-pointer disabled:cursor-not-allowed transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3641C9] ${darkMode
+                  ? 'border-[#262630] text-[#F7F7F7] hover:bg-[#20202A]'
+                  : 'border-[#E2E4E9] text-[#0F0F0F] hover:bg-[#E2E4E9]/50'
+                  }`}
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={handleNext}
-                className="ml-auto rounded-[10px] bg-[#ff6a1a] px-5 py-[11px] text-sm font-bold text-white cursor-pointer hover:opacity-95 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff6a1a]"
+                className="ml-auto rounded-[10px] bg-[#3641C9] hover:bg-[#2C35A8] px-5 py-[11px] text-sm font-bold text-white cursor-pointer hover:opacity-95 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3641C9]"
               >
                 {currentStep === stages.length - 1 ? 'Start over' : 'Next'}
               </button>
