@@ -11,6 +11,7 @@ import TermsAndConditions from './pages/TermsAndConditions';
 import CookiePolicy from './pages/CookiePolicy';
 import ContactPage from './pages/ContactPage';
 import { RealtimeTracker } from './pages/tracker/RealtimeTracker';
+import WatchNotice from './components/tracker/WatchNotice';
 import AdminRecorder from './pages/tracker/AdminRecorder';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthModal from './components/auth/AuthModal';
@@ -18,6 +19,35 @@ import OnboardingModal from './components/auth/OnboardingModal';
 import ProfileModal from './components/auth/ProfileModal';
 import FloatingThemeToggle from './components/FloatingThemeToggle';
 import FloatingGuideToggle from './components/FloatingGuideToggle';
+
+function TrackerWithWatchNotice() {
+  const [showNotice, setShowNotice] = React.useState(() => {
+    if (typeof window === 'undefined') return true;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('notice') === 'false') return false;
+    return true;
+  });
+
+  if (showNotice) {
+    return (
+      <WatchNotice
+        onProceed={(choice) => {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('watch_notice_choice', choice);
+          }
+          setShowNotice(false);
+        }}
+      />
+    );
+  }
+
+  return (
+    <>
+      <FloatingGuideToggle />
+      <RealtimeTracker />
+    </>
+  );
+}
 
 export default function App() {
   return (
@@ -29,7 +59,6 @@ export default function App() {
           <OnboardingModal />
           <ProfileModal />
           <FloatingThemeToggle />
-          <FloatingGuideToggle />
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -42,7 +71,7 @@ export default function App() {
               path="/tracker"
               element={
                 <ProtectedRoute>
-                  <RealtimeTracker />
+                  <TrackerWithWatchNotice />
                 </ProtectedRoute>
               }
             />

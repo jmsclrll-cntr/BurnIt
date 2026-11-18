@@ -20,22 +20,75 @@ export function useCamera() {
     setErrorMessage(null)
 
     try {
-      const constraints = {
-        video: {
-          facingMode,
-          width: { ideal: 640 },
-          height: { ideal: 480 },
-          frameRate: { ideal: 15, max: 20 },
-        },
-        audio: false,
+      const hasMediaDevices = typeof navigator !== 'undefined' && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function'
+
+      let stream = null
+      let lastError = null
+
+      if (hasMediaDevices) {
+        const constraintList = [
+          {
+            video: {
+              facingMode: { ideal: facingMode },
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+            },
+            audio: false,
+          },
+          {
+            video: { facingMode },
+            audio: false,
+          },
+          {
+            video: true,
+            audio: false,
+          },
+        ]
+
+        for (const constraints of constraintList) {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia(constraints)
+            if (stream) break
+          } catch (err) {
+            lastError = err
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+              throw err
+            }
+          }
+        }
+      } else {
+        const legacyGUM = typeof navigator !== 'undefined' && (
+          navigator.getUserMedia ||
+          navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia ||
+          navigator.msGetUserMedia
+        )
+        if (legacyGUM) {
+          stream = await new Promise((resolve, reject) => {
+            legacyGUM.call(navigator, { video: true, audio: false }, resolve, reject)
+          })
+        }
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      if (!stream) {
+        throw lastError || new Error('No camera stream available')
+      }
+
       streamRef.current = stream
 
       if (videoElement) {
+        videoElement.muted = true
+        videoElement.defaultMuted = true
+        videoElement.playsInline = true
+        videoElement.setAttribute('playsinline', 'true')
+        videoElement.setAttribute('webkit-playsinline', 'true')
+        videoElement.setAttribute('muted', 'true')
         videoElement.srcObject = stream
-        await videoElement.play()
+        try {
+          await videoElement.play()
+        } catch (playErr) {
+          console.warn('useCamera play warning:', playErr)
+        }
       }
 
       setPermissionStatus('granted')

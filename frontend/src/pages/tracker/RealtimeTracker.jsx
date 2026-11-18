@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Flame, Watch, Camera, CameraOff, X, ChevronDown, ArrowLeft, Home, Dumbbell } from 'lucide-react';
+import { Heart, Flame, Watch, Camera, CameraOff, X, ChevronDown, ChevronUp, ArrowLeft, Home, Dumbbell, Maximize2, Minimize2, SlidersHorizontal, Check } from 'lucide-react';
 import PageWrapper from '../../components/PageWrapper';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../context/AuthContext';
@@ -83,6 +83,61 @@ export const RealtimeTracker = () => {
   const [workoutDuration, setWorkoutDuration] = useState(0);
   const [summaryData, setSummaryData] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(true);
+  const [isWebsiteFullscreen, setIsWebsiteFullscreen] = useState(false);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [isExerciseMenuOpen, setIsExerciseMenuOpen] = useState(false);
+  const [isStatsMinimized, setIsStatsMinimized] = useState(false);
+
+  const optionsRef = useRef(null);
+  const exerciseMenuRef = useRef(null);
+
+  const toggleWebsiteFullscreen = useCallback(() => {
+    setIsWebsiteFullscreen((prev) => !prev);
+  }, []);
+
+  // Keyboard Escape listener to exit fullscreen and close menus
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (isOptionsOpen) setIsOptionsOpen(false);
+        if (isExerciseMenuOpen) setIsExerciseMenuOpen(false);
+        if (isWebsiteFullscreen) setIsWebsiteFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isWebsiteFullscreen, isOptionsOpen, isExerciseMenuOpen]);
+
+  // Click-outside listener for mobile dropdown menus
+  useEffect(() => {
+    if (!isOptionsOpen && !isExerciseMenuOpen) return;
+    const handleOutsideClick = (e) => {
+      if (optionsRef.current && !optionsRef.current.contains(e.target)) {
+        setIsOptionsOpen(false);
+      }
+      if (exerciseMenuRef.current && !exerciseMenuRef.current.contains(e.target)) {
+        setIsExerciseMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [isOptionsOpen, isExerciseMenuOpen]);
+
+  // Prevent body scroll when in fullscreen
+  useEffect(() => {
+    if (isWebsiteFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isWebsiteFullscreen]);
 
   // Post-Workout Calorie Prediction State
   const [calorieInputs, setCalorieInputs] = useState({
@@ -184,7 +239,11 @@ export const RealtimeTracker = () => {
     if (!sessionIdRef.current) {
       sessionIdRef.current = 'sess_' + Math.random().toString(36).substring(2, 9);
     }
-    const wsUrl = `ws://localhost:8000/ws/workout/${sessionIdRef.current}`;
+    const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+    const wsUrl = isHttps
+      ? `${protocol}//${window.location.host}/ws/workout/${sessionIdRef.current}`
+      : `${protocol}//${window.location.hostname || 'localhost'}:8000/ws/workout/${sessionIdRef.current}`;
     try {
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
@@ -211,15 +270,21 @@ export const RealtimeTracker = () => {
     }
 
     if (!PoseConstructor) {
-      throw new Error('MediaPipe Pose library is loading. Please try again.');
+      console.warn('MediaPipe Pose library is loading...');
+      return null;
     }
 
     const pose = new PoseConstructor({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
     });
 
+    const isMobile = typeof window !== 'undefined' && (
+      /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      window.innerWidth < 768
+    );
+
     pose.setOptions({
-      modelComplexity: 1,
+      modelComplexity: isMobile ? 0 : 1,
       smoothLandmarks: true,
       enableSegmentation: false,
       smoothSegmentation: false,
@@ -235,8 +300,6 @@ export const RealtimeTracker = () => {
   const startCamera = useCallback(async (source = videoSource) => {
     setCameraError(null);
     try {
-      await initMediaPipe();
-
       if (source === 'demo') {
         if (streamRef.current) {
           streamRef.current.getTracks().forEach((track) => track.stop());
@@ -247,7 +310,11 @@ export const RealtimeTracker = () => {
           videoRef.current.src = '/demo-squats.mp4';
           videoRef.current.loop = true;
           videoRef.current.muted = true;
+          videoRef.current.defaultMuted = true;
           videoRef.current.playsInline = true;
+          videoRef.current.setAttribute('playsinline', 'true');
+          videoRef.current.setAttribute('webkit-playsinline', 'true');
+          videoRef.current.setAttribute('muted', 'true');
           await videoRef.current.play();
         }
         setVideoSource('demo');
@@ -258,24 +325,119 @@ export const RealtimeTracker = () => {
           videoRef.current.removeAttribute('src');
           videoRef.current.load();
         }
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: { ideal: 640 },
-            height: { ideal: 480 },
-            facingMode: 'user',
-            frameRate: { ideal: 30, max: 60 },
-          },
-          audio: false,
-        });
+
+        // Resilient mobile & desktop camera acquisition with fallback sequence
+        const hasMediaDevices = typeof navigator !== 'undefined' && navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function';
+
+        let stream = null;
+        let lastError = null;
+
+        if (hasMediaDevices) {
+          // Standard constraints: prefer front camera ('user') at standard 640x480 resolution (universally supported on all phones & webcams)
+          const constraintList = [
+            {
+              video: {
+                facingMode: { ideal: 'user' },
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+              },
+              audio: false,
+            },
+            {
+              video: {
+                facingMode: { ideal: 'user' },
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+              },
+              audio: false,
+            },
+            {
+              video: { facingMode: 'user' },
+              audio: false,
+            },
+            {
+              video: true,
+              audio: false,
+            },
+          ];
+
+          for (const constraints of constraintList) {
+            try {
+              stream = await navigator.mediaDevices.getUserMedia(constraints);
+              if (stream) break;
+            } catch (err) {
+              lastError = err;
+              if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                throw err;
+              }
+              console.warn('getUserMedia attempt failed, trying fallback:', constraints, err);
+            }
+          }
+        } else {
+          // Legacy getUserMedia fallback for older mobile engines
+          const legacyGUM = typeof navigator !== 'undefined' && (
+            navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia
+          );
+
+          if (legacyGUM) {
+            stream = await new Promise((resolve, reject) => {
+              legacyGUM.call(navigator, { video: true, audio: false }, resolve, reject);
+            });
+          } else {
+            if (typeof window !== 'undefined' && window.isSecureContext === false && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+              throw new Error('Camera access on mobile requires HTTPS or localhost. Please open this page via HTTPS or an SSL tunnel.');
+            }
+            throw new Error('Camera API (getUserMedia) is not supported in this browser.');
+          }
+        }
+
+        if (!stream) {
+          throw lastError || new Error('Unable to access camera with any supported constraints.');
+        }
 
         streamRef.current = stream;
+
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
+          const video = videoRef.current;
+          video.muted = true;
+          video.defaultMuted = true;
+          video.playsInline = true;
+          video.setAttribute('playsinline', 'true');
+          video.setAttribute('webkit-playsinline', 'true');
+          video.setAttribute('muted', 'true');
+          video.srcObject = stream;
+
+          // Wait for loadedmetadata to avoid iOS Safari AbortError
+          await new Promise((resolve) => {
+            if (video.readyState >= 1) {
+              resolve();
+            } else {
+              const onLoaded = () => {
+                video.removeEventListener('loadedmetadata', onLoaded);
+                resolve();
+              };
+              video.addEventListener('loadedmetadata', onLoaded);
+              setTimeout(resolve, 600);
+            }
+          });
+
+          try {
+            await video.play();
+          } catch (playErr) {
+            console.warn('Initial video.play() warning:', playErr);
+            video.play().catch(() => {});
+          }
         }
+
         setVideoSource('camera');
         setIsCameraActive(true);
       }
+
+      // Initialize MediaPipe concurrently without blocking live video preview
+      initMediaPipe().catch((e) => console.warn('MediaPipe initialization warning:', e));
 
       const nowFormatted = new Date().toLocaleTimeString([], {
         hour: '2-digit',
@@ -286,9 +448,9 @@ export const RealtimeTracker = () => {
     } catch (err) {
       console.error('Camera initialization error:', err);
       setCameraError(
-        err.name === 'NotAllowedError'
+        err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'
           ? 'Camera permission denied. Please allow camera access in your browser settings.'
-          : err.message || 'Unable to access webcam.'
+          : err.message || 'Unable to access camera.'
       );
     }
   }, [initMediaPipe, videoSource]);
@@ -636,6 +798,7 @@ export const RealtimeTracker = () => {
 
   const handleFinishWorkout = useCallback(() => {
     stopCamera();
+    setIsWebsiteFullscreen(false);
 
     // Check recorded smart watch samples
     const samples = heartRateSamplesRef.current || [];
@@ -759,16 +922,22 @@ export const RealtimeTracker = () => {
           {/* Main Grid: Camera Panel & Side Panel (Stacks on tablet/mobile) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Camera Panel: Large rounded white/dark panel */}
-            <div className="lg:col-span-8 xl:col-span-9 flex flex-col">
-              <div className="relative aspect-[16/10] w-full rounded-[28px] overflow-hidden bg-white dark:bg-[#16161D] border border-[#E2E4E9] dark:border-[#262630] shadow-sm">
+            <div className={isWebsiteFullscreen ? 'contents' : 'lg:col-span-8 xl:col-span-9 flex flex-col'}>
+              <div
+                className={
+                  isWebsiteFullscreen
+                    ? 'fixed inset-0 z-[9999] w-screen h-screen bg-[#0F0F0F] flex flex-col justify-between overflow-hidden select-none'
+                    : 'relative w-full aspect-[9/16] sm:aspect-[4/3] md:aspect-[16/10] max-h-[72vh] sm:max-h-none rounded-[28px] overflow-hidden bg-white dark:bg-[#16161D] border border-[#E2E4E9] dark:border-[#262630] shadow-sm transition-all duration-200'
+                }
+              >
                 {/* Webcam or Demo Athlete Video */}
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
                   muted
-                  className={`w-full h-full object-cover transition-transform duration-200 ${videoSource === 'demo' ? '' : '-scale-x-100'
-                    } ${!isCameraActive ? 'hidden' : 'block'}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-transform duration-200 ${videoSource === 'demo' ? '' : '-scale-x-100'
+                    }`}
                 />
 
                 {/* MediaPipe Visible Joints & Skeleton Canvas Overlay */}
@@ -778,70 +947,496 @@ export const RealtimeTracker = () => {
                     }`}
                 />
 
-                {/* Minimal Top Badges on Video (Only while camera active) */}
-                {isCameraActive && (
-                  <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-auto">
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[11px] border border-white/10 text-white font-mono">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                {/* ========================================================================= */}
+                {/* --- MOBILE VIEW OVERLAYS (md:hidden, mobile-first camera screen) --- */}
+                {/* ========================================================================= */}
+                <div className="md:hidden">
+                  {/* 1. Top Bar: Single Row (FPS on left, Timer in center, Camera options on right) */}
+                  <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4 pt-4 pb-2 pointer-events-auto select-none">
+                    {/* Left: small green status dot + FPS */}
+                    <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-mono">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       <span>{fps} FPS</span>
                     </div>
-                  </div>
-                )}
 
-                {/* Minimal Top-Right Controls on Video (Only while camera active) */}
-                {isCameraActive && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5 pointer-events-auto flex-wrap justify-end">
-                    <button
-                      onClick={() => setShowJoints(!showJoints)}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${showJoints
-                        ? 'bg-[#3641C9]/90 border-[#3641C9] text-white'
-                        : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
-                        }`}
-                    >
-                      Joints: {showJoints ? 'on' : 'off'}
-                    </button>
-                    <button
-                      onClick={() => setShowAngles(!showAngles)}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-md border transition-all ${showAngles
-                        ? 'bg-[#3641C9]/90 border-[#3641C9] text-white'
-                        : 'bg-black/60 border-white/10 text-neutral-300 hover:text-white'
-                        }`}
-                    >
-                      Angles
-                    </button>
-                  </div>
-                )}
-
-                {/* Centered Camera-Off Standby State (Pure white in light mode, dark in dark mode) */}
-                {!isCameraActive && !cameraError && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-[#16161D] p-6 text-center z-20">
-                    <div className="w-12 h-12 rounded-full bg-[#e2e4e9] dark:bg-[#181822] text-[#6b6b76] dark:text-[#8b8b94] flex items-center justify-center mb-3">
-                      <CameraOff className="w-5 h-5" />
+                    {/* Center: workout timer */}
+                    <div className="text-2xl sm:text-3xl font-bold tracking-wider text-white font-mono">
+                      {formatDuration(workoutDuration)}
                     </div>
-                    <h3 className="text-lg font-bold text-[#0F0F0F] dark:text-[#F7F7F7] mb-1 tracking-tight">
-                      Camera is off
-                    </h3>
-                    <p className="text-xs text-[#6b6b76] dark:text-[#8b8b94] max-w-xs mb-4 font-normal leading-relaxed">
-                      Turn the camera on to resume pose tracking and rep detection.
-                    </p>
+
+                    {/* Right: Round icon button for Camera Options */}
+                    <div className="relative" ref={optionsRef}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsOptionsOpen((prev) => {
+                            const next = !prev;
+                            if (next) setIsExerciseMenuOpen(false);
+                            return next;
+                          });
+                        }}
+                        aria-label="Camera options"
+                        aria-expanded={isOptionsOpen}
+                        aria-haspopup="menu"
+                        className="w-11 h-11 rounded-full bg-[#1E1E24]/90 hover:bg-[#2A2A32] active:scale-95 border border-white/10 text-white flex items-center justify-center transition-all cursor-pointer shadow-md shadow-black/40"
+                      >
+                        <SlidersHorizontal className="w-5 h-5 text-white" />
+                      </button>
+
+                      {/* 2. Options Dropdown Menu */}
+                      {isOptionsOpen && (
+                        <div
+                          role="menu"
+                          aria-label="Camera options menu"
+                          className="absolute top-full mt-2 right-0 w-60 rounded-2xl bg-[#16161D]/95 backdrop-blur-xl border border-white/15 shadow-2xl p-2 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-top-2 duration-150 select-none"
+                        >
+                          {/* Row: Joints toggle switch */}
+                          <div className="flex items-center justify-between min-h-[44px] px-3 py-2 rounded-xl text-sm font-semibold text-white hover:bg-white/5 transition-colors">
+                            <span>Joints</span>
+                            <button
+                              type="button"
+                              role="menuitemcheckbox"
+                              aria-checked={showJoints}
+                              onClick={() => setShowJoints(!showJoints)}
+                              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                showJoints ? 'bg-[#3641C9]' : 'bg-[#2A2A34]'
+                              }`}
+                            >
+                              <span
+                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                                  showJoints ? 'translate-x-5' : 'translate-x-0'
+                                }`}
+                              />
+                            </button>
+                          </div>
+
+                          {/* Row: Angles toggle switch */}
+                          <div className="flex items-center justify-between min-h-[44px] px-3 py-2 rounded-xl text-sm font-semibold text-white hover:bg-white/5 transition-colors">
+                            <span>Angles</span>
+                            <button
+                              type="button"
+                              role="menuitemcheckbox"
+                              aria-checked={showAngles}
+                              onClick={() => setShowAngles(!showAngles)}
+                              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                showAngles ? 'bg-[#3641C9]' : 'bg-[#2A2A34]'
+                              }`}
+                            >
+                              <span
+                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                                  showAngles ? 'translate-x-5' : 'translate-x-0'
+                                }`}
+                              />
+                            </button>
+                          </div>
+
+                          <div className="my-1 border-t border-white/10" />
+
+                          {/* Row: Minimize / Show stats */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setIsStatsMinimized((prev) => !prev);
+                              setIsOptionsOpen(false);
+                            }}
+                            className="w-full min-h-[44px] px-3 py-2 rounded-xl flex items-center justify-between text-sm font-semibold text-neutral-200 hover:text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
+                          >
+                            <span>{isStatsMinimized ? 'Show stats' : 'Minimize'}</span>
+                            <Minimize2 className="w-4 h-4 text-neutral-400" />
+                          </button>
+
+                          {/* Row: Full screen toggle */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              toggleWebsiteFullscreen();
+                              setIsOptionsOpen(false);
+                            }}
+                            className="w-full min-h-[44px] px-3 py-2 rounded-xl flex items-center justify-between text-sm font-semibold text-neutral-200 hover:text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
+                          >
+                            <span>{isWebsiteFullscreen ? 'Exit full screen' : 'Full screen'}</span>
+                            {isWebsiteFullscreen ? (
+                              <Minimize2 className="w-4 h-4 text-neutral-400" />
+                            ) : (
+                              <Maximize2 className="w-4 h-4 text-neutral-400" />
+                            )}
+                          </button>
+
+                          <div className="my-1 border-t border-white/10" />
+
+                          {/* Row: Reset count */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              handleResetReps();
+                              setIsOptionsOpen(false);
+                            }}
+                            className="w-full min-h-[44px] px-3 py-2 rounded-xl flex items-center justify-between text-sm font-semibold text-neutral-200 hover:text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
+                          >
+                            <span>Reset count</span>
+                          </button>
+
+                          {/* Row: Finish workout */}
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              handleFinishWorkout();
+                              setIsOptionsOpen(false);
+                            }}
+                            className="w-full min-h-[44px] px-3 py-2 rounded-xl flex items-center justify-between text-sm font-bold text-red-400 hover:bg-red-500/10 transition-colors text-left cursor-pointer"
+                          >
+                            <span>Finish workout</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 3. Stats Strip: Slim rounded bar with 3 equal cells */}
+                  {!isStatsMinimized && isCameraActive && (
+                    <div className="absolute top-16 left-0 right-0 z-30 px-4 pointer-events-none select-none animate-in fade-in duration-150">
+                      <div className="pointer-events-auto rounded-2xl bg-[#141419]/90 backdrop-blur-md border border-white/10 shadow-xl grid grid-cols-3 divide-x divide-white/10 text-center py-2.5 px-2">
+                        {/* Cell 1: Set */}
+                        <div className="flex flex-col items-center justify-center px-1">
+                          <span className="text-xs text-neutral-400 font-medium mb-0.5">Set</span>
+                          <span className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight font-sans">
+                            {currentSetNumber}
+                          </span>
+                        </div>
+
+                        {/* Cell 2: Hold time / Reps */}
+                        <div className="flex flex-col items-center justify-center px-1">
+                          <span className="text-xs text-neutral-400 font-medium mb-0.5">
+                            {currentExercise === 'plank' ? 'Hold time' : 'Reps'}
+                          </span>
+                          <span className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight font-sans">
+                            {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
+                          </span>
+                        </div>
+
+                        {/* Cell 3: Form */}
+                        <div className="flex flex-col items-center justify-center px-1">
+                          <span className="text-xs text-neutral-400 font-medium mb-0.5">Form</span>
+                          <span className="text-xl sm:text-2xl font-bold text-[#8A9CF7] tracking-tight leading-tight font-sans">
+                            {telemetry.formScore > 0 ? `${telemetry.formScore}%` : '100%'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 5. Bottom Exercise Selector: Full-width button with upward listbox */}
+                  <div
+                    ref={exerciseMenuRef}
+                    className="absolute bottom-3 left-4 right-4 sm:bottom-4 sm:left-6 sm:right-6 pb-[env(safe-area-inset-bottom)] z-30 select-none pointer-events-auto"
+                  >
+                    {/* Upward Listbox */}
+                    {isExerciseMenuOpen && (
+                      <div
+                        role="listbox"
+                        aria-label="Select Exercise"
+                        className="absolute bottom-full mb-2 left-0 right-0 max-h-[55vh] overflow-y-auto rounded-2xl bg-[#16161D]/95 backdrop-blur-xl border border-white/15 shadow-2xl p-2 z-50 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-150"
+                      >
+                        {EXERCISES.map((ex) => {
+                          const isSelected = activeExercise === ex.id;
+                          return (
+                            <button
+                              key={ex.id}
+                              type="button"
+                              role="option"
+                              aria-selected={isSelected}
+                              onClick={() => {
+                                setActiveExercise(ex.id);
+                                setIsExerciseMenuOpen(false);
+                              }}
+                              className={`w-full min-h-[46px] px-4 py-2.5 rounded-xl flex items-center justify-between text-sm font-semibold transition-all cursor-pointer active:scale-[0.99] ${
+                                isSelected
+                                  ? 'bg-[#3641C9] text-white shadow-md shadow-[#3641C9]/40'
+                                  : 'text-neutral-300 hover:text-white hover:bg-white/5'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <Dumbbell className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-neutral-400'}`} />
+                                <span>{ex.name}</span>
+                              </div>
+                              {isSelected && <Check className="w-4 h-4 text-white" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Main Pinned Button */}
                     <button
-                      onClick={() => startCamera()}
-                      className="bg-[#3641C9] hover:bg-[#2C35A8] text-white font-semibold text-xs rounded-[14px] px-5 py-2.5 active:scale-[0.98] transition-all cursor-pointer shadow-sm"
+                      type="button"
+                      onClick={() => {
+                        setIsExerciseMenuOpen((prev) => {
+                          const next = !prev;
+                          if (next) setIsOptionsOpen(false);
+                          return next;
+                        });
+                      }}
+                      aria-haspopup="listbox"
+                      aria-expanded={isExerciseMenuOpen}
+                      className="w-full h-14 sm:h-16 px-5 rounded-2xl bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] border border-[#525DE0]/40 text-white shadow-xl shadow-black/50 flex items-center justify-between transition-all cursor-pointer active:scale-[0.99]"
                     >
-                      Turn on camera
+                      <div className="flex items-center gap-3 font-bold text-base sm:text-lg">
+                        <Dumbbell className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                        <span>{getExerciseDisplayName()}</span>
+                      </div>
+                      <ChevronUp
+                        className={`w-5 h-5 text-white transition-transform duration-200 ${
+                          isExerciseMenuOpen ? 'rotate-180' : ''
+                        }`}
+                      />
                     </button>
                   </div>
-                )}
+                </div>
 
-                {/* Position Warning Overlay: When user is out of camera frame */}
+                {/* ========================================================================= */}
+                {/* --- DESKTOP VIEW OVERLAYS (hidden md:block / hidden md:flex) --- */}
+                {/* ========================================================================= */}
+                <div className="hidden md:block">
+                  {/* --- NORMAL VIEW TOP OVERLAYS --- */}
+                  {!isWebsiteFullscreen && (
+                    <>
+                      {/* Top-Left FPS Badge */}
+                      {isCameraActive && (
+                        <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-auto z-40">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#181822] text-[11px] border border-white/20 text-white font-mono shadow-md">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <span>{fps} FPS</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Top-Right Controls: Joints, Angles, and PROMINENT Full Screen Button (Solid, sharp, z-40 above blur overlays) */}
+                      <div className="absolute top-3 right-3 flex items-center gap-2 pointer-events-auto flex-wrap justify-end z-40">
+                        <button
+                          type="button"
+                          onClick={() => setShowJoints(!showJoints)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${
+                            showJoints
+                              ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
+                              : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
+                          }`}
+                        >
+                          Joints: {showJoints ? 'on' : 'off'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowAngles(!showAngles)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${
+                            showAngles
+                              ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
+                              : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
+                          }`}
+                        >
+                          Angles
+                        </button>
+
+                        {/* Visible, High-Contrast Full Screen Button */}
+                        <button
+                          type="button"
+                          onClick={toggleWebsiteFullscreen}
+                          title="Expand to Full Screen"
+                          aria-label="Expand to Full Screen"
+                          className="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] text-white border border-[#3641C9] shadow-md shadow-[#3641C9]/40 flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                        >
+                          <Maximize2 className="w-3.5 h-3.5 text-white" />
+                          <span>Full screen</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* --- FULLSCREEN VIEW TOP BAR --- */}
+                  {isWebsiteFullscreen && (
+                    <div className="absolute top-4 left-4 right-4 sm:top-5 sm:left-6 sm:right-6 z-40 flex items-center justify-between gap-3 pointer-events-auto">
+                      {/* Top-Left: FPS & Duration */}
+                      <div className="flex items-center gap-2">
+                        {isCameraActive && (
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#181822] text-xs border border-white/20 text-white font-mono shadow-md">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                            <span>{fps} FPS</span>
+                          </div>
+                        )}
+                        {workoutDuration > 0 && (
+                          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#181822] text-xs border border-white/20 text-white font-mono font-bold shadow-md">
+                            <span>{formatDuration(workoutDuration)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Top-Center: Integrated Workout Exercise Switcher */}
+                      <div className="flex items-center gap-1 p-1 rounded-full bg-[#181822] border border-white/20 shadow-md">
+                        {EXERCISES.map((ex) => {
+                          const isSelected = activeExercise === ex.id;
+                          return (
+                            <button
+                              key={ex.id}
+                              type="button"
+                              onClick={() => setActiveExercise(ex.id)}
+                              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                                isSelected
+                                  ? 'bg-[#3641C9] text-white shadow-md shadow-[#3641C9]/40'
+                                  : 'text-neutral-300 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              {ex.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Top-Right: Joints, Angles & Prominent MINIMIZE Button */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowJoints(!showJoints)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${
+                            showJoints
+                              ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
+                              : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
+                          }`}
+                        >
+                          Joints: {showJoints ? 'on' : 'off'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowAngles(!showAngles)}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${
+                            showAngles
+                              ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
+                              : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
+                          }`}
+                        >
+                          Angles
+                        </button>
+
+                        {/* Prominent Minimize Screen Button */}
+                        <button
+                          type="button"
+                          onClick={toggleWebsiteFullscreen}
+                          title="Minimize / Exit Full Screen (Esc)"
+                          aria-label="Minimize / Exit Full Screen"
+                          className="px-4 py-2 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-bold bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] text-white border border-[#3641C9] shadow-xl shadow-black/60 flex items-center gap-2 cursor-pointer transition-all active:scale-95"
+                        >
+                          <Minimize2 className="w-4 h-4 text-white" />
+                          <span>Minimize</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* --- FULLSCREEN FLOATING WORKOUT HUD --- */}
+                  {isWebsiteFullscreen && isCameraActive && (
+                    <div className="absolute top-20 sm:top-24 left-4 sm:left-6 z-30 pointer-events-none select-none">
+                      <div className="p-4 sm:p-5 rounded-2xl bg-black/60 backdrop-blur-md border border-white/15 text-white shadow-2xl flex flex-col items-center min-w-[120px] sm:min-w-[150px]">
+                        <span className="text-[11px] sm:text-xs uppercase tracking-wider text-neutral-300 font-bold mb-1">
+                          Set {currentSetNumber}
+                        </span>
+                        <span className="text-5xl sm:text-7xl font-black text-white font-sans tracking-tight leading-none my-1">
+                          {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
+                        </span>
+                        <span className="text-xs text-neutral-400 font-medium lowercase">
+                          {currentExercise === 'plank' ? 'hold time' : 'reps'}
+                        </span>
+                        {telemetry.formScore > 0 && (
+                          <div className="mt-2 text-xs font-bold text-[#8A9CF7]">
+                            {telemetry.formScore}% form
+                          </div>
+                        )}
+                        <div className="mt-2 text-[11px] text-neutral-300 font-semibold text-center">
+                          {getExerciseDisplayName()}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* --- FULLSCREEN BOTTOM ACTION BAR --- */}
+                  {isWebsiteFullscreen && (
+                    <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 z-40 flex items-center justify-between gap-3 pointer-events-auto flex-wrap">
+                      {/* Action Buttons: Reset & Finish Workout */}
+                      <div className="flex items-center gap-2.5 ml-auto">
+                        <button
+                          type="button"
+                          onClick={handleResetReps}
+                          className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-black/60 hover:bg-black/80 text-white border border-white/15 backdrop-blur-md cursor-pointer transition-all active:scale-95"
+                        >
+                          Reset
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleFinishWorkout}
+                          className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] text-white shadow-xl shadow-[#3641C9]/40 flex items-center gap-2 cursor-pointer transition-all active:scale-95"
+                        >
+                          Finish workout
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* --- CENTER OVERLAY: Step Into Camera Frame (PERFECTLY CENTERED) --- */}
                 {isCameraActive && !telemetry.bodyVisible && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px] p-6 text-center z-10 pointer-events-none transition-opacity duration-200">
-                    <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 tracking-tight font-sans">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px] p-6 text-center z-20 pointer-events-none transition-opacity duration-200">
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-2 tracking-tight font-sans">
                       Step Into Camera Frame
                     </h3>
-                    <p className="text-xs sm:text-sm font-semibold text-[#8A9CF7] max-w-md leading-relaxed font-sans">
+                    <p className="text-xs sm:text-sm md:text-base font-semibold text-[#8A9CF7] max-w-md leading-relaxed font-sans">
                       Position your shoulders, hips, and knees clearly in view
                     </p>
+                  </div>
+                )}
+
+                {/* --- CENTER OVERLAY: Camera Off Standby (PERFECTLY CENTERED) --- */}
+                {!isCameraActive && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-[#16161D] p-6 text-center z-30 pointer-events-auto">
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-sm ${
+                      cameraError
+                        ? 'bg-red-500/10 text-red-500'
+                        : 'bg-[#e2e4e9] dark:bg-[#181822] text-[#6b6b76] dark:text-[#8b8b94]'
+                    }`}>
+                      <CameraOff className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#0F0F0F] dark:text-[#F7F7F7] mb-1.5 tracking-tight">
+                      {cameraError ? 'Camera Access Needed' : 'Camera is off'}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#6b6b76] dark:text-[#8b8b94] max-w-xs mb-5 font-normal leading-relaxed">
+                      {cameraError
+                        ? cameraError
+                        : 'Turn the camera on to resume pose tracking and rep detection.'}
+                    </p>
+                    <div className="flex items-center gap-2.5 flex-wrap justify-center">
+                      <button
+                        onClick={() => startCamera('camera')}
+                        className="bg-[#3641C9] hover:bg-[#2C35A8] active:bg-[#14006A] text-white font-bold text-xs sm:text-sm rounded-[14px] px-6 py-3 active:scale-[0.98] transition-all cursor-pointer shadow-md shadow-[#3641C9]/30"
+                      >
+                        {cameraError ? 'Allow & retry camera' : 'Turn on camera'}
+                      </button>
+                      {cameraError && (
+                        <button
+                          onClick={() => startCamera('demo')}
+                          className="bg-[#e2e4e9] dark:bg-[#181822] hover:bg-[#d8dadf] dark:hover:bg-[#25252e] text-[#0F0F0F] dark:text-[#F7F7F7] font-semibold text-xs sm:text-sm rounded-[14px] px-5 py-3 transition-all cursor-pointer"
+                        >
+                          Try demo video
+                        </button>
+                      )}
+                      {isWebsiteFullscreen && (
+                        <button
+                          onClick={toggleWebsiteFullscreen}
+                          className="bg-[#e2e4e9] dark:bg-[#262630] hover:bg-[#d8dadf] dark:hover:bg-[#32323c] text-[#0F0F0F] dark:text-white font-semibold text-xs sm:text-sm rounded-[14px] px-5 py-3 active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1.5"
+                        >
+                          <Minimize2 className="w-4 h-4" />
+                          <span>Minimize</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
