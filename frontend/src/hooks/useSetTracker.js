@@ -94,7 +94,7 @@ export function useSetTracker({ exercise, repCount, isPaused = false }) {
    * Start next set manually or upon first rep
    */
   const startNextSet = useCallback(() => {
-    if (!exercise || exercise === 'auto') return;
+    if (!exercise) return;
 
     const existingSets = exerciseGroups[exercise] || [];
     const nextSetNumber = existingSets.length + 1;
@@ -144,7 +144,7 @@ export function useSetTracker({ exercise, repCount, isPaused = false }) {
    * First rep starts a new set; consecutive reps increment active set.
    */
   useEffect(() => {
-    if (isPaused || !exercise || exercise === 'auto') return;
+    if (isPaused || !exercise) return;
 
     const currentReps = repCount || 0;
     const prevReps = prevRepCountRef.current || 0;
@@ -211,6 +211,8 @@ export function useSetTracker({ exercise, repCount, isPaused = false }) {
     // Current set and reps remain visible after set ends during rest!
     currentSetNumber = lastFinishedSet.setNumber;
     displayReps = lastFinishedSet.reps;
+  } else {
+    displayReps = repCount || 0;
   }
 
   // Rest duration in seconds (derived mathematically from timestamps)

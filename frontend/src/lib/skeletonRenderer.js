@@ -161,10 +161,8 @@ export function drawWorkoutHUD(ctx, width, height, data = {}) {
 
   ctx.save();
 
-  // 1. Position warning overlay if whole body is out of frame
+  // 1. Skip HUD overlay if body is not visible
   if (!bodyVisible) {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-    ctx.fillRect(0, 0, width, height);
     ctx.restore();
     return;
   }

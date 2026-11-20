@@ -662,6 +662,7 @@ export const RealtimeTracker = () => {
   const {
     exerciseGroups,
     activeSet,
+    lastFinishedSet,
     isResting,
     currentSetNumber,
     displayReps,
@@ -675,6 +676,10 @@ export const RealtimeTracker = () => {
     repCount: currentRepCount,
     isPaused: !isCameraActive,
   });
+
+  const effectiveDisplayReps = activeSet
+    ? displayReps
+    : (isResting && lastFinishedSet ? lastFinishedSet.reps : Math.max(displayReps || 0, currentRepCount || 0));
 
   const saveWorkoutToHistory = useCallback(async (cals, stats, inputs) => {
     if (!token) return;
@@ -828,11 +833,11 @@ export const RealtimeTracker = () => {
       });
     }
     if (totalSetsAcrossAll === 0) totalSetsAcrossAll = 1;
-    if (totalRepsAcrossAll === 0) totalRepsAcrossAll = telemetry.reps || 0;
+    if (totalRepsAcrossAll === 0) totalRepsAcrossAll = effectiveDisplayReps || telemetry.reps || 0;
 
     const summary = {
       exercise: telemetry.detectedInfo?.name || activeExercise,
-      reps: telemetry.reps,
+      reps: effectiveDisplayReps || telemetry.reps,
       totalReps: totalRepsAcrossAll,
       totalSets: totalSetsAcrossAll,
       duration: workoutDuration,
@@ -847,7 +852,7 @@ export const RealtimeTracker = () => {
     setCalorieResult(null);
     currentSavedItemIdRef.current = null;
     setSummaryData(summary);
-  }, [stopCamera, calorieInputs, exerciseGroups, telemetry, activeExercise, workoutDuration, sessionStartTimeFormatted]);
+  }, [stopCamera, calorieInputs, exerciseGroups, telemetry, activeExercise, workoutDuration, sessionStartTimeFormatted, effectiveDisplayReps]);
 
   const formatDuration = (secs) => {
     const m = Math.floor(secs / 60);
@@ -1114,7 +1119,7 @@ export const RealtimeTracker = () => {
                             {currentExercise === 'plank' ? 'Hold time' : 'Reps'}
                           </span>
                           <span className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight font-sans">
-                            {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
+                            {currentExercise === 'plank' ? `${Math.floor(effectiveDisplayReps)}s` : effectiveDisplayReps}
                           </span>
                         </div>
 
@@ -1341,7 +1346,7 @@ export const RealtimeTracker = () => {
                           Set {currentSetNumber}
                         </span>
                         <span className="text-5xl sm:text-7xl font-black text-white font-sans tracking-tight leading-none my-1">
-                          {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
+                          {currentExercise === 'plank' ? `${Math.floor(effectiveDisplayReps)}s` : effectiveDisplayReps}
                         </span>
                         <span className="text-xs text-neutral-400 font-medium lowercase">
                           {currentExercise === 'plank' ? 'hold time' : 'reps'}
@@ -1382,15 +1387,17 @@ export const RealtimeTracker = () => {
                   )}
                 </div>
 
-                {/* --- CENTER OVERLAY: Step Into Camera Frame (PERFECTLY CENTERED) --- */}
+                {/* --- CENTER OVERLAY: Step Into Camera Frame (Clean, translucent non-blocking card) --- */}
                 {isCameraActive && !telemetry.bodyVisible && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px] p-6 text-center z-20 pointer-events-none transition-opacity duration-200">
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-2 tracking-tight font-sans">
-                      Step Into Camera Frame
-                    </h3>
-                    <p className="text-xs sm:text-sm md:text-base font-semibold text-[#8A9CF7] max-w-md leading-relaxed font-sans">
-                      Position your shoulders, hips, and knees clearly in view
-                    </p>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 pointer-events-none transition-opacity duration-200">
+                    <div className="bg-black/70 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 shadow-2xl max-w-sm pointer-events-none">
+                      <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-1 tracking-tight font-sans">
+                        Step Into Camera Frame
+                      </h3>
+                      <p className="text-xs sm:text-sm font-semibold text-[#8A9CF7] leading-relaxed font-sans">
+                        Position yourself clearly in view to start
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -1454,7 +1461,7 @@ export const RealtimeTracker = () => {
                   {/* Huge Centered Rep Number */}
                   <div className="text-center py-6 sm:py-7">
                     <div className="text-[100px] sm:text-[110px] font-[800] text-[#14006A] dark:text-[#8A9CF7] leading-none tracking-tight font-sans">
-                      {currentExercise === 'plank' ? `${Math.floor(displayReps)}s` : displayReps}
+                      {currentExercise === 'plank' ? `${Math.floor(effectiveDisplayReps)}s` : effectiveDisplayReps}
                     </div>
                     <div className="text-xs text-[#6b6b76] dark:text-[#8b8b94] font-normal lowercase text-center mt-3">
                       {currentExercise === 'plank' ? 'hold time' : 'completed reps'}
