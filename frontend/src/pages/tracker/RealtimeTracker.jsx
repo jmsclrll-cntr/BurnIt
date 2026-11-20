@@ -170,7 +170,7 @@ export const RealtimeTracker = () => {
     phase: 'ready',
     formScore: 100,
     formErrors: [],
-    feedback: 'Step into camera frame to begin workout detection',
+    feedback: 'Ready - start exercise',
     angles: {},
     holdSeconds: 0,
   });
@@ -428,7 +428,7 @@ export const RealtimeTracker = () => {
             await video.play();
           } catch (playErr) {
             console.warn('Initial video.play() warning:', playErr);
-            video.play().catch(() => {});
+            video.play().catch(() => { });
           }
         }
 
@@ -634,7 +634,7 @@ export const RealtimeTracker = () => {
       phase: 'ready',
       formScore: 100,
       formErrors: [],
-      feedback: 'Step into camera frame to begin workout detection',
+      feedback: 'Ready - start exercise',
     }));
 
     // 7. Clear canvas overlay
@@ -1003,14 +1003,12 @@ export const RealtimeTracker = () => {
                               role="menuitemcheckbox"
                               aria-checked={showJoints}
                               onClick={() => setShowJoints(!showJoints)}
-                              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                                showJoints ? 'bg-[#3641C9]' : 'bg-[#2A2A34]'
-                              }`}
+                              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showJoints ? 'bg-[#3641C9]' : 'bg-[#2A2A34]'
+                                }`}
                             >
                               <span
-                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                                  showJoints ? 'translate-x-5' : 'translate-x-0'
-                                }`}
+                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${showJoints ? 'translate-x-5' : 'translate-x-0'
+                                  }`}
                               />
                             </button>
                           </div>
@@ -1023,14 +1021,12 @@ export const RealtimeTracker = () => {
                               role="menuitemcheckbox"
                               aria-checked={showAngles}
                               onClick={() => setShowAngles(!showAngles)}
-                              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                                showAngles ? 'bg-[#3641C9]' : 'bg-[#2A2A34]'
-                              }`}
+                              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${showAngles ? 'bg-[#3641C9]' : 'bg-[#2A2A34]'
+                                }`}
                             >
                               <span
-                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                                  showAngles ? 'translate-x-5' : 'translate-x-0'
-                                }`}
+                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${showAngles ? 'translate-x-5' : 'translate-x-0'
+                                  }`}
                               />
                             </button>
                           </div>
@@ -1158,11 +1154,10 @@ export const RealtimeTracker = () => {
                                 setActiveExercise(ex.id);
                                 setIsExerciseMenuOpen(false);
                               }}
-                              className={`w-full min-h-[46px] px-4 py-2.5 rounded-xl flex items-center justify-between text-sm font-semibold transition-all cursor-pointer active:scale-[0.99] ${
-                                isSelected
-                                  ? 'bg-[#3641C9] text-white shadow-md shadow-[#3641C9]/40'
-                                  : 'text-neutral-300 hover:text-white hover:bg-white/5'
-                              }`}
+                              className={`w-full min-h-[46px] px-4 py-2.5 rounded-xl flex items-center justify-between text-sm font-semibold transition-all cursor-pointer active:scale-[0.99] ${isSelected
+                                ? 'bg-[#3641C9] text-white shadow-md shadow-[#3641C9]/40'
+                                : 'text-neutral-300 hover:text-white hover:bg-white/5'
+                                }`}
                             >
                               <div className="flex items-center gap-3">
                                 <Dumbbell className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-neutral-400'}`} />
@@ -1194,9 +1189,8 @@ export const RealtimeTracker = () => {
                         <span>{getExerciseDisplayName()}</span>
                       </div>
                       <ChevronUp
-                        className={`w-5 h-5 text-white transition-transform duration-200 ${
-                          isExerciseMenuOpen ? 'rotate-180' : ''
-                        }`}
+                        className={`w-5 h-5 text-white transition-transform duration-200 ${isExerciseMenuOpen ? 'rotate-180' : ''
+                          }`}
                       />
                     </button>
                   </div>
@@ -1224,22 +1218,20 @@ export const RealtimeTracker = () => {
                         <button
                           type="button"
                           onClick={() => setShowJoints(!showJoints)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${
-                            showJoints
-                              ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
-                              : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
-                          }`}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${showJoints
+                            ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
+                            : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
+                            }`}
                         >
                           Joints: {showJoints ? 'on' : 'off'}
                         </button>
                         <button
                           type="button"
                           onClick={() => setShowAngles(!showAngles)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${
-                            showAngles
-                              ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
-                              : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
-                          }`}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${showAngles
+                            ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
+                            : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
+                            }`}
                         >
                           Angles
                         </button>
@@ -1286,11 +1278,10 @@ export const RealtimeTracker = () => {
                               key={ex.id}
                               type="button"
                               onClick={() => setActiveExercise(ex.id)}
-                              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                                isSelected
-                                  ? 'bg-[#3641C9] text-white shadow-md shadow-[#3641C9]/40'
-                                  : 'text-neutral-300 hover:text-white hover:bg-white/10'
-                              }`}
+                              className={`px-3.5 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${isSelected
+                                ? 'bg-[#3641C9] text-white shadow-md shadow-[#3641C9]/40'
+                                : 'text-neutral-300 hover:text-white hover:bg-white/10'
+                                }`}
                             >
                               {ex.name}
                             </button>
@@ -1303,22 +1294,20 @@ export const RealtimeTracker = () => {
                         <button
                           type="button"
                           onClick={() => setShowJoints(!showJoints)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${
-                            showJoints
-                              ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
-                              : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
-                          }`}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${showJoints
+                            ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
+                            : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
+                            }`}
                         >
                           Joints: {showJoints ? 'on' : 'off'}
                         </button>
                         <button
                           type="button"
                           onClick={() => setShowAngles(!showAngles)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${
-                            showAngles
-                              ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
-                              : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
-                          }`}
+                          className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-md active:scale-95 ${showAngles
+                            ? 'bg-[#3641C9] border-[#3641C9] text-white shadow-blue-900/30'
+                            : 'bg-[#181822] border-white/20 text-white hover:bg-[#252530]'
+                            }`}
                         >
                           Angles
                         </button>
@@ -1387,28 +1376,14 @@ export const RealtimeTracker = () => {
                   )}
                 </div>
 
-                {/* --- CENTER OVERLAY: Step Into Camera Frame (Clean, translucent non-blocking card) --- */}
-                {isCameraActive && !telemetry.bodyVisible && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 pointer-events-none transition-opacity duration-200">
-                    <div className="bg-black/70 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 shadow-2xl max-w-sm pointer-events-none">
-                      <h3 className="text-xl sm:text-2xl font-extrabold text-white mb-1 tracking-tight font-sans">
-                        Step Into Camera Frame
-                      </h3>
-                      <p className="text-xs sm:text-sm font-semibold text-[#8A9CF7] leading-relaxed font-sans">
-                        Position yourself clearly in view to start
-                      </p>
-                    </div>
-                  </div>
-                )}
 
                 {/* --- CENTER OVERLAY: Camera Off Standby (PERFECTLY CENTERED) --- */}
                 {!isCameraActive && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-white dark:bg-[#16161D] p-6 text-center z-30 pointer-events-auto">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-sm ${
-                      cameraError
-                        ? 'bg-red-500/10 text-red-500'
-                        : 'bg-[#e2e4e9] dark:bg-[#181822] text-[#6b6b76] dark:text-[#8b8b94]'
-                    }`}>
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-sm ${cameraError
+                      ? 'bg-red-500/10 text-red-500'
+                      : 'bg-[#e2e4e9] dark:bg-[#181822] text-[#6b6b76] dark:text-[#8b8b94]'
+                      }`}>
                       <CameraOff className="w-6 h-6" />
                     </div>
                     <h3 className="text-xl font-bold text-[#0F0F0F] dark:text-[#F7F7F7] mb-1.5 tracking-tight">
